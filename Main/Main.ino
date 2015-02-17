@@ -11,3 +11,27 @@ void setup(){
 void loop(){
   
 }
+
+
+/*
+* Additional Functions
+*
+*
+**/
+void turnLeft(){
+  
+}
+
+void turnRight(){
+  
+}
+
+void goStraight(){
+  
+}
+
+void turnAround(){
+  
+}
+
+
