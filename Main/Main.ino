@@ -1,5 +1,5 @@
 /*
-*  MAIN DRIVER for MicroMouse
+*  MAIN for MicroMouse
 *  This is the only piece of code that will be uploaded to the Micromouse
 *  Team 3 - Winter 2015
 **/
@@ -12,9 +12,17 @@ void loop(){
   
 }
 
+/*
+* PID Functions
+*
+*
+**/
+void PIDMain(){
+  
+}
 
 /*
-* Additional Functions
+* Driving Functions
 *
 *
 **/
@@ -33,5 +41,56 @@ void goStraight(){
 void turnAround(){
   
 }
+
+int distanceTraveled(){
+  
+}
+
+void resetDistanceTraveled(){
+  
+}
+
+/*
+* GET IR Functions
+*
+*
+**/
+int getLeftIR(){
+  
+}
+
+int getLeftDiagIR(){
+  
+}
+
+int getLeftFrontIR(){
+  
+}
+
+int getRightIR(){
+  
+}
+
+int getRightDiagIR(){
+  
+}
+
+int getRightFrontIR(){
+  
+}
+
+/*
+* GET Encoder Functions
+*
+*
+**/
+int getLeftEncod(){
+  
+}
+
+int getRightEncod(){
+  
+}
+
 
 
