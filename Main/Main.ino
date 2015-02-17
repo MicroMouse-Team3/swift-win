@@ -9,7 +9,9 @@ void setup(){
 }
 
 void loop(){
-  
+  getIR();
+  drive();
+  PIDMain();
 }
 
 /*
@@ -26,6 +28,11 @@ void PIDMain(){
 *
 *
 **/
+
+void drive(){
+  
+}
+
 void turnLeft(){
   
 }
@@ -55,6 +62,11 @@ void resetDistanceTraveled(){
 *
 *
 **/
+
+void getIR(){
+  
+}
+
 int getLeftIR(){
   
 }
@@ -84,6 +96,11 @@ int getRightFrontIR(){
 *
 *
 **/
+
+boolean tick(){
+  
+}
+
 int getLeftEncod(){
   
 }
