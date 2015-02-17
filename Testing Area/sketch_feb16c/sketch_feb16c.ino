@@ -1,10 +1,22 @@
+int number = 0;
+
 void setup(){
- pinMode(3, OUTPUT); 
+  Serial.begin(9600);
+  pinMode(5, OUTPUT);
+  digitalWrite(5, LOW);
+  analogWrite(A16, 55);
 }
 
 void loop(){
-  digitalWrite(3, HIGH);
-  delay(50);
-  digitalWrite(3,LOW);
-  delay(50);
+  number = analogRead(A10);
+  Serial.println("Loop");
+  Serial.println(number);
+  delay(759);
+  
+  if (analogRead(A10) > 500){
+      digitalWrite(5, HIGH);
+  }
+  else{
+     digitalWrite(5, LOW); 
+  }
 }
