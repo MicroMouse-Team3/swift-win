@@ -27,7 +27,7 @@ void setup(){
 void loop(){
   readSensors();
   drive();
-  PIDMain();
+  PID();
 }
 
 /*
@@ -35,7 +35,7 @@ void loop(){
 *
 *
 **/
-void PIDMain(){
+void PID(){
   
 }
 
