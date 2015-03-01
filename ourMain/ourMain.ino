@@ -25,7 +25,7 @@ const bool debugOn = "TRUE";
 const bool solved = "FALSE";
 
 //Global Values
-const int distancePerMove = 100;
+const int distancePerMove = 30;
 
 unsigned long curt = 0; 
 
@@ -48,7 +48,7 @@ void loop(){
   if(debugOn){
     Serial.println("->Loop"); //Used for Debugging 
   }
-  goStraight();
+  PID();
 }
 
 /*
@@ -61,6 +61,22 @@ void PID(){
     Serial.println("->PID"); //Used for Debugging 
   }
   
+  int left = getLeftIR();
+  int right = getRightIR();
+  int diff = 0;
+  
+  diff = left - right;
+  
+  if (diff >= 20){
+    goStraight(distancePerMove, distancePerMove+1);
+  }
+  
+  else if (dff < -20){
+    goStraight(distancePerMove+1, distancePerMove);
+  }
+  else{
+    goStraight(distancePerMove, distancePerMove);
+  }
 }
 
 /*
@@ -80,12 +96,12 @@ void turnRight(){
   }  
 }
 
-void goStraight(){
+void goStraight(leftpwm, rightpwm){
    if(debugOn){
      Serial.println("->goStraight"); //Used for Debugging 
   }
-  analogWrite(RpwmA, distancePerMove);
-  analogWrite(LpwmA, distancePerMove);
+  analogWrite(RpwmA, rightpwm);
+  analogWrite(LpwmA, leftpwm);
 }
 
 void turnAround(){
