@@ -5,12 +5,12 @@
 **/
 
 //Pin Assignments
-const int irLtOut = 0, irLtIn =0;
-const int irLtDiagOut =0,irLtDiagIn =0;
-const int irLtFrntOut = 0,irLtFrntIn = 0;  // need pins
-const int irRtOut =0, irRtIn = 0;
-const int irRtDiagOut = 0, irRtDiagIn = 0;
-const int irRtFrntOut = 0, irRtFrntIn = 0;
+const int irLtOut = 11, irLtIn = A12;
+const int irLtDiagOut = 30,irLtDiagIn = A18;
+const int irLtFrntOut = 13,irLtFrntIn = A11;  // need pins
+const int irRtOut = 12, irRtIn = A13;
+const int irRtDiagOut = 27, irRtDiagIn = A15;
+const int irRtFrntOut = 14, irRtFrntIn = A10;
 
 //Global Boolean Values
 const bool debugOn = "TRUE";
