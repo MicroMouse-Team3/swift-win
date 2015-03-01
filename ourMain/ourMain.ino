@@ -4,27 +4,33 @@
 *  Team 3 - Winter 2015
 **/
 
+//Pin Assignments
 const int irLtOut = 0, irLtIn =0;
 const int irLtDiagOut =0,irLtDiagIn =0;
 const int irLtFrntOut = 0,irLtFrntIn = 0;  // need pins
 const int irRtOut =0, irRtIn = 0;
 const int irRtDiagOut = 0, irRtDiagIn = 0;
 const int irRtFrntOut = 0, irRtFrntIn = 0;
+
+//Global Boolean Values
 const bool debugOn = "TRUE";
+const bool solved = "FALSE";
 
 unsigned long curt = 0; 
 
 void setup(){
+  Serial.begin(9600); //Used for Debugging
   if(debugOn){
-    Serial.println("->setup"); //Used for Debugging 
+    Serial.println("->setup");
   }
+  
   pinMode(irLtOut,OUTPUT);       pinMode(irLtIn, INPUT);
   pinMode(irLtDiagOut,OUTPUT);   pinMode(irLtDiagIn, INPUT);
   pinMode(irLtFrntOut,OUTPUT);   pinMode(irLtFrntIn, INPUT);
   pinMode(irRtOut,OUTPUT);       pinMode(irRtIn, INPUT);
   pinMode(irRtDiagOut,OUTPUT);   pinMode(irRtDiagIn, INPUT);
   pinMode(irRtFrntOut,OUTPUT);   pinMode(irRtFrntIn, INPUT);
-  Serial.begin(9600); //Used for Debugging
+  
 }
 
 void loop(){
