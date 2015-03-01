@@ -15,7 +15,9 @@ const bool debugOn = "TRUE";
 unsigned long curt = 0; 
 
 void setup(){
-  
+  if(debugOn){
+    Serial.println("->setup"); //Used for Debugging 
+  }
   pinMode(irLtOut,OUTPUT);       pinMode(irLtIn, INPUT);
   pinMode(irLtDiagOut,OUTPUT);   pinMode(irLtDiagIn, INPUT);
   pinMode(irLtFrntOut,OUTPUT);   pinMode(irLtFrntIn, INPUT);
