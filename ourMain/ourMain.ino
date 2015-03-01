@@ -24,6 +24,9 @@ const int RpwmA = A8, RpwmB = A9;
 const bool debugOn = "TRUE";
 const bool solved = "FALSE";
 
+//Global Values
+const int distancePerMove = 100;
+
 unsigned long curt = 0; 
 
 void setup(){
@@ -45,9 +48,7 @@ void loop(){
   if(debugOn){
     Serial.println("->Loop"); //Used for Debugging 
   }
-  readSensors();
-  drive();
-  PID();
+  goStraight();
 }
 
 /*
@@ -67,14 +68,6 @@ void PID(){
 *
 *
 **/
-
-void drive(){
-  if(debugOn){
-    Serial.println("->Drive"); //Used for Debugging 
-  }
-  
-}
-
 void turnLeft(){
   if(debugOn){
     Serial.println("->turnLeft"); //Used for Debugging 
@@ -91,7 +84,8 @@ void goStraight(){
    if(debugOn){
      Serial.println("->goStraight"); //Used for Debugging 
   }
-  
+  analogWrite(RpwmA, distancePerMove);
+  analogWrite(LpwmA, distancePerMove);
 }
 
 void turnAround(){
