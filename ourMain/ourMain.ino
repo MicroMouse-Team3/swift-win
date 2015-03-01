@@ -10,6 +10,7 @@ const int irLtFrntOut = 0,irLtFrntIn = 0;  // need pins
 const int irRtOut =0, irRtIn = 0;
 const int irRtDiagOut = 0, irRtDiagIn = 0;
 const int irRtFrntOut = 0, irRtFrntIn = 0;
+const bool debugOn = "TRUE";
 
 unsigned long curt = 0; 
 
@@ -21,10 +22,13 @@ void setup(){
   pinMode(irRtOut,OUTPUT);       pinMode(irRtIn, INPUT);
   pinMode(irRtDiagOut,OUTPUT);   pinMode(irRtDiagIn, INPUT);
   pinMode(irRtFrntOut,OUTPUT);   pinMode(irRtFrntIn, INPUT);
-  Serial.begin(9600);
+  Serial.begin(9600); //Used for Debugging
 }
 
 void loop(){
+  if(debugOn){
+    Serial.println("->Loop"); //Used for Debugging 
+  }
   readSensors();
   drive();
   PID();
@@ -36,6 +40,9 @@ void loop(){
 *
 **/
 void PID(){
+  if(debugOn){
+    Serial.println("->PID"); //Used for Debugging 
+  }
   
 }
 
@@ -46,31 +53,48 @@ void PID(){
 **/
 
 void drive(){
+  if(debugOn){
+    Serial.println("->Drive"); //Used for Debugging 
+  }
   
 }
 
 void turnLeft(){
-  
+  if(debugOn){
+    Serial.println("->turnLeft"); //Used for Debugging 
+  }
 }
 
 void turnRight(){
-  
+  if(debugOn){
+   Serial.println("->turnRight"); //Used for Debugging 
+  }  
 }
 
 void goStraight(){
+   if(debugOn){
+     Serial.println("->goStraight"); //Used for Debugging 
+  }
   
 }
 
 void turnAround(){
+  if(debugOn){
+    Serial.println("->turnAround"); //Used for Debugging 
+  }
   
 }
 
 int distanceTraveled(){
-  
+  if(debugOn){
+    Serial.println("->distanceTraveled"); //Used for Debugging 
+  }
 }
 
 void resetDistanceTraveled(){
-  
+  if(debugOn){
+    Serial.println("->resetDistanceTraveled"); //Used for Debugging 
+  }
 }
 
 /*
@@ -80,6 +104,9 @@ void resetDistanceTraveled(){
 **/
 
 int getIR(int pinOut, int pinIn){
+  if(debugOn){
+    Serial.println("->getIR"); //Used for Debugging 
+  }
   int senseVal = 0;
   curt = micros();
   digitalWrite(pinOut,HIGH);
@@ -91,6 +118,9 @@ int getIR(int pinOut, int pinIn){
 }
 
 void readSensors(){
+  if(debugOn){
+    Serial.println("->readSensors"); //Used for Debugging 
+  }
   getLeftIR();
   delay(10); // must find out how long for other pulses to dissipate, improve accuracy
   getLeftDiagIR();
@@ -101,28 +131,46 @@ void readSensors(){
 }
 
 int getLeftIR(){
+  if(debugOn){
+    Serial.println("->getLeftIR"); //Used for Debugging 
+  }
   return getIR(irLtOut,irLtIn);
   
 }
 
 int getLeftDiagIR(){
+  if(debugOn){
+    Serial.println("->getLeftDiagIR"); //Used for Debugging 
+  }
   return getIR(irLtDiagOut,irLtDiagIn);
   
 }
 
 int getLeftFrontIR(){
+  if(debugOn){
+    Serial.println("->getLeftFrontIR"); //Used for Debugging 
+  }
   return getIR(irLtFrntOut,irLtFrntIn);
 }
 
 int getRightIR(){
+  if(debugOn){
+    Serial.println("->getRightIR"); //Used for Debugging 
+  }
    return getIR(irLtOut,irLtIn);
 }
 
 int getRightDiagIR(){
+  if(debugOn){
+    Serial.println("->getRightDiagIR"); //Used for Debugging 
+  }
    return getIR(irRtDiagOut,irRtDiagIn);
 }
 
 int getRightFrontIR(){
+  if(debugOn){
+    Serial.println("->getRightFrontIR"); //Used for Debugging 
+  }
    return getIR(irRtFrntOut,irRtFrntIn);
 }
 
@@ -133,21 +181,23 @@ int getRightFrontIR(){
 **/
 
 boolean tick(){
+  if(debugOn){
+    Serial.println("->tick"); //Used for Debugging 
+  }
   
 }
 
 int getLeftEncod(){
+  if(debugOn){
+    Serial.println("->getLeftEncod"); //Used for Debugging 
+  }
   
 }
 
 int getRightEncod(){
-  
+  if(debugOn){
+    Serial.println("->getRightEncod"); //Used for Debugging 
+  }
 }
-
- /*
-   Need help fixing this
-C:\Program Files (x86)\Arduino\hardware\arduino\cores\arduino/main.cpp:40: undefined reference to `setup'
-C:\Program Files (x86)\Arduino\hardware\arduino\cores\arduino/main.cpp:43: undefined reference to `loop'
- */
 
 
