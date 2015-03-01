@@ -4,13 +4,21 @@
 *  Team 3 - Winter 2015
 **/
 
-//Pin Assignments
-const int irLtOut = 11, irLtIn = A12;
-const int irLtDiagOut = 30,irLtDiagIn = A18;
-const int irLtFrntOut = 13,irLtFrntIn = A11;  // need pins
-const int irRtOut = 12, irRtIn = A13;
-const int irRtDiagOut = 27, irRtDiagIn = A15;
-const int irRtFrntOut = 14, irRtFrntIn = A10;
+//Pin Assignments for IR Sensors
+const int irLtOut = 3, irLtIn = A12, irLtLED = 11;
+const int irLtDiagOut = 28,irLtDiagIn = A18, irLtDiagLED = 30;
+const int irLtFrntOut = 4,irLtFrntIn = A11, irLtFrntLED = 13;
+const int irRtOut = 2, irRtIn = A13, irRtLED = 12;
+const int irRtDiagOut = 25, irRtDiagIn = A15, irRtDiagLED = 27 ;
+const int irRtFrntOut = 5, irRtFrntIn = A10, irRtFrntLED = 14;
+
+//Pin Assignments for Encoders
+const int RchA = 7, RchB = 8;
+const int LchA = 9, LchB = 10;
+
+//Pin Assignments for Motors
+const int LpwmA = A6, LpwmB = A7;
+const int RpwmA = A8, RpwmB = A9;
 
 //Global Boolean Values
 const bool debugOn = "TRUE";
@@ -24,12 +32,12 @@ void setup(){
     Serial.println("->setup");
   }
   
-  pinMode(irLtOut,OUTPUT);       pinMode(irLtIn, INPUT);
-  pinMode(irLtDiagOut,OUTPUT);   pinMode(irLtDiagIn, INPUT);
-  pinMode(irLtFrntOut,OUTPUT);   pinMode(irLtFrntIn, INPUT);
-  pinMode(irRtOut,OUTPUT);       pinMode(irRtIn, INPUT);
-  pinMode(irRtDiagOut,OUTPUT);   pinMode(irRtDiagIn, INPUT);
-  pinMode(irRtFrntOut,OUTPUT);   pinMode(irRtFrntIn, INPUT);
+  pinMode(irLtOut,OUTPUT);       pinMode(irLtIn, INPUT), pinMode(irLtLED, OUTPUT);
+  pinMode(irLtDiagOut,OUTPUT);   pinMode(irLtDiagIn, INPUT), pinMode(irLtDiagLED, OUTPUT);
+  pinMode(irLtFrntOut,OUTPUT);   pinMode(irLtFrntIn, INPUT), pinMode(irLtFrntLED, OUTPUT);
+  pinMode(irRtOut,OUTPUT);       pinMode(irRtIn, INPUT), pinMode(irRtLED, OUTPUT);
+  pinMode(irRtDiagOut,OUTPUT);   pinMode(irRtDiagIn, INPUT), pinMode(irRtDiagLED, OUTPUT);
+  pinMode(irRtFrntOut,OUTPUT);   pinMode(irRtFrntIn, INPUT), pinMode(irRtFrntLED, OUTPUT);
   
 }
 
