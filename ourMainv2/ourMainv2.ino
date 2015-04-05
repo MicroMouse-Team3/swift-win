@@ -1,15 +1,10 @@
-#include <Motor.h>
-#include <Encoder.h>
-#include <LED.h>
-#include <math.h>
-
 /*
 *  MAIN for MicroMouse
 *  This is the only piece of code that will be uploaded to the Micromouse
 *  Team 3 - Winter 2015
 **/
 
-
+#include <math.h>
 //Pin Assignments for IR Sensors
 const int irLtOut = 3, irLtIn = A12, irLtLED = 11;
 const int irLtDiagOut = 28,irLtDiagIn = A18, irLtDiagLED = 30;
@@ -32,15 +27,8 @@ const bool solved = "FALSE";
 
 //Global Values
 const int distancePerMove = 30;
-byte speed = 50;
+
 unsigned long curt = 0; 
-int leftEnc = 0;
-int rightEnc = 0;
-
-//Colins Variables
-Motor * mtrL;
-Motor * mtrR;
-
 
 void setup(){
   Serial.begin(9600); //Used for Debugging
@@ -55,41 +43,8 @@ void setup(){
   pinMode(irRtDiagOut,OUTPUT);   pinMode(irRtDiagIn, INPUT), pinMode(irRtDiagLED, OUTPUT);
   pinMode(irRtFrntOut,OUTPUT);   pinMode(irRtFrntIn, INPUT), pinMode(irRtFrntLED, OUTPUT);
   
-  //Cdawg
-  
-  //Left Enable            // Connection correlation to MM schematic
-  const byte L_Enable = 3;  // (H-Bridge pin 1)
-
-  //Motors
-  const byte L_Mtr_A = 6;  // (H-Bridge pin 2)  //1A
-  const byte L_Mtr_B = 9;  // (H-Bridge pin 7)  //2A
-
-  //Encoder vars
-  const byte L_CH_A = 4;          // (H-Bridge SV3 pin 6)
-  const byte L_CH_B = 13;         // (H-Bridge SV3 pin 5)
-
-  
-  const int R_Enable = 3;  // (H-Bridge pin ?)
-
-  //Motors
-  const int R_Mtr_A = 11;  // (H-Bridge pin ?)  //3A
-  const int R_Mtr_B = 5;  // (H-Bridge pin ?)  //4A
-
-
-  //Encoder vars
-  int R_CH_A = 4;          // (H-Bridge SV3 pin ?)
-  int R_CH_B = 13;         // (H-Bridge SV3 pin ?)
-  
-  attachInterrupt(RchA, 
   
   
-   mtrL = new Motor( L_Enable , L_Mtr_A , L_Mtr_B , L_CH_A , L_CH_B );  
-   mtrR = new Motor( R_Enable , R_Mtr_A , L_Mtr_B , R_CH_A , R_CH_B );
-   
-   delay(5000);
-   
-   setBothMtrsForward();
-   setBothMtrsSpd(speed);
 }
 
 void loop(){
@@ -109,7 +64,22 @@ void PID(){
     Serial.println("->PID"); //Used for Debugging 
   }
   
+  int left = getLeftIR();
+  int right = getRightIR();
+  int diff = 0;
   
+  diff = left - right;
+  
+  if (diff >= 20){
+    goStraight(distancePerMove, distancePerMove+1);
+  }
+  
+  else if (diff < -20){
+    goStraight(distancePerMove+1, distancePerMove);
+  }
+  else{
+    goStraight(distancePerMove, distancePerMove);
+  }
 }
 
 /*
@@ -129,13 +99,12 @@ void turnRight(){
   }  
 }
 
-void goStraight(){
+void goStraight(int leftpwm, int rightpwm){
    if(debugOn){
      Serial.println("->goStraight"); //Used for Debugging 
   }
-  setBothMtrsForward();
-  
-  
+  analogWrite(RpwmA, rightpwm);
+  analogWrite(LpwmA, leftpwm);
 }
 
 void turnAround(){
@@ -307,45 +276,4 @@ int getRightEncod(){
   }
 }
 
-void addLeftEncoder(){
-  leftEnc++;
-}
-
-void addRightEncoder(){
-  rightEnc++;
-}
-
-///////////C DAWG CODE BELOW/////////////////////
-void setLMtrSpd( byte speed ) {
-  mtrL->setSpeed(speed);     
-}
-
-void setRMtrSpd( byte speed ) {
-  mtrR->setSpeed(speed);
-}
-
-void setBothMtrsSpd( byte speed ) {
-  mtrL->setSpeed(speed);
-  mtrR->setSpeed(speed);
-}
-
-void setBothMtrsForward() {
-  mtrL->setForward();
-  mtrR->setForward();
-}
-
-void setBothMtrsBackward() {
-  mtrL->setBackward();
-  mtrR->setBackward();
-}
-
-void setMtrsLeftTurn() {
-  mtrL->setBackward();
-  mtrR->setForward();
-}
-
-void setMtrsRightTurn() {
-  mtrL->setForward();
-  mtrR->setBackward();
-} 
 
