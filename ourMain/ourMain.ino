@@ -172,7 +172,7 @@ double getIR(int pinOut, int pinIn){
   curt = micros();
   digitalWrite(pinOut,HIGH);
   delayMicroseconds(80);
-  senseVal = sensorData();
+  senseVal = sensorData(pinIn);
   digitalWrite(pinOut,LOW);
   return getCentiDistance(senseVal);
 }
@@ -194,7 +194,7 @@ void readSensors(){
 * - increasing numReading increases accuracy, but increasing by 5 increases calculation time by ~500us
 */
 
-double sensorData(){
+double sensorData(int readPin){
   int numReadings = 15;
   int readings[numReadings];
   int index = 0;
@@ -205,7 +205,7 @@ double sensorData(){
     readings[thisReading] = 0;   
   while(run){
     total = total -readings[index];
-    readings[index] = analogRead(A0);
+    readings[index] = analogRead(readPin);
     total = total + readings[index];
     index++;
     if(index >= numReadings){
