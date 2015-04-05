@@ -27,8 +27,12 @@ const bool solved = "FALSE";
 
 //Global Values
 const int distancePerMove = 30;
+int encoderTicks = 0;
 
 unsigned long curt = 0; 
+
+//Encoder Information
+volatile int state = LOW;
 
 void setup(){
   Serial.begin(9600); //Used for Debugging
@@ -43,7 +47,7 @@ void setup(){
   pinMode(irRtDiagOut,OUTPUT);   pinMode(irRtDiagIn, INPUT), pinMode(irRtDiagLED, OUTPUT);
   pinMode(irRtFrntOut,OUTPUT);   pinMode(irRtFrntIn, INPUT), pinMode(irRtFrntLED, OUTPUT);
   
-  
+  attachInterrupt(RchA, encoderTick, CHANGE);
   
 }
 
@@ -52,6 +56,15 @@ void loop(){
     Serial.println("->Loop"); //Used for Debugging 
   }
   PID();
+}
+
+/*
+* Encoder Tick Functions
+*
+*
+**/
+void encoderTick(){
+    encoderTicks++; 
 }
 
 /*
