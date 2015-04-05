@@ -1,9 +1,9 @@
 
-
 #include <Motor.h>
 #include <Encoder.h>
 #include <Sensor.h>
 #include <LED.h>
+
 
 /*
 *  MAIN for MicroMouse
@@ -148,6 +148,7 @@ void PID(){
   diff = left - right;
   
   if (diff >= 20){
+    setBothMtrsForward(byte speed = 255);
     goStraight(distancePerMove, distancePerMove+1);
   }
   
@@ -217,13 +218,17 @@ void readDasSensors(){
     Serial.println("->readSensors"); //Used for Debugging 
   }
   
-  
+  for ( byte i = 0 ; i < NUMSENSORS ; i++ ) {
+    sensor[i]->getIR();
+  }
+  /*
   getLeftIR();
   getLeftDiagIR();
   getLeftFrontIR();
   getRightIR();
   getRightDiagIR();
   getRightFrontIR();
+  */
 }
 
 /*
@@ -231,6 +236,9 @@ void readDasSensors(){
 * - increasing numReading increases accuracy, but increasing by 5 increases calculation time by ~500us
 */
 
+
+//THE POWER OF CLASSES MUTHA FUCKAS
+/*
 double sensorData(int readPin){
   int numReadings = 15;
   int readings[numReadings];
@@ -333,7 +341,7 @@ int getRightFrontIR(){
   }
    return getIR( rightFrontEmitIR , rightFrontRecIR );
 }
-
+*/
 /*
 * GET Encoder Functions
 *
