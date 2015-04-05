@@ -112,10 +112,12 @@ void turnRight(){
   }  
 }
 
-void goStraight(int leftpwm, int rightpwm){
+void goStraight(int leftPWM, int rightPWM){
    if(debugOn){
      Serial.println("->goStraight"); //Used for Debugging 
   }
+  mtrL->setSpeed(leftPWM);
+  mtrR->setSpeed(rightPWM);
   analogWrite(RpwmA, rightpwm);
   analogWrite(LpwmA, leftpwm);
 }
@@ -288,5 +290,3 @@ int getRightEncod(){
     Serial.println("->getRightEncod"); //Used for Debugging 
   }
 }
-
-
