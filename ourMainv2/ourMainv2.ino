@@ -5,12 +5,16 @@
 #include <LED.h>
 #include <Functions.h>
 
-
 /*
 *  MAIN for MicroMouse
 *  This is the only piece of code that will be uploaded to the Micromouse
 *  Team 3 - Winter 2015. Hi
 **/
+
+byte LpwmA = 50;
+byte LpwmB = 0;
+byte RpwmA = 50;
+byte RpwmB = 0;
 
 #include <math.h>
 
@@ -40,17 +44,49 @@ void setup(){
   attachInterrupt( R_CH_A , incEncoderR , CHANGE );
   
   delay(7000);
-  setBothMtrsForward();
+  //setBothMtrsForward();
+  mtrL->setForward( LpwmA , LpwmB );
+  mtrR->setForward( RpwmA , RpwmB );
 }
 
 void loop(){
   if(debugOn){
     Serial.println("->Loop"); //Used for Debugging 
   }
+  
+  hopeEyeNeverHitWall();
+  
   PID();
 }
 
+void   hopeEyeNeverHitWall() {
+  if ( sensor[2]->getIR() < minThresh || sensor[3]->getIR() < minThresh ) {    
+    if ( sensor[0]->getIR() < minThresh && sensor[5]->getIR() < minThresh )
+      turnAround();
+    else if ( sensor[0]->getIR() < minThresh && sensor[5]->getIR() > minThresh )
+      turnRight();
+    else if ( sensor[0]->getIR() > minThresh && sensor[5]->getIR() < minThresh )
+      turnLeft();
+    else
+      turnRight();
+  }
+  else
+    PID();      //Keep going straight
+}
 
+void turnAround() {
+  //turnRight
+  mtrL->setForward( LpwmA , LpwmB );
+  mtrR->setBackward( RpwmA , RpwmB );
+}
+void turnRight() {
+  mtrL->setForward( LpwmA , LpwmB );
+  mtrR->setBackward( RpwmA , RpwmB );
+}
+void turnLeft() {
+  mtrR->setForward( RpwmA , RpwmB );
+  
+}
 
 /*
 * PID Functions
@@ -73,8 +109,7 @@ void PID(){
     setBothMtrsForward();
     setBothMtrsSpd(speed = 255);
     goStraight(distancePerMove, distancePerMove+1);
-  }
-  
+  }  
   else if (diff < -20){
     goStraight(distancePerMove+1, distancePerMove);
   }
@@ -88,6 +123,7 @@ void PID(){
 *
 *
 **/
+<<<<<<< HEAD
 /*
 void turnLeft(){
   if(debugOn){
@@ -100,17 +136,25 @@ void turnRight(){
    Serial.println("->turnRight"); //Used for Debugging 
   }  
 }
+=======
+>>>>>>> 12596578beab2ec0d593c2d9e10a63f8b265ccb0
 
 void goStraight(int leftPWM, int rightPWM){
   setBothMtrsForward();
    if(debugOn){
      Serial.println("->goStraight"); //Used for Debugging 
   }
+  mtrL->setForward( leftPWM , LOW );
+  mtrR->setForward( rightPWM , LOW );
+  
+  /*
   mtrL->setSpeed(leftPWM);
   mtrR->setSpeed(rightPWM);
+  */
 //  analogWrite(RpwmA, rightpwm);
 //  analogWrite(LpwmA, leftpwm);
 }
+<<<<<<< HEAD
 */
 /*
 void turnAround(){
@@ -119,6 +163,9 @@ void turnAround(){
   }
   
 }
+=======
+
+>>>>>>> 12596578beab2ec0d593c2d9e10a63f8b265ccb0
 
 int distanceTraveled(){
   if(debugOn){
@@ -147,8 +194,3 @@ void readDasSensors(){
   for ( byte i = 0 ; i < NUMSENSORS ; i++ )
     sensor[i]->getIR();
 }
-
-/*
-* Smooths sensor data
-* - increasing numReading increases accuracy, but increasing by 5 increases calculation time by ~500us
-*/
