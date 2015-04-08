@@ -101,36 +101,36 @@ void sensorsToLEDs() {
 /********** MOTOR FUNCTIONS **********/
 
 void setLMtrSpd( byte speed ) {
-  mtrL->setSpeed(speed);     
+  //mtrL->setSpeed(speed);     
 }
 
 void setRMtrSpd( byte speed ) {
-  mtrR->setSpeed(speed);
+  //mtrR->setSpeed(speed);
 }
 
 void setBothMtrsSpd( byte speed ) {
-  mtrL->setSpeed(speed);
-  mtrR->setSpeed(speed);
+  //mtrL->setSpeed(speed);
+  //mtrR->setSpeed(speed);
 }
 
 void setBothMtrsForward() {
-  mtrL->setForward();
-  mtrR->setForward();
+  //mtrL->setForward();
+  //mtrR->setForward();
 }
 
 void setBothMtrsBackward() {
-  mtrL->setBackward();
-  mtrR->setBackward();
+  //mtrL->setBackward();
+  //mtrR->setBackward();
 }
 
 void setMtrsLeftTurn() {
-  mtrL->setBackward();
-  mtrR->setForward();
+  //mtrL->setBackward();
+  //mtrR->setForward();
 }
 
 void setMtrsRightTurn() {
-  mtrL->setForward();
-  mtrR->setBackward();
+  //mtrL->setForward();
+  //mtrR->setBackward();
 } 
 
 
