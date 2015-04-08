@@ -13,11 +13,19 @@ void Motor::setSpeed( byte speed ) {
 }
 
 void Motor::setForward() {
+/*
   digitalWrite( chA , HIGH );
   digitalWrite( chB , LOW );
+*/
+  analogWrite( chA , HIGH );
+  analogWrite( chB , LOW );
 }
 
 void Motor::setBackward() {
+/*
+  digitalWrite( chA , LOW );
+  digitalWrite( chB , HIGH );
+*/
   digitalWrite( chA , LOW );
   digitalWrite( chB , HIGH );
 }

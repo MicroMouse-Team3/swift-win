@@ -1,6 +1,6 @@
 
-#ifndef Encoder_h
-#define Encoder_h
+#ifndef EncoderMM_h
+#define EncoderMM_h
 
 #include "Arduino.h"
 

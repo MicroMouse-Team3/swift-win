@@ -32,8 +32,8 @@ byte Sensor::getRecPin() {
 /***/
 
 double Sensor::getIR(){
-  double senseVal = 0;
-  unsigned long curt = micros();
+//  double senseVal = 0;
+//  unsigned long curt = micros();
   led.setHIGH();
 //  sensor[0]->getLED().setHIGH();  
 //  digitalWrite(pinOut,HIGH); //LED

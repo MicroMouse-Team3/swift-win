@@ -3,7 +3,7 @@
 #define Motor_h
 
 #include "Arduino.h"
-#include "Encoder.h"
+#include "EncoderMM.h"
 
 class Motor {
   private:

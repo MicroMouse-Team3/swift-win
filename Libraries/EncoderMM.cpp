@@ -1,6 +1,6 @@
 
 #include "Arduino.h"
-#include "Encoder.h"
+#include "EncoderMM.h"
 
 Encoder::Encoder( byte chA , byte chB ) {
   pinMode( this->chA = chA , INPUT );
