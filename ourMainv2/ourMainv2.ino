@@ -33,12 +33,12 @@ void setup(){
   sensor[1] = new Sensor( leftDiagEmitIR , leftDiagRecIR , leftDiagLED );
   //Left Front
   sensor[2] = new Sensor( leftFrontEmitIR , leftDiagRecIR , leftDiagLED );
-  //Right Front
-  sensor[3] = new Sensor( rightFrontEmitIR , rightFrontRecIR , rightFrontLED );
+  //Right Right
+  sensor[3] = new Sensor( rightEmitIR , rightRecIR , rightLED );
   //Right Diag
   sensor[4] = new Sensor( rightDiagEmitIR , rightDiagRecIR , rightDiagLED );
-  //Right Right
-  sensor[5] = new Sensor( rightEmitIR , rightRecIR , rightLED ); 
+  //Right Front
+  sensor[5] = new Sensor( rightFrontEmitIR , rightFrontRecIR , rightFrontLED ); 
   
   attachInterrupt( L_CH_A , incEncoderL , CHANGE );
   attachInterrupt( R_CH_A , incEncoderR , CHANGE );
@@ -60,23 +60,14 @@ void loop(){
 }
 
 void   hopeEyeNeverHitWall() {
-  //Left = 0, LeftDiag = 1, LeftFront = 2, RightFront = 3, RightDiag = 4, Right = 5
-  if ( sensor[2]->getIR() < minThresh || sensor[3]->getIR() < minThresh ) {
-     //stop
- 
-     //Turn around if walls on left and right sides.    
+  if ( sensor[2]->getIR() < minThresh || sensor[3]->getIR() < minThresh ) {    
     if ( sensor[0]->getIR() < minThresh && sensor[5]->getIR() < minThresh )
       turnAround();
-      
-     //Turn Right if wall on left and NOT on right 
     else if ( sensor[0]->getIR() < minThresh && sensor[5]->getIR() > minThresh )
       turnRight();
-      
-      //Turn left if wall on right and NOT on left
     else if ( sensor[0]->getIR() > minThresh && sensor[5]->getIR() < minThresh )
       turnLeft();
     else
-    //blink all LEDs and freak the hell out
       turnRight();
   }
   else
