@@ -17,9 +17,6 @@ byte LpwmB = 0;
 byte RpwmA = 50;
 byte RpwmB = 0;
 
-int lasTime = 0;
-int lastError = 0;
-
 #include <math.h>
 
 void setup(){
@@ -35,12 +32,12 @@ void setup(){
   sensor[1] = new Sensor( leftDiagEmitIR , leftDiagRecIR , leftDiagLED );
   //Left Front
   sensor[2] = new Sensor( leftFrontEmitIR , leftDiagRecIR , leftDiagLED );
-  //Right Right
-  sensor[3] = new Sensor( rightEmitIR , rightRecIR , rightLED );
+  //Right Front
+  sensor[3] = new Sensor( rightFrontEmitIR , rightFrontRecIR , rightFrontLED );
   //Right Diag
   sensor[4] = new Sensor( rightDiagEmitIR , rightDiagRecIR , rightDiagLED );
-  //Right Front
-  sensor[5] = new Sensor( rightFrontEmitIR , rightFrontRecIR , rightFrontLED ); 
+  //Right Right
+  sensor[5] = new Sensor( rightEmitIR , rightRecIR , rightLED ); 
   
   attachInterrupt( L_CH_A , incEncoderL , CHANGE );
   attachInterrupt( R_CH_A , incEncoderR , CHANGE );
@@ -59,18 +56,20 @@ void loop(){
 }
 
 void   hopeEyeNeverHitWall() {
-  if ( sensor[2]->getIR() < minThresh || sensor[3]->getIR() < minThresh ) {    
   //Left = 0, LeftDiag = 1, LeftFront = 2, RightFront = 3, RightDiag = 4, Right = 5
   if ( sensor[2]->getIR() < minThresh || sensor[3]->getIR() < minThresh ) {     
      //Turn around if walls on left and right sides.    
     if ( sensor[0]->getIR() < minThresh && sensor[5]->getIR() < minThresh )
       turnAround();
+      
+     //Turn Right if wall on left and NOT on right 
     else if ( sensor[0]->getIR() < minThresh && sensor[5]->getIR() > minThresh )
       turnRight();
+      
+      //Turn left if wall on right and NOT on left
     else if ( sensor[0]->getIR() > minThresh && sensor[5]->getIR() < minThresh )
       turnLeft();
     else
-      turnRight();
       fullStop();
     //blink all LEDs and freak the hell out
   }
@@ -117,37 +116,24 @@ void PID(){
     Serial.println("->PID"); //Used for Debugging 
   }
   
-  int error;
-  int outputSpeed = 0;
-  int integral =0, proportion=0, derivative=0;
-  
-  int KP = 1;
-  int KI = 1;
-  int KD = 1;
-  
   int left = sensor[0]->getIR();//getLeftIR();
   int right = sensor[5]->getIR();//getRightIR();
   int diff = 0;
-  unsigned long currentTime = millis();
-  unsigned long deltaTime = currentTime - lastTime;
   
   diff = left - right;
   
- 
-  error = diff;
-  
-  //Calculating the output
-  proportion = error * KP;
-  integral += error*deltaTime;
-  integral *= KI;   
-  derivative = ((error-lastError)/deltaTime)*KD;   
-  outputSpeed = proportion + integral + derivative;
-  
-  lastError = error;
-  lastTime = currentTime;
-  
-  mtrL->setForward( outputSpeed , 0 );
-  mtrR->setForward( outputSpeed , 0 );
+  if (diff >= 20){
+    byte speed = 255;
+    setBothMtrsForward();
+    setBothMtrsSpd(speed = 255);
+//    goStraight(distancePerMove, distancePerMove+1);
+  }  
+  else if (diff < -20){
+  //  goStraight(distancePerMove+1, distancePerMove);
+  }
+  else{
+    //goStraight(distancePerMove, distancePerMove);
+  }
 }
 
 
