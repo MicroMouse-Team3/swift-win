@@ -80,30 +80,44 @@ void   hopeEyeNeverHitWall() {
 void turnAround() {
   //turnRight
   turnRight();
+  delay(10);
   turnRight();
   fullStop();
   //overshoot?
+  delay(1000);
+  fullStraight();
 }
 void turnRight() {
   LpwmA = RpwmA = 10;
-  LpwmB = RpwmB = 10;
+  LpwmB = RpwmB = 0;
   mtrL->setForward( LpwmA , LpwmB );
   mtrR->setBackward( RpwmA , RpwmB );
   delay(10);
   //overshoot?
   fullStop();
+  delay(1000);
+  fullStraight();
 }
 void turnLeft() {
+  LpwmA = RpwmA = 10;
+  LpwmB = RpwmB = 0;
   mtrR->setForward( RpwmA , RpwmB );
   mtrL->setBackward( LpwmA , LpwmB );
   delay(10);
   //overshoot?
   fullStop();
+  delay(1000);
+  fullStraight();
 }
-
 void fullStop() {
   mtrR->setForward( 0 , 0 );
   mtrL->setForward( 0 , 0 );  
+}
+void fullStraight() {
+  RpwmA = LpwmA = 10;
+  RpwmB = LpwmB = 0;
+  mtrR->setForward( RpwmA , RpwmB );
+  mtrL->setForward( LpwmA , LpwmB );
 }
 
 /*
