@@ -68,7 +68,7 @@ void   hopeEyeNeverHitWall() {
     else if ( sensor[0]->getIR() > minThresh && sensor[5]->getIR() < minThresh )
       turnLeft();
     else
-      turnRight();
+      fullStop();
   }
   else
     PID();      //Keep going straight
@@ -76,16 +76,31 @@ void   hopeEyeNeverHitWall() {
 
 void turnAround() {
   //turnRight
-  mtrL->setForward( LpwmA , LpwmB );
-  mtrR->setBackward( RpwmA , RpwmB );
+  turnRight();
+  turnRight();
+  fullStop();
+  //overshoot?
 }
 void turnRight() {
+  LpwmA = RpwmA = 10;
+  LpwmB = RpwmB = 10;
   mtrL->setForward( LpwmA , LpwmB );
   mtrR->setBackward( RpwmA , RpwmB );
+  delay(10);
+  //overshoot?
+  fullStop();
 }
 void turnLeft() {
   mtrR->setForward( RpwmA , RpwmB );
-  
+  mtrL->setBackward( LpwmA , LpwmB );
+  delay(10);
+  //overshoot?
+  fullStop();
+}
+
+void fullStop() {
+  mtrR->setForward( 0 , 0 );
+  mtrL->setForward( 0 , 0 );  
 }
 
 /*
@@ -99,7 +114,7 @@ void PID(){
   }
   
   int left = sensor[0]->getIR();//getLeftIR();
-  int right = sensor[3]->getIR();//getRightIR();
+  int right = sensor[5]->getIR();//getRightIR();
   int diff = 0;
   
   diff = left - right;
