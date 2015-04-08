@@ -40,47 +40,73 @@ void setup(){
   //Right Right
   sensor[5] = new Sensor( rightEmitIR , rightRecIR , rightLED ); 
   
-  attachInterrupt( L_CH_A , incEncoderL , CHANGE );
-  attachInterrupt( R_CH_A , incEncoderR , CHANGE );
+  attachInterrupt( L_CH_A , incEncoderL , RISING );
+  attachInterrupt( R_CH_A , incEncoderR , RISING );
   
-  delay(7000);
+  delay(4000);
 
-  mtrL->setForward( LpwmA , LpwmB );
-  mtrR->setForward( RpwmA , RpwmB );
+  mtrL->setForward( 150 , 0 );
+  mtrR->setForward( 150 , 0 );
 }
 
 boolean mapMode = true;
-int [][] map = new int[16][16] = { { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 }, 
-                                   { 0 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 }, 
-                                   { 0 , 1 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 1 , 0 }, 
-                                   { 0 , 1 , 2 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 2 , 1 , 0 }, 
-                                   { 0 , 1 , 2 , 3 , 4 , 4 , 4 , 4 , 4 , 4 , 4 , 4 , 3 , 2 , 1 , 0 }, 
-                                   { 0 , 1 , 2 , 3 , 4 , 5 , 5 , 5 , 5 , 5 , 5 , 4 , 3 , 2 , 1 , 0 }, 
-                                   { 0 , 1 , 2 , 3 , 4 , 5 , 6 , 6 , 6 , 6 , 5 , 4 , 3 , 2 , 1 , 0 }, 
-                                   { 0 , 1 , 2 , 3 , 4 , 5 , 6 , 7 , 7 , 6 , 5 , 4 , 3 , 2 , 1 , 0 }, 
-                                   { 0 , 1 , 2 , 3 , 4 , 5 , 6 , 7 , 7 , 6 , 5 , 4 , 3 , 2 , 1 , 0 }, 
-                                   { 0 , 1 , 2 , 3 , 4 , 5 , 6 , 6 , 6 , 6 , 5 , 4 , 3 , 2 , 1 , 0 }, 
-                                   { 0 , 1 , 2 , 3 , 4 , 5 , 5 , 5 , 5 , 5 , 5 , 4 , 3 , 2 , 1 , 0 }, 
-                                   { 0 , 1 , 2 , 3 , 4 , 4 , 4 , 4 , 4 , 4 , 4 , 4 , 3 , 2 , 1 , 0 }, 
-                                   { 0 , 1 , 2 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 2 , 1 , 0 }, 
-                                   { 0 , 1 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 1 , 0 }, 
-                                   { 0 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 }, 
-                                   { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 } };
+int maze[16][16] = { { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 }, 
+                                    { 0 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 }, 
+                                    { 0 , 1 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 1 , 0 }, 
+                                    { 0 , 1 , 2 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 2 , 1 , 0 }, 
+                                    { 0 , 1 , 2 , 3 , 4 , 4 , 4 , 4 , 4 , 4 , 4 , 4 , 3 , 2 , 1 , 0 }, 
+                                    { 0 , 1 , 2 , 3 , 4 , 5 , 5 , 5 , 5 , 5 , 5 , 4 , 3 , 2 , 1 , 0 }, 
+                                    { 0 , 1 , 2 , 3 , 4 , 5 , 6 , 6 , 6 , 6 , 5 , 4 , 3 , 2 , 1 , 0 }, 
+                                    { 0 , 1 , 2 , 3 , 4 , 5 , 6 , 7 , 7 , 6 , 5 , 4 , 3 , 2 , 1 , 0 }, 
+                                    { 0 , 1 , 2 , 3 , 4 , 5 , 6 , 7 , 7 , 6 , 5 , 4 , 3 , 2 , 1 , 0 }, 
+                                    { 0 , 1 , 2 , 3 , 4 , 5 , 6 , 6 , 6 , 6 , 5 , 4 , 3 , 2 , 1 , 0 }, 
+                                    { 0 , 1 , 2 , 3 , 4 , 5 , 5 , 5 , 5 , 5 , 5 , 4 , 3 , 2 , 1 , 0 }, 
+                                    { 0 , 1 , 2 , 3 , 4 , 4 , 4 , 4 , 4 , 4 , 4 , 4 , 3 , 2 , 1 , 0 }, 
+                                    { 0 , 1 , 2 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 2 , 1 , 0 }, 
+                                    { 0 , 1 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 1 , 0 }, 
+                                    { 0 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 }, 
+                                    { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 } };
+                                    
+                                    
 void loop(){
 
   if ( mapMode ) {
-    mapMaze();
+//    mapMaze();
   }
   
-  hopeEyeNeverHitWall();
+  //hopeEyeNeverHitWall();
   
+  for ( int i = 0 ; i < NUMSENSORS ; i++ ) {
+    sensor[i]->getLED().setHIGH();
+    delay(100);
+  }
+  delay(500);
+    for ( int i = 0 ; i < NUMSENSORS ; i++ ) {
+    sensor[i]->getLED().setLOW();
+    delay(100);  
+  }
+  
+  for ( int i = 0 ; i < 4 ; i++ ) {
+    squareTest();
+  }
+  delay(2000);
 //  PID();
 }
 
+int blockLength = 10;
+
 void mapMaze() {
-  
+   maze[0][0] = -1;
+   encTickL = encTickR = 0;
+             
 }
 
+void squareTest() {
+  fullStraight();
+  delay(100);
+  turnRight();
+  delay(100);
+}
 void   hopeEyeNeverHitWall() {
   //Left = 0, LeftDiag = 1, LeftFront = 2, RightFront = 3, RightDiag = 4, Right = 5
   if ( sensor[2]->getIR() < minThresh || sensor[3]->getIR() < minThresh ) {     
@@ -120,13 +146,13 @@ void turnAround() {
 void turnRight() { 
   fullStop();
   delay(1000); 
-  LpwmA = RpwmA = 10;
+  LpwmA = RpwmA = 100;
   LpwmB = RpwmB = 0;
-  mtrL->setForward( LpwmA , LpwmB );
-  mtrR->setBackward( RpwmA , RpwmB );
-//  delay(10);
-  encTickL = encTickR = 0;
-  while ( encTickL < 256 );
+  mtrL->setForward( 150 , 0 );
+  mtrR->setBackward( 0 , 150 );
+  delay(50);
+//  encTickL = encTickR = 0;
+//  while ( encTickL < 256 );
   fullStop();
   delay(1000);
   //overshoot?
@@ -137,13 +163,13 @@ void turnRight() {
 void turnLeft() {
   fullStop();
   delay(1000);
-  LpwmA = RpwmA = 10;
+  LpwmA = RpwmA = 100;
   LpwmB = RpwmB = 0;
   mtrR->setForward( RpwmA , RpwmB );
   mtrL->setBackward( LpwmA , LpwmB );
-//  delay(10);
-  encTickL = encTickR = 0;
-  while ( encTickR < 256 );  
+  delay(10);
+//  encTickL = encTickR = 0;
+//  while ( encTickR < 256 );  
   //overshoot?
   fullStop();
   delay(1000);
@@ -153,10 +179,10 @@ void fullStop() {
   mtrL->setForward( 0 , 0 );  
 }
 void fullStraight() {
-  RpwmA = LpwmA = 10;
+  RpwmA = LpwmA = 150;
   RpwmB = LpwmB = 0;
-  mtrR->setForward( RpwmA , RpwmB );
-  mtrL->setForward( LpwmA , LpwmB );
+  mtrR->setForward( 150 , 0 );
+  mtrL->setForward( 150 , 0 );
 }
 
 /*
