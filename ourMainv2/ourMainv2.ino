@@ -20,7 +20,7 @@ byte RpwmB = 0;
 
 void setup(){
   Serial.begin(9600); //Used for Debugging
-  if(debugOn){
+ 
     Serial.println("->setup");
   }
 
@@ -33,12 +33,12 @@ void setup(){
   sensor[1] = new Sensor( leftDiagEmitIR , leftDiagRecIR , leftDiagLED );
   //Left Front
   sensor[2] = new Sensor( leftFrontEmitIR , leftDiagRecIR , leftDiagLED );
-  //Right Right
-  sensor[3] = new Sensor( rightEmitIR , rightRecIR , rightLED );
+  //Right Front
+  sensor[3] = new Sensor( rightFrontEmitIR , rightFrontRecIR , rightFrontLED );
   //Right Diag
   sensor[4] = new Sensor( rightDiagEmitIR , rightDiagRecIR , rightDiagLED );
-  //Right Front
-  sensor[5] = new Sensor( rightFrontEmitIR , rightFrontRecIR , rightFrontLED ); 
+  //Right Right
+  sensor[5] = new Sensor( rightEmitIR , rightRecIR , rightLED ); 
   
   attachInterrupt( L_CH_A , incEncoderL , CHANGE );
   attachInterrupt( R_CH_A , incEncoderR , CHANGE );
@@ -60,15 +60,28 @@ void loop(){
 }
 
 void   hopeEyeNeverHitWall() {
-  if ( sensor[2]->getIR() < minThresh || sensor[3]->getIR() < minThresh ) {    
+  //Left = 0, LeftDiag = 1, LeftFront = 2, RightFront = 3, RightDiag = 4, Right = 5
+  if ( sensor[2]->getIR() < minThresh || sensor[3]->getIR() < minThresh ) {
+     //stop
+ 
+     //Turn around if walls on left and right sides.    
     if ( sensor[0]->getIR() < minThresh && sensor[5]->getIR() < minThresh )
       turnAround();
+      
+     //Turn Right if wall on left and NOT on right 
     else if ( sensor[0]->getIR() < minThresh && sensor[5]->getIR() > minThresh )
       turnRight();
+      
+      //Turn left if wall on right and NOT on left
     else if ( sensor[0]->getIR() > minThresh && sensor[5]->getIR() < minThresh )
       turnLeft();
     else
+<<<<<<< HEAD
       fullStop();
+=======
+    //blink all LEDs and freak the hell out
+      turnRight();
+>>>>>>> origin/master
   }
   else
     PID();      //Keep going straight
@@ -138,6 +151,21 @@ void PID(){
 *
 *
 **/
+<<<<<<< HEAD
+/*
+void turnLeft(){
+  if(debugOn){
+    Serial.println("->turnLeft"); //Used for Debugging 
+  }
+}
+
+void turnRight(){
+  if(debugOn){
+   Serial.println("->turnRight"); //Used for Debugging 
+  }  
+}
+=======
+>>>>>>> 12596578beab2ec0d593c2d9e10a63f8b265ccb0
 
 void goStraight(int leftPWM, int rightPWM){
   setBothMtrsForward();
@@ -154,7 +182,18 @@ void goStraight(int leftPWM, int rightPWM){
 //  analogWrite(RpwmA, rightpwm);
 //  analogWrite(LpwmA, leftpwm);
 }
+<<<<<<< HEAD
+*/
+/*
+void turnAround(){
+  if(debugOn){
+    Serial.println("->turnAround"); //Used for Debugging 
+  }
+  
+}
+=======
 
+>>>>>>> 12596578beab2ec0d593c2d9e10a63f8b265ccb0
 
 int distanceTraveled(){
   if(debugOn){
@@ -168,7 +207,7 @@ void resetDistanceTraveled(){
     Serial.println("->resetDistanceTraveled"); //Used for Debugging 
   }
 }
-
+*/
 /*
 * GET IR Functions
 *
