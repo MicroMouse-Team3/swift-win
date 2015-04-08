@@ -18,8 +18,8 @@ class Motor {
     byte getEnablePin();
     
     void setSpeed( byte );
-    void setForward();
-    void setBackward();
+    void setForward( byte , byte );
+    void setBackward( byte , byte );
 };
 
 #endif
