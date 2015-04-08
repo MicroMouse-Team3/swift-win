@@ -5,6 +5,7 @@
 #include "Arduino.h"
 #include "Motor.h"
 #include "EncoderMM.h"
+#include <math.h>
 
 #define NUMSENSORS 6
 
@@ -20,11 +21,11 @@ const byte rightFrontEmitIR = 5 , rightFrontRecIR = A10 , rightFrontLED = 14;
 /********** LEFT MOTOR VARS **********/
 
 //Left Enable            // Connection correlation to MM schematic
-const byte L_Enable = A2;  // (H-Bridge pin 1)
+const byte L_Enable = 16;  // (H-Bridge pin 1)
 
 //Motors
-const byte L_Mtr_A = A6;  // (H-Bridge pin 2)  //1A
-const byte L_Mtr_B = A7;  // (H-Bridge pin 7)  //2A
+const byte L_Mtr_A = 20;  // (H-Bridge pin 2)  //1A
+const byte L_Mtr_B = 21;  // (H-Bridge pin 7)  //2A
 
 //Encoder vars
 const byte L_CH_A = 9;          // (H-Bridge SV3 pin 6)
@@ -33,11 +34,11 @@ const byte L_CH_B = 10;         // (H-Bridge SV3 pin 5)
 /********** RIGHT MOTOR VARS **********/
 
 //Right Enable            // Connection correlation to MM schematic
-const int R_Enable = A3;  // (H-Bridge pin ?)
+const int R_Enable = 17;  // (H-Bridge pin ?)
 
 //Motors
-const int R_Mtr_A = A8;  // (H-Bridge pin ?)  //3A
-const int R_Mtr_B = A9;  // (H-Bridge pin ?)  //4A
+const int R_Mtr_A = 22;  // (H-Bridge pin ?)  //3A
+const int R_Mtr_B = 23;  // (H-Bridge pin ?)  //4A
 
 //Encoder vars
 int R_CH_A = 7;          // (H-Bridge SV3 pin ?)
@@ -101,36 +102,38 @@ void sensorsToLEDs() {
 /********** MOTOR FUNCTIONS **********/
 
 void setLMtrSpd( byte speed ) {
-  //mtrL->setSpeed(speed);     
+  mtrL->setSpeed(speed);     
 }
 
 void setRMtrSpd( byte speed ) {
-  //mtrR->setSpeed(speed);
+  mtrR->setSpeed(speed);
 }
 
 void setBothMtrsSpd( byte speed ) {
+  setLMtrSpd(speed);
+  setRMtrSpd(speed);
   //mtrL->setSpeed(speed);
   //mtrR->setSpeed(speed);
 }
 
-void setBothMtrsForward() {
-  //mtrL->setForward();
-  //mtrR->setForward();
+void setBothMtrsForward( byte spdA , byte spdB ) {
+  mtrL->setForward( spdA , spdB );
+  mtrR->setForward( spdA , spdB );
 }
 
-void setBothMtrsBackward() {
-  //mtrL->setBackward();
-  //mtrR->setBackward();
+void setBothMtrsBackward( byte spdA , byte spdB ) {
+  mtrL->setBackward( spdA , spdB );
+  mtrR->setBackward( spdA , spdB );
 }
 
-void setMtrsLeftTurn() {
-  //mtrL->setBackward();
-  //mtrR->setForward();
+void setMtrsLeftTurn( byte spdA , byte spdB ) {
+  mtrL->setBackward( spdB , spdA );
+  mtrR->setForward( spdA , spdB );
 }
 
-void setMtrsRightTurn() {
-  //mtrL->setForward();
-  //mtrR->setBackward();
+void setMtrsRightTurn( byte spdA , byte spdB ) {
+  mtrL->setForward( spdA , spdB );
+  mtrR->setBackward( spdB , spdA );
 } 
 
 

@@ -10,7 +10,7 @@ class Encoder {
     int pos = 0;
     bool currState = LOW, lastState = LOW;    
   public:
-    Encoder( byte , byte );
+    Encoder( byte chA , byte chB );
     
     byte getChA();
     byte getChB();
@@ -18,11 +18,11 @@ class Encoder {
     bool getCurrState();
     bool getLastState();
 
-    void setCurrState( bool );
-    void setLastState( bool );
+    void setCurrState( bool currState );
+    void setLastState( bool lastState );
     
     void readEnc();
-    void printEnc(int);
+    void printEnc(int pos);
 };
 
 #endif

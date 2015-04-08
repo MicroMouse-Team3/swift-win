@@ -49,7 +49,7 @@ void Encoder::readEnc() {
   lastState = currState;  
 }
 
-void Encoder::printEnc(int) {
+void Encoder::printEnc(int pos) {
     if ( pos > 0 )
       Serial.print("Left Mtr moving forward: ");
     else

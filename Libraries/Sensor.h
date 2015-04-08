@@ -4,6 +4,7 @@
 
 #include "Arduino.h"
 #include "LED.h"
+#include <math.h>
 
 class Sensor {
   private:

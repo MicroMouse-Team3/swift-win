@@ -5,7 +5,8 @@
 Motor::Motor( byte enablePin , byte chA , byte chB , byte enc_chA , byte enc_chB ) : enc( enc_chA , enc_chB) {
   pinMode( this->enablePin = enablePin , OUTPUT );
   pinMode( this->chA = chA , OUTPUT );
-  pinMode( this->chB = chB , OUTPUT );
+  pinMode( this->chB = chB , OUTPUT ); 
+  speed = 200;  
 }
 
 void Motor::setSpeed( byte speed ) {

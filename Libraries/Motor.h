@@ -7,7 +7,7 @@
 
 class Motor {
   private:
-    byte enablePin, chA, chB, speed;
+    byte enablePin, chA, chB, speed = 200;
     Encoder enc;
   
   public:       
@@ -17,9 +17,9 @@ class Motor {
 
     byte getEnablePin();
     
-    void setSpeed( byte );
-    void setForward( byte , byte );
-    void setBackward( byte , byte );
+    void setSpeed( byte speed );
+    void setForward( byte spdA , byte spdB );
+    void setBackward( byte spdA , byte spdB );
 };
 
 #endif

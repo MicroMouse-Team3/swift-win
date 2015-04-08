@@ -7,7 +7,7 @@ Sensor::Sensor( byte sensEmitPin , byte sensRecPin , byte ledPin ) : led(ledPin)
   pinMode( this->sensRecPin = sensRecPin , INPUT );
 }
 
-LED& Sensor::getLED() {
+LED & Sensor::getLED() {
   return led;
 }
 
@@ -36,11 +36,11 @@ double Sensor::getIR(){
 //  unsigned long curt = micros();
   led.setHIGH();
 //  sensor[0]->getLED().setHIGH();  
-//  digitalWrite(pinOut,HIGH); //LED
+  //digitalWrite( ledPin , HIGH ); //LED
   delayMicroseconds(80);
   recRead = sensorData( sensRecPin );
   led.setLOW();  
-//  digitalWrite(pinOut,LOW); //LED
+//  digitalWrite( ledPin , LOW ); //LED
   return getDistance(recRead);
 }
 
