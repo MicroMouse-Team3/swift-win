@@ -17,6 +17,9 @@ byte LpwmB = 0;
 byte RpwmA = 50;
 byte RpwmB = 0;
 
+int lasTime = 0;
+int lastError = 0;
+
 #include <math.h>
 
 void setup(){
@@ -130,24 +133,37 @@ void PID(){
     Serial.println("->PID"); //Used for Debugging 
   }
   
+  int error;
+  int outputSpeed = 0;
+  int integral =0, proportion=0, derivative=0;
+  
+  int KP = 1;
+  int KI = 1;
+  int KD = 1;
+  
   int left = sensor[0]->getIR();//getLeftIR();
   int right = sensor[5]->getIR();//getRightIR();
   int diff = 0;
+  unsigned long currentTime = millis();
+  unsigned long deltaTime = currentTime - lastTime;
   
   diff = left - right;
   
-  if (diff >= 20){
-    byte speed = 255;
-    setBothMtrsForward();
-    setBothMtrsSpd(speed = 255);
-//    goStraight(distancePerMove, distancePerMove+1);
-  }  
-  else if (diff < -20){
-  //  goStraight(distancePerMove+1, distancePerMove);
-  }
-  else{
-    //goStraight(distancePerMove, distancePerMove);
-  }
+ 
+  error = diff;
+  
+  //Calculating the output
+  proportion = error * KP;
+  integral += error*deltaTime;
+  integral *= KI;   
+  derivative = ((error-lastError)/deltaTime)*KD;   
+  outputSpeed = proportion + integral + derivative;
+  
+  lastError = error;
+  lastTime = currentTime;
+  
+  mtrL->setForward( outputSpeed , 0 );
+  mtrR->setForward( outputSpeed , 0 );
 }
 
 
