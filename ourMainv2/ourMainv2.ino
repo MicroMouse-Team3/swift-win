@@ -16,7 +16,7 @@
 
 void setup(){
   Serial.begin(9600); //Used for Debugging
-  if(debugOn){
+ 
     Serial.println("->setup");
   }
 
@@ -88,6 +88,7 @@ void PID(){
 *
 *
 **/
+/*
 void turnLeft(){
   if(debugOn){
     Serial.println("->turnLeft"); //Used for Debugging 
@@ -110,7 +111,8 @@ void goStraight(int leftPWM, int rightPWM){
 //  analogWrite(RpwmA, rightpwm);
 //  analogWrite(LpwmA, leftpwm);
 }
-
+*/
+/*
 void turnAround(){
   if(debugOn){
     Serial.println("->turnAround"); //Used for Debugging 
@@ -130,7 +132,7 @@ void resetDistanceTraveled(){
     Serial.println("->resetDistanceTraveled"); //Used for Debugging 
   }
 }
-
+*/
 /*
 * GET IR Functions
 *
