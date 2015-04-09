@@ -75,7 +75,7 @@ double Sensor::getDistance( double recRead ){
   boolean matchFound = false;
   for( double count = 0.0 ; count < 23.0 ; count += .1 ){
     // will be changed to calibrate
-     result = 0.00022738*pow(count,6)- 0.0169745*pow(count,5) + 0.470274283*pow(count,4) - 5.840060615*pow(count,3) + 31.350111*pow(count,2) - 97.704*count + 716.594;
+     result = -0.000472391*pow(count,6) + 0.040086828*pow(count,5) - 1.331327*pow(count,4) + 21.57032*pow(count,3) - 168.49*pow(count,2) - 455.6145*count + 721.3995;
     
      if( result < recRead + 10 && result > recRead - 10){
         matchFound = true;
