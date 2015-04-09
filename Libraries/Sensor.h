@@ -13,7 +13,7 @@ class Sensor {
     LED led;
     
   public:
-	byte ledPin;
+  byte ledPin;
     Sensor( byte sensEmitPin , byte sensRecPin , byte ledPin ); 
     
     LED& getLED();

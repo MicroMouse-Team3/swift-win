@@ -10,18 +10,19 @@ Motor::Motor( byte enablePin , byte chA , byte chB , byte enc_chA , byte enc_chB
 }
 
 void Motor::setSpeed( byte speed ) {
-  analogWrite( enablePin , this->speed = speed );
+  //analogWrite( enablePin , this->speed = speed );
+  digitalWrite( enablePin , this->speed = speed );
 }
-
+						//   150			0
 void Motor::setForward( byte spdA , byte spdB ) {
 /*
   digitalWrite( chA , HIGH );
   digitalWrite( chB , LOW );
 */
-  analogWrite( chA , spdA );
-  analogWrite( chB , spdB );
+  analogWrite( chA , spdB );
+  analogWrite( chB , spdA );
 }
-
+							//150		0
 void Motor::setBackward( byte spdA , byte spdB ) {
 /*
   digitalWrite( chA , LOW );
