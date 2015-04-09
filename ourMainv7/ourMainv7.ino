@@ -4,12 +4,6 @@
 //#include <Functions.h>
 #include <LED.h>
 
-
-
-
-
-
-
 #define NUMSENSORS 6
 #define leftRecIR A12
 #define leftDiagRecIR A18
@@ -22,7 +16,6 @@
 #define leftFrontEmitIR 4
 #define leftFrontRecIR A11
 #define leftFrontLED 13
-
 #define rightEmitIR 2 
 #define rightRecIR A13
 #define rightLED 12
@@ -36,46 +29,34 @@
 /********** LEFT MOTOR VARS **********/
 
 //Left Enable            // Connection correlation to MM schematic
-const byte L_Enable = 16;  // (H-Bridge pin 1)
+#define L_Enable 16  // (H-Bridge pin 1)
 
 //Motors
-const byte L_Mtr_A = 20;  // (H-Bridge pin 2)  //1A
-const byte L_Mtr_B = 21;  // (H-Bridge pin 7)  //2A
+#define L_Mtr_A 20  // (H-Bridge pin 2)  //1A
+#define L_Mtr_B 21  // (H-Bridge pin 7)  //2A
 
 //Encoder vars
-const byte L_CH_A = 9;          // (H-Bridge SV3 pin 6)
-const byte L_CH_B = 10;         // (H-Bridge SV3 pin 5)
+#define L_CH_A 9         // (H-Bridge SV3 pin 6)
+#define L_CH_B 10         // (H-Bridge SV3 pin 5)
 
 /********** RIGHT MOTOR VARS **********/
 
 //Right Enable            // Connection correlation to MM schematic
-const int R_Enable = 17;  // (H-Bridge pin ?)
+#define R_Enable 17  // (H-Bridge pin ?)
 
 //Motors
-const int R_Mtr_A = 22;  // (H-Bridge pin ?)  //3A
-const int R_Mtr_B = 23;  // (H-Bridge pin ?)  //4A
+#define R_Mtr_A 22  // (H-Bridge pin ?)  //3A
+#define R_Mtr_B 23  // (H-Bridge pin ?)  //4A
 
 //Encoder vars
-int R_CH_A = 7;          // (H-Bridge SV3 pin ?)
-int R_CH_B = 8;         // (H-Bridge SV3 pin ?)
+#define R_CH_A 7          // (H-Bridge SV3 pin ?)
+#define R_CH_B 8         // (H-Bridge SV3 pin ?)
 
 
-
-int leftTicks = 0;
-int rightTicks = 0;
-
-//Global Boolean Values
-const bool debugOn = "TRUE";
-const bool solved = "FALSE";
-
-//Global Values
-const int distancePerMove = 30;
 int encTickL = 0, encTickR = 0;
 
-unsigned long curt = 0; 
+//unsigned long curt = 0; 
 
-//Encoder Information
-volatile int state = LOW;
 
 
 Motor * mtrL;
@@ -121,54 +102,22 @@ void setup(){
   Serial.begin(9600); //Used for Debugging
   Serial.println("->setup");
   
-  pinMode(0, INPUT);
-  pinMode(1, OUTPUT);
-  pinMode(2, OUTPUT);
-  pinMode(3, OUTPUT);
-  pinMode(4, OUTPUT);
-  pinMode(5, OUTPUT);
-  pinMode(6, OUTPUT);
-  pinMode(7, INPUT);
-  pinMode(8, INPUT);
-  pinMode(9, INPUT);
-  pinMode(10, INPUT);
-  pinMode(11, OUTPUT);
-  pinMode(13, OUTPUT);
-  pinMode(14, OUTPUT);
-  pinMode(15, INPUT);
-  pinMode(16, OUTPUT);
-  pinMode(17, OUTPUT);
-  pinMode(18, INPUT);
-  pinMode(19, INPUT);
-  pinMode(20, OUTPUT);
-  pinMode(21, OUTPUT);
-  pinMode(22, OUTPUT);
-  pinMode(23, OUTPUT);
-  pinMode(24, INPUT);
-  pinMode(25, OUTPUT);
-  pinMode(26, INPUT);
-  pinMode(27, OUTPUT);
-  pinMode(28, OUTPUT);
-  pinMode(29, INPUT);
-  pinMode(30, OUTPUT);
-  pinMode(31, OUTPUT);
-  pinMode(32, OUTPUT);
-  pinMode(33, OUTPUT);
   
-  mtrL = new Motor( L_Enable , L_Mtr_A , L_Mtr_B , L_CH_A , L_CH_B );  
-  mtrR = new Motor( R_Enable , R_Mtr_A , R_Mtr_B , R_CH_A , R_CH_B );
+  pinMode( L_Enable , OUTPUT ); pinMode( L_Mtr_A , OUTPUT ); pinMode( L_Mtr_B , OUTPUT );
+  pinMode( R_Enable , OUTPUT ); pinMode( R_Mtr_A , OUTPUT ); pinMode( R_Mtr_B , OUTPUT );
+//  mtrL = new Motor( L_Enable , L_Mtr_A , L_Mtr_B , L_CH_A , L_CH_B );  
+//  mtrR = new Motor( R_Enable , R_Mtr_A , R_Mtr_B , R_CH_A , R_CH_B );
+
+  pinMode( leftLED , OUTPUT ); pinMode( leftDiagLED , OUTPUT ); pinMode( leftFrontLED , OUTPUT );
+  pinMode( rightFrontLED , OUTPUT ); pinMode( rightDiagLED , OUTPUT ); pinMode( rightFrontLED , OUTPUT );
+
+  pinMode( leftEmitIR , OUTPUT ); pinMode( leftDiagEmitIR , OUTPUT ); pinMode( leftFrontEmitIR , OUTPUT );
+  pinMode( rightEmitIR , OUTPUT ); pinMode( rightEmitIR , OUTPUT ); pinMode( rightFrontEmitIR , OUTPUT );  
   
+  pinMode( leftRecIR , INPUT ); pinMode( leftDiagRecIR , INPUT ); pinMode( leftFrontRecIR , INPUT );
+  pinMode( rightRecIR , INPUT ); pinMode( rightRecIR , INPUT ); pinMode( rightFrontRecIR , INPUT );  
   
-  pinMode( leftLED , OUTPUT );
-  pinMode( leftDiagLED , OUTPUT );
-  pinMode( leftFrontLED , OUTPUT );
-  pinMode( rightFrontLED , OUTPUT );
-  pinMode( rightDiagLED , OUTPUT );
-  pinMode( rightFrontLED , OUTPUT );
-  
-          
-            
-  
+                       
   attachInterrupt( L_CH_A , incEncoderL , RISING );
   attachInterrupt( R_CH_A , incEncoderR , RISING );
   
@@ -207,29 +156,23 @@ void loop(){
   //hopeEyeNeverHitWall();
   
   //for ( int i = 0 ; i < NUMSENSORS ; i++ ) {
+                
+        digitalWrite(rightLED, HIGH); delay(500); digitalWrite(rightLED, LOW); delay(500); 
+        digitalWrite(rightFrontLED,HIGH); delay(500); digitalWrite(rightFrontLED, LOW); delay(500);
+        digitalWrite(rightDiagLED,HIGH); delay(500);
+        digitalWrite(leftLED, HIGH); delay(500); digitalWrite(leftLED, LOW); delay(500);
+        digitalWrite(leftFrontLED, HIGH); delay(500);
+        digitalWrite(leftDiagLED, HIGH); delay(500);
 
-        digitalWrite(rightLED, HIGH);
-        delay(500);
-        digitalWrite(rightFrontLED,HIGH);
-                delay(500);
-        digitalWrite(rightDiagLED,HIGH);        delay(500);
-        digitalWrite(leftLED, HIGH);        delay(500);
-        digitalWrite(leftFrontLED, HIGH);        delay(500);
-        digitalWrite(leftDiagLED, HIGH);        delay(500);
-
-    //sensor[i]->getLED().setHIGH();
-    delay(500);
-  //}
-  delay(500);
   //for ( int i = 0 ; i < NUMSENSORS ; i++ ) {
     //sensor[i]->getLED().setLOW();
-        digitalWrite(rightLED, LOW);        delay(500);
-        digitalWrite(rightFrontLED,LOW);        delay(500);
+
+        
         digitalWrite(rightDiagLED,LOW);        delay(500);
-        digitalWrite(leftLED, LOW);        delay(500);
+        
         digitalWrite(leftFrontLED, LOW);        delay(500);
         digitalWrite(leftDiagLED, LOW);        delay(500);
-    delay(500);  
+
   //}
   /*
   for ( int i = 0 ; i < 4 ; i++ ) {
@@ -344,8 +287,8 @@ void   hopeEyeNeverHitWall() {
       fullStop();
     //blink all LEDs and freak the hell out
   }
-  else
-    PID();      //Keep going straight
+ // else
+ //   PID();      //Keep going straight
 }
 
 /*
@@ -353,6 +296,7 @@ void   hopeEyeNeverHitWall() {
 *
 *
 **/
+/*
 void PID(){
   if(debugOn){
     Serial.println("->PID"); //Used for Debugging 
@@ -390,8 +334,8 @@ void PID(){
   mtrL->setForward( outputSpeed , 0 );
   mtrR->setForward( outputSpeed , 0 );
 }
-
-
+*/
+/*
 void readDasSensors(){
   if(debugOn){
     Serial.println("->readSensors"); //Used for Debugging 
@@ -400,7 +344,7 @@ void readDasSensors(){
   for ( byte i = 0 ; i < NUMSENSORS ; i++ )
     sensor[i]->getIR();
 }
-
+*/
 void readSensors() {
   for ( byte i = 0 ; i < NUMSENSORS ; i++ )
     sensor[i]->setSensorRead(  analogRead( sensor[i]->getRecPin() )  );
@@ -432,36 +376,66 @@ void sensorsToLEDs() {
 /********** MOTOR FUNCTIONS **********/
 
 void setLMtrSpd( byte speed ) {
-  mtrL->setSpeed(speed);     
+   analogWrite( L_Enable , speed );
+ // mtrL->setSpeed(speed);     
 }
 
 void setRMtrSpd( byte speed ) {
-  mtrR->setSpeed(speed);
+  analogWrite( R_Enable , speed );
+//  mtrR->setSpeed(speed);
 }
 
 void setBothMtrsSpd( byte speed ) {
+ 
+  
+  
   setLMtrSpd(speed);
   setRMtrSpd(speed);
+ 
   //mtrL->setSpeed(speed);
   //mtrR->setSpeed(speed);
 }
 
 void setBothMtrsForward( byte spdA , byte spdB ) {
+  analogWrite( L_Mtr_A , spdA );
+  analogWrite( L_Mtr_B , spdB );
+  analogWrite( R_Mtr_A , spdA);
+  analogWrite( R_Mtr_B , spdB );
+
+  /*
   mtrL->setForward( spdA , spdB );
   mtrR->setForward( spdA , spdB );
+  */
 }
 
 void setBothMtrsBackward( byte spdA , byte spdB ) {
+  analogWrite( L_Mtr_A , spdB );
+  analogWrite( L_Mtr_B , spdA );
+  analogWrite( R_Mtr_A , spdB);
+  analogWrite( R_Mtr_B , spdA );
+/*
   mtrL->setBackward( spdA , spdB );
   mtrR->setBackward( spdA , spdB );
+  */
 }
 
 void setMtrsLeftTurn( byte spdA , byte spdB ) {
+  analogWrite( L_Mtr_A , spdA );
+  analogWrite( L_Mtr_B , spdB );
+  analogWrite( R_Mtr_A , spdB);
+  analogWrite( R_Mtr_B , spdA );
+  /*
   mtrL->setBackward( spdB , spdA );
   mtrR->setForward( spdA , spdB );
+  */
 }
 
 void setMtrsRightTurn( byte spdA , byte spdB ) {
+  analogWrite( L_Mtr_A , spdB );
+  analogWrite( L_Mtr_B , spdA );
+  analogWrite( R_Mtr_A , spdA);
+  analogWrite( R_Mtr_B , spdB );
+
   mtrL->setForward( spdA , spdB );
   mtrR->setBackward( spdB , spdA );
 } 

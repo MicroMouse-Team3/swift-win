@@ -5,6 +5,7 @@
 Sensor::Sensor( byte sensEmitPin , byte sensRecPin , byte ledPin ) : led(ledPin) {
   pinMode( this->sensEmitPin = sensEmitPin , OUTPUT );
   pinMode( this->sensRecPin = sensRecPin , INPUT );
+  pinMode( this->ledPin = ledPin , OUTPUT );
 }
 
 LED & Sensor::getLED() {
