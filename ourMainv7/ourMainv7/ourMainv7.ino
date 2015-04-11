@@ -1,23 +1,20 @@
 #include <Motor.h>
 #include <Sensor.h>
 #include <EncoderMM.h>
-//#include <Functions.h>
 #include <LED.h>
 
-const int NUMSENSORS = 6;
-
-#define leftRecIR A12
-#define leftDiagRecIR A18
-
-//Pin Assignments for IR Sensors
+//Left Sensors and LEDS
 #define leftEmitIR 3
+#define leftRecIR A12
 #define leftLED 11
 #define leftDiagEmitIR 28
+#define leftDiagRecIR A18
 #define leftDiagLED 30
 #define leftFrontEmitIR 4
 #define leftFrontRecIR A11
 #define leftFrontLED 13
 
+//Right Sensors and= LEDs
 #define rightEmitIR 2 
 #define rightRecIR A13
 #define rightLED 12
@@ -28,33 +25,28 @@ const int NUMSENSORS = 6;
 #define rightFrontRecIR A10
 #define rightFrontLED 14
 
-/********** LEFT MOTOR VARS **********/
+//Enable Pins
+#define L_Enable 16
+#define R_Enable 17
 
-//Left Enable            // Connection correlation to MM schematic
-const byte L_Enable = 16;  // (H-Bridge pin 1)
+//Motor H-Bridge Pins
+#define L_Mtr_A 20
+#define L_Mtr_B 21
+#define R_Mtr_A 22
+#define R_Mtr_B 23
 
-//Motors
-const byte L_Mtr_A = 20;  // (H-Bridge pin 2)  //1A
-const byte L_Mtr_B = 21;  // (H-Bridge pin 7)  //2A
+//Encoder Pins
+#define L_CH_A 9
+#define L_CH_B 10
+#define R_CH_A 7
+#define R_CH_B 8
 
-//Encoder vars
-const byte L_CH_A = 9;          // (H-Bridge SV3 pin 6)
-const byte L_CH_B = 10;         // (H-Bridge SV3 pin 5)
+const int NUMSENSORS = 6;
+volatile static int encTickL = 0, encTickR = 0;
 
-/********** RIGHT MOTOR VARS **********/
-
-//Right Enable            // Connection correlation to MM schematic
-const int R_Enable = 17;  // (H-Bridge pin ?)
-
-//Motors
-const int R_Mtr_A = 22;  // (H-Bridge pin ?)  //3A
-const int R_Mtr_B = 23;  // (H-Bridge pin ?)  //4A
-
-//Encoder vars
-int R_CH_A = 7;          // (H-Bridge SV3 pin ?)
-int R_CH_B = 8;         // (H-Bridge SV3 pin ?)
-
-
+Motor * mtrL;
+Motor * mtrR;
+Sensor * sensor[NUMSENSORS];
 
 
 //Global Boolean Values
@@ -63,17 +55,15 @@ const bool solved = "FALSE";
 
 //Global Values
 const int distancePerMove = 30;
-volatile static int encTickL = 0, encTickR = 0;
-
+long int delayLastError = 0;
+int previous_error = 0;
 unsigned long curt = 0; 
 
 //Encoder Information
 volatile int state = LOW;
 
 
-Motor * mtrL;
-Motor * mtrR;
-Sensor * sensor[NUMSENSORS];
+
 
  
  
@@ -157,8 +147,6 @@ void setup(){
   
   delay(5000);
 
-
-
   digitalWrite(leftLED, HIGH);
   digitalWrite(leftDiagLED, HIGH);
   digitalWrite(leftFrontLED, HIGH);
@@ -235,22 +223,45 @@ int maze[16][16] = { { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0
                                     
                                     
 void loop(){  
-  while (encTickR < 1100){
+ /* while (encTickR < 1100){
     mtrL->setForward( 128 );
     mtrR->setForward( 128 );
   }
   while (encTickR < 1334){
-    mtrL->setForward( 255 );
-    mtrR->setForward( 255 );
-  }
+    mtrL->setBackward( 255 );
+    mtrR->setBackward( 255 );
+  }*/
   encTickR = 0;
+  encTickL = 0;
   mtrL->setForward( 0 );
   mtrR->setForward( 0 );
   delay(5000);
   
+  mtrL->setForward(128);
+  mtrR->setForward(128);
+  
+  while(encTickR < 1334){
+  if(current_error() > 0){
+    mtrL->setBackWards( P_error() + D_Error());
+    mtrR->setBackWards( P_error() + D_Error());
+    }
+  }
+  
   
 }
-
+int current_error(){
+  int curPos = (encTickR + encTickL)/2
+  int error = curPos - 1334;
+  previous_error = error;
+  return error;
+}
+int P_error(){
+  delayLastError = millis();
+  return current_error() * 1;
+}
+int D_error(){
+  return (current_error() - previous_error)/(millis() - delayLastError); 
+}
 void testSensors(){
   int test1 = sensor[0]->getIR();
   int test2 = sensor[1]->getIR();
