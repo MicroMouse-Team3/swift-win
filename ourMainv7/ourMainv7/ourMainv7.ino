@@ -234,48 +234,49 @@ int maze[16][16] = { { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0
                                     { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 } };
                                     
                                     
-void loop(){
-// int test1 = sensor[0]->getIR();
-// int test2 = sensor[1]->getIR();
-// int test3 = sensor[2]->getIR();
-// int test4 = sensor[3]->getIR();
-// int test5 = sensor[4]->getIR();
-// int test6 = sensor[5]->getIR();
-// delay(5000);
-  
-  
+void loop(){  
   while (encTickR < 1100){
-    mtrL->setForward( 128 , 0 );
-    mtrR->setForward( 128 , 0 );
+    mtrL->setForward( 128 );
+    mtrR->setForward( 128 );
   }
   while (encTickR < 1334){
-    mtrL->setForward( 0 , 255 );
-    mtrR->setForward( 0 , 255 );
+    mtrL->setForward( 255 );
+    mtrR->setForward( 255 );
   }
- encTickR = 0;
-  mtrL->setForward( 0 , 0 );
-  mtrR->setForward( 0 , 0 );
+  encTickR = 0;
+  mtrL->setForward( 0 );
+  mtrR->setForward( 0 );
   delay(5000);
   
   
 }
 
+void testSensors(){
+  int test1 = sensor[0]->getIR();
+  int test2 = sensor[1]->getIR();
+  int test3 = sensor[2]->getIR();
+  int test4 = sensor[3]->getIR();
+  int test5 = sensor[4]->getIR();
+  int test6 = sensor[5]->getIR();
+  delay(5000);
+}
 void LEDsON() {
-  digitalWrite(rightLED, HIGH); delay(500);
-        digitalWrite(rightFrontLED,HIGH); delay(500);
-        digitalWrite(rightDiagLED,HIGH); delay(500);
-        digitalWrite(leftLED, HIGH); delay(500);
-        digitalWrite(leftFrontLED, HIGH);        delay(500);
-        digitalWrite(leftDiagLED, HIGH);        delay(500);
+  digitalWrite(rightLED, HIGH); delay(50);
+        digitalWrite(rightFrontLED,HIGH); delay(50);
+        digitalWrite(rightDiagLED,HIGH); delay(50);
+        digitalWrite(leftLED, HIGH); delay(50);
+        digitalWrite(leftFrontLED, HIGH); delay(50);
+        digitalWrite(leftDiagLED, HIGH); delay(50);
 }
 void LEDsOFF() {
-         digitalWrite(rightLED, LOW);        delay(500);
-        digitalWrite(rightFrontLED,LOW);        delay(500);
-        digitalWrite(rightDiagLED,LOW);        delay(500);
-        digitalWrite(leftLED, LOW);        delay(500);
-        digitalWrite(leftFrontLED, LOW);        delay(500);
-        digitalWrite(leftDiagLED, LOW);        delay(500);
+         digitalWrite(rightLED, LOW); delay(50);
+        digitalWrite(rightFrontLED,LOW); delay(50);
+        digitalWrite(rightDiagLED,LOW); delay(50);
+        digitalWrite(leftLED, LOW); delay(50);
+        digitalWrite(leftFrontLED, LOW); delay(50);
+        digitalWrite(leftDiagLED, LOW); delay(50);
 }
+
 int blockLength = 10;
 
 void mapMaze() {
@@ -296,20 +297,9 @@ fullStraight();
 
 void fullStop() {
 
-  setBothMtrsForward( 0 , 0 );
-  setBothMtrsSpd(0);
 }
 void fullStraight() {
-  RpwmA = LpwmA = 150;
-  RpwmB = LpwmB = 0;  
-  setBothMtrsForward( 150 , 0 );
-  setBothMtrsSpd(200);
   
-  delay(50);
-  fullStop();
-  delay(1000);
-//  mtrR->setForward( 150 , 0 );
-//  mtrL->setForward( 150 , 0 );
 }
 
 void turnAround() {
@@ -321,39 +311,10 @@ void turnAround() {
   //overshoot?
 }
 void turnRight() { 
-  fullStop();
-  delay(1000); 
-  LpwmA = RpwmA = 100;
-  LpwmB = RpwmB = 0;
-  setMtrsRightTurn( 0 , 150 );
-  setBothMtrsSpd(200);
-//  mtrL->setForward( 150 , 0 );
-//  mtrR->setBackward( 0 , 150 );
-  delay(70);
-//  encTickL = encTickR = 0;
-//  while ( encTickL < 256 );
-  fullStop();
-  delay(1000);
-  //overshoot?
- // fullStop();
-  //delay(1000);
-  //fullStraight();
+  
 }
 void turnLeft() {
-  fullStop();
-  delay(1000);
-  LpwmA = RpwmA = 100;
-  LpwmB = RpwmB = 0;
-  setMtrsLeftTurn( 150 , 0 );
-  setBothMtrsSpd(200);
-//  mtrR->setForward( RpwmA , RpwmB );
-//  mtrL->setBackward( LpwmA , LpwmB );
-  delay(500);
-//  encTickL = encTickR = 0;
-//  while ( encTickR < 256 );  
-  //overshoot?
-  fullStop();
-  delay(1000);
+  
 }
 
 
@@ -391,7 +352,6 @@ void   hopeEyeNeverHitWall() {
 *
 *
 **/
-
 void PID(){
   if(debugOn){
     Serial.println("->PID"); //Used for Debugging 
@@ -426,85 +386,9 @@ void PID(){
   lastError = error;
   lastTime = currentTime;
   
-  mtrL->setForward( outputSpeed , 0 );
-  mtrR->setForward( outputSpeed , 0 );
+  mtrL->setForward( outputSpeed);
+  mtrR->setForward( outputSpeed);
 }
-
-void readDasSensors(){
-  if(debugOn){
-    Serial.println("->readSensors"); //Used for Debugging 
-  }
-
-  for ( byte i = 0 ; i < NUMSENSORS ; i++ )
-    sensor[i]->getIR();
-}
-
-void readSensors() {
-  for ( byte i = 0 ; i < NUMSENSORS ; i++ )
-    sensor[i]->setSensorRead(  analogRead( sensor[i]->getRecPin() )  );
-}
-
-void printSensorReadings() {
-  for ( byte i = 0 ; i < NUMSENSORS ; i++ ) {
-    Serial.print("Sensor#");
-    Serial.print(i + 1);
-    Serial.print(": ");
-    Serial.print(sensor[i]->getSensorRead());    
-    
-    if ( i == (NUMSENSORS - 1) )
-      Serial.println();
-    else
-      Serial.print(" // ");
-  }     
-}
-
-void sensorsToLEDs() {
-  for ( byte i = 0 ; i < NUMSENSORS ; i++ ) {
-    if ( sensor[i]->getSensorRead() < minThresh )
-      sensor[i]->getLED().setLOW();
-    else
-      sensor[i]->getLED().setHIGH();
-  }      
-}
-
-/********** MOTOR FUNCTIONS **********/
-
-void setLMtrSpd( byte speed ) {
-  mtrL->setSpeed(speed);     
-}
-
-void setRMtrSpd( byte speed ) {
-  mtrR->setSpeed(speed);
-}
-
-void setBothMtrsSpd( byte speed ) {
-  setLMtrSpd(speed);
-  setRMtrSpd(speed);
-  //mtrL->setSpeed(speed);
-  //mtrR->setSpeed(speed);
-}
-
-void setBothMtrsForward( byte spdA , byte spdB ) {
-  mtrL->setForward( 128 , 0 );
-  mtrR->setForward( 128 , 0 );
-}
-
-void setBothMtrsBackward( byte spdA , byte spdB ) {
-  mtrL->setBackward( 0 , 150 );
-  mtrR->setBackward( 0 , 150 );
-}
-
-void setMtrsLeftTurn( byte spdA , byte spdB ) {
-  mtrL->setForward( 0 , 150 );
-  mtrR->setBackward( 0 , 150 );
-}
-
-void setMtrsRightTurn( byte spdA , byte spdB ) {
-  mtrL->setForward( 150 , 0 );
-  mtrR->setBackward( 150 , 0 );
-  
-} 
-
 
 /********** ENCODER FUNCTIONS **********/
 

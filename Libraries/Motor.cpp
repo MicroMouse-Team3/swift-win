@@ -14,22 +14,22 @@ void Motor::setSpeed( byte speed ) {
   digitalWrite( enablePin , this->speed = speed );
 }
             //   150      0
-void Motor::setForward( byte forwardSpeed , byte reverseSpeed) {
+void Motor::setForward( byte forwardSpeedIn) {
 /*
   digitalWrite( reversePin , HIGH );
   digitalWrite( forwardPin , LOW );
 */
-  analogWrite( reversePin , reverseSpeed );
-  analogWrite( forwardPin , forwardSpeed );
+  analogWrite( reversePin , 0 );
+  analogWrite( forwardPin , forwardSpeedIn );
 }
               //150   0
-void Motor::setBackward( byte spdA , byte spdB ) {
+void Motor::setBackward(byte reverseSpeedIn ) {
 /*
   digitalWrite( reversePin , LOW );
   digitalWrite( forwardPin , HIGH );
 */
-  analogWrite( reversePin , spdA );
-  analogWrite( forwardPin , spdB );
+  analogWrite( reversePin , reverseSpeedIn );
+  analogWrite( forwardPin , 0 );
 }
 
 byte Motor::getEnablePin() {
