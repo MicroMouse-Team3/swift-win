@@ -47,6 +47,12 @@ unsigned long lastTickRight = 0;
 const int NUMSENSORS = 6;
 volatile static int encTickL = 0, encTickR = 0;
 
+//0 North
+//1 East
+//2 South
+//3 West
+int currentDirection = 4000;
+
 Motor * mtrL;
 Motor * mtrR;
 Sensor * sensor[NUMSENSORS];
@@ -82,12 +88,7 @@ unsigned int maxThresh = 700;
 *  Team 3 - Winter 2015. Hi
 **/
 
-byte LpwmA = 50;
-byte LpwmB = 0;
-byte RpwmA = 50;
-byte RpwmB = 0;
-
-int lastTime = 0;
+int lastTime = millis();
 int lastError = 0;
 
 void setup(){
@@ -247,14 +248,11 @@ void loop(){
   digitalWrite(leftFrontLED, LOW);
   digitalWrite(rightFrontLED, LOW);
   delay(128);
-  digitalWrite(leftFrontLED, HIGH);
-  digitalWrite(rightFrontLED, HIGH);
-  delay(128);
   
   encTickR = 0;
   encTickL = 0;
-  mtrL->setForward( 128 );
-  mtrR->setForward( 128 );
+  mtrL->setForward( 250 );
+  mtrR->setForward( 255 );
   
   while(encTickL < 1000){}
   
@@ -387,41 +385,38 @@ void   hopeEyeNeverHitWall() {
 *
 **/
 void PID(){
-  if(debugOn){
-    Serial.println("->PID"); //Used for Debugging 
-  }
-  
   int error;
   int outputSpeed = 0;
   int integral =0, proportion=0, derivative=0;
   
-  int KP = 1;
-  int KI = 1;
-  int KD = 1;
+  float KP = 1;
+  float KI = 1;
+  float KD = 1;
   
   int left = sensor[0]->getIR();//getLeftIR();
   int right = sensor[5]->getIR();//getRightIR();
-  int diff = 0;
   unsigned long currentTime = millis();
   unsigned long deltaTime = currentTime - lastTime;
   
-  diff = left - right;
-  
- 
-  error = diff;
+  error = left - right;
   
   //Calculating the output
   proportion = error * KP;
   integral += error*deltaTime;
   integral *= KI;   
-  derivative = ((error-lastError)/deltaTime)*KD;   
-  outputSpeed = proportion + integral + derivative;
+  outputSpeed = proportion + integral;
   
+  
+  //If error is positive (Left was larger, so closer to left side)
+  //We need to move right, so we need to Decrease Right Wheel speed.
+  //If error is negative (Right was Larger, so closer to right side)
+  //We need to move left, so we need to increase right wheel.
+  mtrR->setForward( 128  - outputSpeed);
+  mtrL->setForward( 128  + outputSpeed);
   lastError = error;
   lastTime = currentTime;
   
-  mtrL->setForward( outputSpeed);
-  mtrR->setForward( outputSpeed);
+  
 }
 
 /********** ENCODER FUNCTIONS **********/
