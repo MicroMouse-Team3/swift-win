@@ -41,6 +41,20 @@
 #define R_CH_A 7
 #define R_CH_B 8
 
+//Direction
+#define NORTH 0
+#define EAST 1
+#define SOUTH 2
+#define WEST 3
+  // 4= S, 5 = R, 6 = L, 7 = U
+
+#define STRAIGHT 4
+#define RIGHTTURN 5
+#define LEFTTURN 6
+#define UTURN 7
+
+int currentDirection = 4000;
+
 unsigned long lastTickLeft = 0;
 unsigned long lastTickRight = 0;
 
@@ -237,6 +251,7 @@ byte maze[16][16] = { { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 
 void loop(){  
   encTickR = 0;
   encTickL = 0;
+  byte turn;
   mtrL->setForward( 128 );
   mtrR->setForward( 128 );
   
@@ -244,7 +259,7 @@ void loop(){
     PID();
   }
   
-  NAV();
+  turn = NAV();
   
   while(encTickL < 1000){
     PID();
@@ -488,12 +503,16 @@ void incEncoderR() {
 
 /****************MAPPPPPPING ********************/
 
-byte navigation(byte currOrien){
+byte NAV(){
   
   //0 = N, 1 = E, 2 = S, 3 = W
+\ 
   
   // 4= S, 5 = R, 6 = L, 7 = U
-   
+  bool wallLeft = sensor[0]->getIR() > 600;
+  bool wallFront = sensor[2]->getIR() > 200;
+  bool wallRight = sensor[5]->getIR() > 600; 
+
   
   if(wallLeft){
      if(wallRight){
@@ -512,7 +531,7 @@ byte navigation(byte currOrien){
           
        }
        else{
-          switch(currOrien){
+          switch(currentDirection % 4){
             case NORTH : if(maze[x][y+1] < maze[x+1][y]){
                            return RIGHTTURN;
                         }    
@@ -554,7 +573,7 @@ byte navigation(byte currOrien){
           
         }
         else{ //no wall front
-          switch(currOrien){
+          switch(currentDirection % 4){
             case NORTH : if(maze[x][y+1] < maze[x-1][y]){
                            return LEFTTURN;
                         }    
@@ -588,7 +607,7 @@ byte navigation(byte currOrien){
      }
     else{ //No wallRight
        if(wallFront){
-          switch(currOrien){
+          switch(currentDirection % 4){
             case NORTH : if(maze[x-1][y] > maze[x+1][y]){
                            return LEFTTURN;
                         }    
@@ -620,7 +639,7 @@ byte navigation(byte currOrien){
             }   
        }
        else{ //no walls at all, priority is STRAIGHT THEN TURN RIGHT if its equal
-          switch(currOrien){
+          switch(currentDirection % 4){
             case NORTH : if(maze[x-1][y] > maze[x+1][y]){
                              if(maze[x-1][y] > maze[x][y+1])
                                  return LEFTTURN;
