@@ -41,6 +41,9 @@
 #define R_CH_A 7
 #define R_CH_B 8
 
+unsigned long lastTickLeft = 0;
+unsigned long lastTickRight = 0;
+
 const int NUMSENSORS = 6;
 volatile static int encTickL = 0, encTickR = 0;
 
@@ -223,34 +226,53 @@ int maze[16][16] = { { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0
                                     
                                     
 void loop(){  
- /* while (encTickR < 1100){
-    mtrL->setForward( 128 );
-    mtrR->setForward( 128 );
-  }
-  while (encTickR < 1334){
-    mtrL->setBackward( 255 );
-    mtrR->setBackward( 255 );
-  }*/
+  digitalWrite(leftFrontLED, LOW);
+  digitalWrite(rightFrontLED, LOW);
+  delay(128);
+  digitalWrite(leftFrontLED, HIGH);
+  digitalWrite(rightFrontLED, HIGH);
+  delay(128);
+  digitalWrite(leftFrontLED, LOW);
+  digitalWrite(rightFrontLED, LOW);
+  delay(128);
+  digitalWrite(leftFrontLED, HIGH);
+  digitalWrite(rightFrontLED, HIGH);
+  delay(128);
+  digitalWrite(leftFrontLED, LOW);
+  digitalWrite(rightFrontLED, LOW);
+  delay(128);
+  digitalWrite(leftFrontLED, HIGH);
+  digitalWrite(rightFrontLED, HIGH);
+  delay(128);
+  digitalWrite(leftFrontLED, LOW);
+  digitalWrite(rightFrontLED, LOW);
+  delay(128);
+  digitalWrite(leftFrontLED, HIGH);
+  digitalWrite(rightFrontLED, HIGH);
+  delay(128);
+  
   encTickR = 0;
   encTickL = 0;
-  mtrL->setForward( 0 );
-  mtrR->setForward( 0 );
-  delay(5000);
+  mtrL->setForward( 128 );
+  mtrR->setForward( 128 );
   
-  mtrL->setForward(128);
-  mtrR->setForward(128);
+  while(encTickL < 1000){}
   
-  while(encTickR < 1334){
-  if(current_error() > 0){
-    mtrL->setBackWards( P_error() + D_Error());
-    mtrR->setBackWards( P_error() + D_Error());
-    }
-  }
+  mtrL->setBackward(128);
+  mtrR->setBackward(128);
+  
+  while(encTickL < 1334){};
+  
+  mtrL->setBackward(0);
+  mtrR->setBackward(0);
+  
+ delay(5000);
   
   
 }
+
 int current_error(){
-  int curPos = (encTickR + encTickL)/2
+  int curPos = (encTickR + encTickL)/2;
   int error = curPos - 1334;
   previous_error = error;
   return error;
@@ -269,6 +291,7 @@ void testSensors(){
   int test4 = sensor[3]->getIR();
   int test5 = sensor[4]->getIR();
   int test6 = sensor[5]->getIR();
+  test6 = test5 + test4 + test3 + test2 + test1;
   delay(5000);
 }
 void LEDsON() {
