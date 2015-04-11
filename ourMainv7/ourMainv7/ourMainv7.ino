@@ -1,8 +1,8 @@
-#include <Motor.h>
-#include <Sensor.h>
 #include <EncoderMM.h>
 //#include <Functions.h>
 #include <LED.h>
+#include <Motor.h>
+#include <Sensor.h>
 
 const int NUMSENSORS = 6;
 
@@ -178,10 +178,10 @@ void setup(){
 
   setBothMtrsForward( 100 , 0 );
   setBothMtrsSpd(100);
-}
+}//end setup
 
 boolean mapMode = true;
-int maze[16][16] = { { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 }, 
+byte maze[16][16] = { { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 }, 
                                     { 0 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 }, 
                                     { 0 , 1 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 1 , 0 }, 
                                     { 0 , 1 , 2 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 2 , 1 , 0 }, 
@@ -492,3 +492,255 @@ void incEncoderR() {
   encTickR++;
 }
 
+
+
+/****************MAPPPPPPING ********************/
+
+byte navigation(byte currOrien){
+  
+  //0 = N, 1 = E, 2 = S, 3 = W
+  
+  // 4= S, 5 = R, 6 = L, 7 = U
+   
+  
+  if(wallLeft){
+     if(wallRight){
+        if(wallFront){
+          
+          return UTURN;
+          
+        }
+        else{
+          return STRAIGHT;
+        }
+     }
+    else{ //no wall right
+       if(wallFront){
+          return RIGHTTURN;
+          
+       }
+       else{
+          switch(currOrien){
+            case NORTH : if(maze[x][y+1] < maze[x+1][y]){
+                           return RIGHTTURN;
+                        }    
+                       else{
+                         return STRAIGHT;
+                       }
+                       break;  
+            case EAST : if(maze[x+1][y] < maze[x][y-1]){
+                           return RIGHTTURN;
+                        }
+                       else{
+                         return STRAIGHT;
+                       }
+                       break;
+            case SOUTH : if(maze[x][y-1] < maze[x-1][y]){
+                           return RIGHTTURN;
+                          }
+                         else{
+                           return STRAIGHT;
+                         }
+                         break;
+            case WEST : if(maze[x-1][y] < maze[x][y+1]){
+                           return RIGHTTURN;
+                         }
+                         else{
+                           return STRAIGHT;
+                         }
+                         break;
+            }
+            
+       }
+    } 
+  }
+  else{ //no wallLeft
+    if(wallRight){
+        if(wallFront){
+          
+          return LEFTTURN;
+          
+        }
+        else{ //no wall front
+          switch(currOrien){
+            case NORTH : if(maze[x][y+1] < maze[x-1][y]){
+                           return LEFTTURN;
+                        }    
+                       else{
+                         return STRAIGHT;
+                       }
+                       break;  
+            case EAST : if(maze[x+1][y] < maze[x][y+1]){
+                           return LEFTTURN;
+                        }
+                       else{
+                         return STRAIGHT;
+                       }
+                       break;
+            case SOUTH : if(maze[x][y-1] < maze[x+1][y]){
+                           return LEFTTURN;
+                          }
+                         else{
+                           return STRAIGHT;
+                         }
+                         break;
+            case WEST : if(maze[x-1][y] < maze[x][y-1]){
+                           return LEFTTURN;
+                         }
+                         else{
+                           return STRAIGHT;
+                         }
+                         break;
+            }
+        }
+     }
+    else{ //No wallRight
+       if(wallFront){
+          switch(currOrien){
+            case NORTH : if(maze[x-1][y] > maze[x+1][y]){
+                           return LEFTTURN;
+                        }    
+                       else{
+                         return RIGHTTURN;
+                       }
+                       break;  
+            case EAST : if(maze[x][y+1] > maze[x][y-1]){
+                           return LEFTTURN;
+                        }
+                       else{
+                         return RIGHTTURN;
+                       }
+                       break;
+            case SOUTH : if(maze[x+1][y] > maze[x-1][y]){
+                           return LEFTTURN;
+                          }
+                         else{
+                           return RIGHTTURN;
+                         }
+                         break;
+            case WEST : if(maze[x][y-1] > maze[x][y+1]){
+                           return LEFTTURN;
+                         }
+                         else{
+                           return RIGHTTURN;
+                         }
+                         break;
+            }   
+       }
+       else{ //no walls at all, priority is STRAIGHT THEN TURN RIGHT if its equal
+          switch(currOrien){
+            case NORTH : if(maze[x-1][y] > maze[x+1][y]){
+                             if(maze[x-1][y] > maze[x][y+1])
+                                 return LEFTTURN;
+                             else if(maze[x][y+1] > maze[x-1][y])
+                                 return STRAIGHT;
+                             else 
+                                 return RIGHTTURN;
+                         }    
+                       else if(maze[x-1][y] < maze[x+1][y]{
+                             if(maze[x+1][y] > maze[x][y+1])
+                                 return RIGHTTURN;
+                             else if(maze[x][y+1] > maze[x+1][y])
+                                 return STRAIGHT;
+                             else 
+                                 return LEFTTURN;
+                       }
+                       else{
+                            if(maze[x-1][y] == maze[x+1][y])
+                               return RIGHTTURN;
+                            else if(maze[x][y+1] == maze[x+1][y])
+                               return STRAIGHT;
+                            else
+                               return STRAIGHT;
+                       }
+                       break;  
+                       
+            case EAST : if(maze[x][y+1] > maze[x][y-1]){
+                             if(maze[x][y+1] > maze[x+1][y])
+                                 return LEFTTURN;
+                             else if(maze[x][y+1] > maze[x][y-1])
+                                 return STRAIGHT;
+                             else 
+                                 return RIGHTTURN;
+                         }    
+                       else if(maze[x][y+1] < maze[x][y-1]{
+                             if(maze[x][y-1] > maze[x+1][y])
+                                 return RIGHTTURN;
+                             else if(maze[x+1][y] > maze[x][y+1])
+                                 return STRAIGHT;
+                             else 
+                                 return LEFTTURN;
+                       }
+                       else{
+                            if(maze[x-1][y] == maze[x+1][y])
+                               return RIGHTTURN;
+                            else if(maze[x][y+1] == maze[x+1][y])
+                               return STRAIGHT;
+                            else
+                               return STRAIGHT;
+                       }
+                       break;
+                       
+            case SOUTH : if(maze[x-1][y] < maze[x+1][y]){
+                             if(maze[x+1][y] > maze[x][y-1])
+                                 return LEFTTURN;
+                             else if(maze[x][y-1] > maze[x-1][y])
+                                 return STRAIGHT;
+                             else 
+                                 return RIGHTTURN;
+                         }    
+                       else if(maze[x-1][y] > maze[x+1][y]{
+                             if(maze[x-1][y] > maze[x][y-1])
+                                 return RIGHTTURN;
+                             else if(maze[x][y-1] > maze[x+1][y])
+                                 return STRAIGHT;
+                             else 
+                                 return LEFTTURN;
+                       }
+                       else{
+                            if(maze[x-1][y] == maze[x+1][y])
+                               return RIGHTTURN;
+                            else if(maze[x][y+1] == maze[x+1][y])
+                               return STRAIGHT;
+                            else
+                               return STRAIGHT;
+                       }
+                       break; 
+                         
+            case WEST : if(maze[x][y+1] < maze[x][y-1]){
+                             if(maze[x][y-1] > maze[x-1][y])
+                                 return LEFTTURN;
+                             else if(maze[x-1][y] > maze[x][y+1])
+                                 return STRAIGHT;
+                             else 
+                                 return RIGHTTURN;
+                         }    
+                       else if(maze[x][y+1] > maze[x][y-1]{
+                             if(maze[x][y+1] > maze[x-1][y])
+                                 return RIGHTTURN;
+                             else if(maze[x-1][y] > maze[x][y-1])
+                                 return STRAIGHT;
+                             else 
+                                 return LEFTTURN;
+                       }
+                       else{
+                            if(maze[x-1][y] == maze[x+1][y])
+                               return RIGHTTURN;
+                            else if(maze[x][y+1] == maze[x+1][y])
+                               return STRAIGHT;
+                            else
+                               return STRAIGHT;
+                       }
+                       break;
+            }
+            
+       }
+    }
+  }
+    
+    
+    
+    
+    
+  
+}
