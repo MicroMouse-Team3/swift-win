@@ -2,34 +2,35 @@
 #include "Arduino.h"
 #include "Motor.h"
 
-Motor::Motor( byte enablePin , byte chA , byte chB , byte enc_chA , byte enc_chB ) : enc( enc_chA , enc_chB) {
-  pinMode( this->enablePin = enablePin , OUTPUT );
-  pinMode( this->chA = chA , OUTPUT );
-  pinMode( this->chB = chB , OUTPUT ); 
-  speed = 200;  
+Motor::Motor( byte enablePin , byte reversePin , byte forwardPin , byte enc_reversePin , byte enc_forwardPin ) : enc( enc_reversePin , enc_forwardPin) {
+  this->enablePin = enablePin;
+  this->reversePin = reversePin;
+  this->forwardPin = forwardPin;
+  speed = 200;
+  digitalWrite(enablePin, HIGH);
+
 }
 
 void Motor::setSpeed( byte speed ) {
   //analogWrite( enablePin , this->speed = speed );
-  digitalWrite( enablePin , this->speed = speed );
 }
-						//   150			0
-void Motor::setForward( byte spdA , byte spdB ) {
+            //   150      0
+void Motor::setForward( byte forwardSpeedIn) {
 /*
-  digitalWrite( chA , HIGH );
-  digitalWrite( chB , LOW );
+  digitalWrite( reversePin , HIGH );
+  digitalWrite( forwardPin , LOW );
 */
-  analogWrite( chA , spdB );
-  analogWrite( chB , spdA );
+  analogWrite( reversePin , 0 );
+  analogWrite( forwardPin , forwardSpeedIn );
 }
-							//150		0
-void Motor::setBackward( byte spdA , byte spdB ) {
+              //150   0
+void Motor::setBackward(byte reverseSpeedIn ) {
 /*
-  digitalWrite( chA , LOW );
-  digitalWrite( chB , HIGH );
+  digitalWrite( reversePin , LOW );
+  digitalWrite( forwardPin , HIGH );
 */
-  analogWrite( chA , spdA );
-  analogWrite( chB , spdB );
+  analogWrite( reversePin , reverseSpeedIn );
+  analogWrite( forwardPin , 0 );
 }
 
 byte Motor::getEnablePin() {

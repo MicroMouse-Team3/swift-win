@@ -32,17 +32,18 @@ byte Sensor::getRecPin() {
 
 /***/
 
-double Sensor::getIR(){
-//  double senseVal = 0;
-//  unsigned long curt = micros();
-  led.setHIGH();
-//  sensor[0]->getLED().setHIGH();  
-  //digitalWrite( ledPin , HIGH ); //LED
+double Sensor::getIR(){ 
+  digitalWrite(sensEmitPin, HIGH ); //LED
   delayMicroseconds(80);
-  recRead = sensorData( sensRecPin );
-  led.setLOW();  
-//  digitalWrite( ledPin , LOW ); //LED
-  return getDistance(recRead);
+  recRead = analogRead(sensRecPin);
+  digitalWrite(sensEmitPin, LOW);
+  if (recRead > 200){
+    led.setHIGH();
+  }
+  else{
+    led.setLOW();
+  }
+  return recRead;
 }
 
 double Sensor::sensorData( byte sensRecPin ){
