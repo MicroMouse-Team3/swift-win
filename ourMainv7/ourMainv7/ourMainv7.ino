@@ -54,6 +54,8 @@
 #define UTURN 7
 
 int currentDirection = 4000;
+int x = 0;
+int y = 0;
 
 unsigned long lastTickLeft = 0;
 unsigned long lastTickRight = 0;
@@ -65,7 +67,6 @@ int ourOffset = 0;
 //1 East
 //2 South
 //3 West
-int currentDirection = 4000;
 
 Motor * mtrL;
 Motor * mtrR;
@@ -167,11 +168,6 @@ void setup(){
   
   delay(5000);
 
-<<<<<<< HEAD
-  setBothMtrsForward( 100 , 0 );
-  setBothMtrsSpd(100);
-}//end setup
-=======
   digitalWrite(leftLED, HIGH);
   digitalWrite(leftDiagLED, HIGH);
   digitalWrite(leftFrontLED, HIGH);
@@ -227,7 +223,7 @@ void setup(){
   digitalWrite(leftFrontLED, LOW);
   digitalWrite(rightFrontLED, LOW);
 }
->>>>>>> 69054978cdd48d03e20e330bfb1073751d76a5df
+
 
 boolean mapMode = true;
 byte maze[16][16] = { { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 }, 
@@ -326,17 +322,6 @@ void mapMaze() {
    encTickL = encTickR = 0;             
 }
 
-void squareTest() {
-fullStraight();
-  delay(200);
-  fullStop();
-  delay(50);
-  turnRight();
-  delay(50);
-  fullStop();
-  delay(500);  
-}
-
 void turnAround() {
   turnRight();
   turnRight(); 
@@ -369,35 +354,6 @@ void turnLeft() {
 }
 
 
-
-void   hopeEyeNeverHitWall() {
-  //Left = 0, LeftDiag = 1, LeftFront = 2, RightFront = 3, RightDiag = 4, Right = 5
-  if ( sensor[2]->getIR() < minThresh || sensor[3]->getIR() < minThresh ) {     
-     //Turn around if walls on left and right sides.    
-    if ( sensor[0]->getIR() < minThresh && sensor[5]->getIR() < minThresh ) {
-      turnAround();
-      fullStraight();
-    }
-      
-     //Turn Right if wall on left and NOT on right 
-    else if ( sensor[0]->getIR() < minThresh && sensor[5]->getIR() > minThresh ) {
-      turnRight();
-      fullStraight();
-    }
-      
-      //Turn left if wall on right and NOT on left
-    else if ( sensor[0]->getIR() > minThresh && sensor[5]->getIR() < minThresh ) {
-      turnLeft();
-      fullStraight();
-    }
-    else
-      fullStop();
-    //blink all LEDs and freak the hell out
-  }
- // else
-  //  PID();      //Keep going straight
-}
-
 /*
 * PID Functions
 *
@@ -427,7 +383,7 @@ void PID(){
   }
   else if (right > 600){
      errorP = 2*(right - 820);
-     errorD = errorP - olderrorP;  
+     errorD = errorP - oldErrorP;  
   }
   else if (left < 600 && right < 600){
      errorP = 0; //(left encoder - right encoder)*3; 
@@ -465,7 +421,7 @@ void stopPID(){
   }
   else if (right > 600){
      errorP = 2*(right - 820);
-     errorD = errorP - olderrorP;  
+     errorD = errorP - oldErrorP;  
   }
   else if (left < 600 && right < 600){
      errorP = 0; //(left encoder - right encoder)*3; 
@@ -475,8 +431,8 @@ void stopPID(){
 error = (KP * errorP) + (KD * errorD);
 oldErrorP = errorP;
 
-mtrL->setBackwards( 128  + error);
-mtrR->setBackwards( 128  - error);
+mtrL->setBackward( 128  + error);
+mtrR->setBackward( 128  - error);
   
 }
 
@@ -506,7 +462,7 @@ void incEncoderR() {
 byte NAV(){
   
   //0 = N, 1 = E, 2 = S, 3 = W
-\ 
+
   
   // 4= S, 5 = R, 6 = L, 7 = U
   bool wallLeft = sensor[0]->getIR() > 600;
@@ -648,7 +604,7 @@ byte NAV(){
                              else 
                                  return RIGHTTURN;
                          }    
-                       else if(maze[x-1][y] < maze[x+1][y]{
+                       else if(maze[x-1][y] < maze[x+1][y]){
                              if(maze[x+1][y] > maze[x][y+1])
                                  return RIGHTTURN;
                              else if(maze[x][y+1] > maze[x+1][y])
@@ -674,7 +630,7 @@ byte NAV(){
                              else 
                                  return RIGHTTURN;
                          }    
-                       else if(maze[x][y+1] < maze[x][y-1]{
+                       else if(maze[x][y+1] < maze[x][y-1]){
                              if(maze[x][y-1] > maze[x+1][y])
                                  return RIGHTTURN;
                              else if(maze[x+1][y] > maze[x][y+1])
@@ -700,7 +656,7 @@ byte NAV(){
                              else 
                                  return RIGHTTURN;
                          }    
-                       else if(maze[x-1][y] > maze[x+1][y]{
+                       else if(maze[x-1][y] > maze[x+1][y]){
                              if(maze[x-1][y] > maze[x][y-1])
                                  return RIGHTTURN;
                              else if(maze[x][y-1] > maze[x+1][y])
@@ -726,7 +682,7 @@ byte NAV(){
                              else 
                                  return RIGHTTURN;
                          }    
-                       else if(maze[x][y+1] > maze[x][y-1]{
+                       else if(maze[x][y+1] > maze[x][y-1]){
                              if(maze[x][y+1] > maze[x-1][y])
                                  return RIGHTTURN;
                              else if(maze[x-1][y] > maze[x][y-1])
