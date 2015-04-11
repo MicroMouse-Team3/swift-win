@@ -46,7 +46,7 @@ unsigned long lastTickRight = 0;
 
 const int NUMSENSORS = 6;
 volatile static int encTickL = 0, encTickR = 0;
-
+int ourOffset = 0;
 //0 North
 //1 East
 //2 South
@@ -146,6 +146,8 @@ void setup(){
   //Right Right
   sensor[5] = new Sensor( rightEmitIR , rightRecIR , rightLED ); 
   
+  ourOffset = sensor[5]->getIR() - sensor[0]->getIR();
+  
   attachInterrupt( L_CH_A , incEncoderL , RISING );
   attachInterrupt( R_CH_A , incEncoderR , RISING );
   
@@ -227,39 +229,26 @@ int maze[16][16] = { { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0
                                     
                                     
 void loop(){  
-  digitalWrite(leftFrontLED, LOW);
-  digitalWrite(rightFrontLED, LOW);
-  delay(128);
-  digitalWrite(leftFrontLED, HIGH);
-  digitalWrite(rightFrontLED, HIGH);
-  delay(128);
-  digitalWrite(leftFrontLED, LOW);
-  digitalWrite(rightFrontLED, LOW);
-  delay(128);
-  digitalWrite(leftFrontLED, HIGH);
-  digitalWrite(rightFrontLED, HIGH);
-  delay(128);
-  digitalWrite(leftFrontLED, LOW);
-  digitalWrite(rightFrontLED, LOW);
-  delay(128);
-  digitalWrite(leftFrontLED, HIGH);
-  digitalWrite(rightFrontLED, HIGH);
-  delay(128);
-  digitalWrite(leftFrontLED, LOW);
-  digitalWrite(rightFrontLED, LOW);
-  delay(128);
-  
   encTickR = 0;
   encTickL = 0;
-  mtrL->setForward( 250 );
-  mtrR->setForward( 255 );
+  mtrL->setForward( 128 );
+  mtrR->setForward( 128 );
   
-  while(encTickL < 1000){}
+  while(encTickL < 667){
+    PID();
+  }
   
+  NAV();
+  
+  while(encTickL < 1000){
+    PID();
+  }
   mtrL->setBackward(128);
   mtrR->setBackward(128);
   
-  while(encTickL < 1334){};
+  while(encTickL < 1334){
+    stopPID();
+  }
   
   mtrL->setBackward(0);
   mtrR->setBackward(0);
@@ -327,26 +316,35 @@ fullStraight();
   delay(500);  
 }
 
-void fullStop() {
-
-}
-void fullStraight() {
-  
-}
-
 void turnAround() {
-  //turnRight
-  //delay(10);
   turnRight();
-  turnRight();
-//  fullStop();
-  //overshoot?
+  turnRight(); 
 }
+
+//90 degrees for turns
 void turnRight() { 
+  encTickL = 0;
+  encTickR = 0;
+  mtrL->setForward(128);
+  mtrR->setBackward(128);
+  while(encTickR < 300){}
+  mtrL->setBackward(128);
+  mtrR->setForward(128);
+  while(encTickR < 454){}
   
+  currentDirection++;
 }
 void turnLeft() {
+  encTickL = 0;
+  encTickR = 0;
+  mtrL->setBackward(128);
+  mtrR->setForward(128);
+  while(encTickR < 300){}
+  mtrL->setForward(128);
+  mtrR->setBackward(128);
+  while(encTickR < 454){}
   
+  currentDirection--;
 }
 
 
@@ -393,20 +391,18 @@ void PID(){
   int integral =0, proportion=0, derivative=0;
   
   float KP = 1;
-  float KI = 1;
   float KD = 1;
   
-  int left = sensor[0]->getIR();//getLeftIR();
-  int right = sensor[5]->getIR();//getRightIR();
+  int left = sensor[0]->getIR();
+  int right = sensor[5]->getIR();
   
-  //Chir's shit
   if (left > 600 && right > 600){
-     errorP = right - left - 20;//(ours is 20 //measure this on setup);
+     errorP = right - left - ourOffset;
      errorD = errorP - oldErrorP;
   }
   else if(left > 600){
      errorP = 2*(820 - left);
-     errorD = errorP - oldErrorP; 
+     errorD = errorP - oldErrorP;  
   }
   else if (right > 600){
      errorP = 2*(right - 820);
@@ -422,8 +418,44 @@ oldErrorP = errorP;
 
 mtrL->setForward( 128  - error);
 mtrR->setForward( 128  + error);
-setleftspeed(leftbasespeed - error);
-setRightspeed(rightbaspeed + error);
+}
+
+void stopPID(){
+  int error = 0;
+  int errorP = 0;
+  int errorD = 0;
+  static int oldErrorP = 0;
+  int outputSpeed = 0;
+  int integral =0, proportion=0, derivative=0;
+  
+  float KP = 1;
+  float KD = 1;
+  
+  int left = sensor[0]->getIR();
+  int right = sensor[5]->getIR();
+  
+  if (left > 600 && right > 600){
+     errorP = right - left - ourOffset;
+     errorD = errorP - oldErrorP;
+  }
+  else if(left > 600){
+     errorP = 2*(820 - left);
+     errorD = errorP - oldErrorP;  
+  }
+  else if (right > 600){
+     errorP = 2*(right - 820);
+     errorD = errorP - olderrorP;  
+  }
+  else if (left < 600 && right < 600){
+     errorP = 0; //(left encoder - right encoder)*3; 
+    errorD = 0;  
+}
+
+error = (KP * errorP) + (KD * errorD);
+oldErrorP = errorP;
+
+mtrL->setBackwards( 128  + error);
+mtrR->setBackwards( 128  - error);
   
 }
 
