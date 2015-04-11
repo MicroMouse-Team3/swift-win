@@ -56,8 +56,6 @@ int R_CH_B = 8;         // (H-Bridge SV3 pin ?)
 
 
 
-int leftTicks = 0;
-int rightTicks = 0;
 
 //Global Boolean Values
 const bool debugOn = "TRUE";
@@ -65,7 +63,7 @@ const bool solved = "FALSE";
 
 //Global Values
 const int distancePerMove = 30;
-int encTickL = 0, encTickR = 0;
+volatile static int encTickL = 0, encTickR = 0;
 
 unsigned long curt = 0; 
 
@@ -100,12 +98,6 @@ int lastTime = 0;
 int lastError = 0;
 
 void setup(){
-  Serial.begin(9600); //Used for Debugging
-  Serial.println("->setup");
- 
-
-
-  
   pinMode(0, INPUT);
   pinMode(1, OUTPUT);
   pinMode(2, OUTPUT);
@@ -152,7 +144,7 @@ void setup(){
   //Left Diag
   sensor[1] = new Sensor( leftDiagEmitIR , leftDiagRecIR , leftDiagLED );
   //Left Front
-  sensor[2] = new Sensor( leftFrontEmitIR , leftDiagRecIR , leftDiagLED );
+  sensor[2] = new Sensor( leftFrontEmitIR , leftFrontRecIR , leftFrontLED );
   //Right Front
   sensor[3] = new Sensor( rightFrontEmitIR , rightFrontRecIR , rightFrontLED );
   //Right Diag
@@ -165,8 +157,62 @@ void setup(){
   
   delay(5000);
 
-  setBothMtrsForward( 100 , 0 );
-  setBothMtrsSpd(100);
+
+
+  digitalWrite(leftLED, HIGH);
+  digitalWrite(leftDiagLED, HIGH);
+  digitalWrite(leftFrontLED, HIGH);
+  digitalWrite(rightFrontLED, HIGH);
+  digitalWrite(rightDiagLED, HIGH);
+  digitalWrite(rightLED, HIGH);
+  
+  delay(5000);
+  
+  digitalWrite(leftLED, LOW);
+  digitalWrite(leftDiagLED, LOW);
+  digitalWrite(leftFrontLED, LOW);
+  digitalWrite(rightFrontLED, LOW);
+  digitalWrite(rightDiagLED, LOW);
+  digitalWrite(rightLED, LOW);
+  
+  //Traps Setup until both front sensors are higher than 600.
+  digitalWrite(rightFrontLED, HIGH);
+  digitalWrite(leftFrontLED, LOW);
+  delay(500);
+  digitalWrite(leftFrontLED, LOW);
+  digitalWrite(rightFrontLED, HIGH);
+  delay(500);
+  digitalWrite(leftFrontLED, HIGH);
+  digitalWrite(rightFrontLED, LOW);
+  delay(500);
+  digitalWrite(leftFrontLED, LOW);
+  digitalWrite(rightFrontLED, HIGH);
+  delay(500);
+  digitalWrite(leftFrontLED, LOW);
+  digitalWrite(rightFrontLED, LOW);
+  
+  while ((sensor[2]->getIR() < 800) && (sensor[3]->getIR() < 800)){
+   digitalWrite(leftFrontLED, LOW);
+  digitalWrite(rightFrontLED, LOW);
+  delay(128);
+  digitalWrite(leftFrontLED, HIGH);
+  digitalWrite(rightFrontLED, HIGH);
+  delay(128);
+  }
+  
+  encTickL = 0;
+  encTickR = 0;
+  digitalWrite(leftFrontLED, HIGH);
+  digitalWrite(rightFrontLED, HIGH);
+  delay(500);
+  digitalWrite(leftFrontLED, LOW);
+  digitalWrite(rightFrontLED, LOW);
+  delay(500);
+  digitalWrite(leftFrontLED, HIGH);
+  digitalWrite(rightFrontLED, HIGH);
+  delay(500);
+  digitalWrite(leftFrontLED, LOW);
+  digitalWrite(rightFrontLED, LOW);
 }
 
 boolean mapMode = true;
@@ -189,29 +235,29 @@ int maze[16][16] = { { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0
                                     
                                     
 void loop(){
-  delay(3000);
+// int test1 = sensor[0]->getIR();
+// int test2 = sensor[1]->getIR();
+// int test3 = sensor[2]->getIR();
+// int test4 = sensor[3]->getIR();
+// int test5 = sensor[4]->getIR();
+// int test6 = sensor[5]->getIR();
+// delay(5000);
   
-  hopeEyeNeverHitWall();
-
-  for ( int i = 0 ; i < NUMSENSORS ; i++ ) {        
- //   LEDsON();     
-    sensor[i]->getLED().setHIGH();
-    delay(500);
-  }
-  //delay(500);
-  for ( int i = 0 ; i < NUMSENSORS ; i++ ) {
-    sensor[i]->getLED().setLOW();
-    
-  // LEDsOFF();     
-    delay(500);  
-  }
-
-  for ( int i = 0 ; i < 4 ; i++ ) {
-    squareTest();
-
-  }
   
-//  PID();
+  while (encTickR < 1100){
+    mtrL->setForward( 128 , 0 );
+    mtrR->setForward( 128 , 0 );
+  }
+  while (encTickR < 1334){
+    mtrL->setForward( 0 , 255 );
+    mtrR->setForward( 0 , 255 );
+  }
+ encTickR = 0;
+  mtrL->setForward( 0 , 0 );
+  mtrR->setForward( 0 , 0 );
+  delay(5000);
+  
+  
 }
 
 void LEDsON() {
@@ -439,8 +485,8 @@ void setBothMtrsSpd( byte speed ) {
 }
 
 void setBothMtrsForward( byte spdA , byte spdB ) {
-  mtrL->setForward( 150 , 0 );
-  mtrR->setForward( 150 , 0 );
+  mtrL->setForward( 128 , 0 );
+  mtrR->setForward( 128 , 0 );
 }
 
 void setBothMtrsBackward( byte spdA , byte spdB ) {
