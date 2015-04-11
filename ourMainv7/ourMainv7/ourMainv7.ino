@@ -385,7 +385,10 @@ void   hopeEyeNeverHitWall() {
 *
 **/
 void PID(){
-  int error;
+  int error = 0;
+  int errorP = 0;
+  int errorD = 0;
+  static int oldErrorP = 0;
   int outputSpeed = 0;
   int integral =0, proportion=0, derivative=0;
   
@@ -395,27 +398,32 @@ void PID(){
   
   int left = sensor[0]->getIR();//getLeftIR();
   int right = sensor[5]->getIR();//getRightIR();
-  unsigned long currentTime = millis();
-  unsigned long deltaTime = currentTime - lastTime;
   
-  error = left - right;
-  
-  //Calculating the output
-  proportion = error * KP;
-  integral += error*deltaTime;
-  integral *= KI;   
-  outputSpeed = proportion + integral;
-  
-  
-  //If error is positive (Left was larger, so closer to left side)
-  //We need to move right, so we need to Decrease Right Wheel speed.
-  //If error is negative (Right was Larger, so closer to right side)
-  //We need to move left, so we need to increase right wheel.
-  mtrR->setForward( 128  - outputSpeed);
-  mtrL->setForward( 128  + outputSpeed);
-  lastError = error;
-  lastTime = currentTime;
-  
+  //Chir's shit
+  if (left > 600 && right > 600){
+     errorP = right - left - 20;//(ours is 20 //measure this on setup);
+     errorD = errorP - oldErrorP;
+  }
+  else if(left > 600){
+     errorP = 2*(820 - left);
+     errorD = errorP - oldErrorP; 
+  }
+  else if (right > 600){
+     errorP = 2*(right - 820);
+     errorD = errorP - olderrorP;  
+  }
+  else if (left < 600 && right < 600){
+     errorP = 0; //(left encoder - right encoder)*3; 
+    errorD = 0;  
+}
+
+error = (KP * errorP) + (KD * errorD);
+oldErrorP = errorP;
+
+mtrL->setForward( 128  - error);
+mtrR->setForward( 128  + error);
+setleftspeed(leftbasespeed - error);
+setRightspeed(rightbaspeed + error);
   
 }
 
