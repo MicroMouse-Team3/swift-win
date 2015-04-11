@@ -159,17 +159,6 @@ void setup(){
   sensor[4] = new Sensor( rightDiagEmitIR , rightDiagRecIR , rightDiagLED );
   //Right Right
   sensor[5] = new Sensor( rightEmitIR , rightRecIR , rightLED ); 
-
-  
-  pinMode( leftLED , OUTPUT );
-  pinMode( leftDiagLED , OUTPUT );
-  pinMode( leftFrontLED , OUTPUT );
-  pinMode( rightFrontLED , OUTPUT );
-  pinMode( rightDiagLED , OUTPUT );
-  pinMode( rightFrontLED , OUTPUT );
-  
-          
-            
   
   attachInterrupt( L_CH_A , incEncoderL , RISING );
   attachInterrupt( R_CH_A , incEncoderR , RISING );
@@ -356,7 +345,7 @@ void   hopeEyeNeverHitWall() {
 *
 *
 **/
-/*
+
 void PID(){
   if(debugOn){
     Serial.println("->PID"); //Used for Debugging 
@@ -394,8 +383,6 @@ void PID(){
   mtrL->setForward( outputSpeed , 0 );
   mtrR->setForward( outputSpeed , 0 );
 }
-*/
-/*
 
 void readDasSensors(){
   if(debugOn){
@@ -433,7 +420,7 @@ void sensorsToLEDs() {
       sensor[i]->getLED().setHIGH();
   }      
 }
-*/
+
 /********** MOTOR FUNCTIONS **********/
 
 void setLMtrSpd( byte speed ) {
