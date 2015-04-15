@@ -247,7 +247,7 @@ void loop(){
   mtrR->setForward( mapSpeed );
   
   //Gets us through the first half of the block just by going Straight.
-  while(encTickL < 667){
+  while(encTickL < 1000){
     PID();
   }
   
@@ -255,15 +255,20 @@ void loop(){
   turn = NAV();
   
   //Contiunes straight until it is time to stop.
-  while(encTickL < 939  ){
+  while(encTickL < 1810  ){
     PID();
   }
   mtrL->setBackward(mapSpeed);
   mtrR->setBackward(mapSpeed);
   
-  while(encTickL < 1334){
+  while(encTickL < 2000){
     stopPID();
   }
+  
+  delay(500);
+  
+  
+  //turnRight();
   
   mtrL->setBackward(0);
   mtrR->setBackward(0);
