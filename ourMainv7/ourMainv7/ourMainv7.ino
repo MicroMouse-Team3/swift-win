@@ -75,15 +75,15 @@ const bool solved = "FALSE";
 
 //Global Values
 const int distancePerMove = 30;
-int previousError = 0;
+float previousError = 0;
 int error = 0;
 int curTime = 0;
 int lastSamp = 0;
 int delayTime = 0;
-int previousPos = 0;
+float previousPos = 0;
 int previousTime = 0;
 unsigned long curt = 0; 
-int stopError = 0;
+float stopError = 0;
 
 //Encoder Information
 volatile int state = LOW;
@@ -287,7 +287,7 @@ void mystop(){
    
    
   while(P_error() != 0){
-    curTime = millis(); 
+    curTime = micros(); 
    delayTime = curTime - lastSamp;
    lastSamp = curTime;
    stopError = P_error() + D_error();   
@@ -305,18 +305,18 @@ void mystop(){
   
 }
 
-int P_error(){
+float P_error(){
   
-  int curPos = (encTickR + encTickL)/2;
-  int curVel = (curPos - previousPos)/delayTime ;
+  float curPos = ((float)(encTickR + encTickL)/2.0);
+  float curVel = (curPos - previousPos)/delayTime ;
   previousPos = curPos;
   previousError = curVel;
 
   return curVel;
 }
-int D_error(){
-  int curError = P_error();
-  int derivative = (curError - previousError)/delayTime;
+float D_error(){
+  float curError = P_error();
+  float derivative = (curError - previousError)/delayTime;
   previousError = curError;
   return derivative; 
 }
