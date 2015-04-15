@@ -246,12 +246,15 @@ void loop(){
   mtrL->setForward( mapSpeed );
   mtrR->setForward( mapSpeed );
   
+  //Gets us through the first half of the block just by going Straight.
   while(encTickL < 667){
     PID();
   }
   
+  //After half way, determines which way we should turn ahead.
   turn = NAV();
   
+  //Contiunes straight until it is time to stop.
   while(encTickL < 939  ){
     PID();
   }
