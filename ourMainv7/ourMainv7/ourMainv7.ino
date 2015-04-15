@@ -48,9 +48,9 @@
 #define WEST 3
   // 4= S, 5 = R, 6 = L, 7 = U
 
-#define STRAIGHT 4
-#define RIGHTTURN 5
-#define LEFTTURN 6
+#define LEFTTURN 4
+#define STRAIGHT 5
+#define RIGHTTURN 6
 #define UTURN 7
 
 int currentDirection = 4000;
@@ -63,10 +63,6 @@ unsigned long lastTickRight = 0;
 const int NUMSENSORS = 6;
 volatile static int encTickL = 0, encTickR = 0;
 int ourOffset = 0;
-//0 North
-//1 East
-//2 South
-//3 West
 
 Motor * mtrL;
 Motor * mtrR;
@@ -86,9 +82,9 @@ unsigned long curt = 0;
 //Encoder Information
 volatile int state = LOW;
 
-
-
-
+//Speeds of motors
+int mapSpeed = 128;
+int solveSpeed = 255;
  
  
 //SENSOR Threshold Values
@@ -141,7 +137,6 @@ void setup(){
   pinMode(31, OUTPUT);
   pinMode(32, OUTPUT);
   pinMode(33, OUTPUT);
-  
   
   
   mtrL = new Motor( L_Enable , L_Mtr_A , L_Mtr_B , L_CH_A , L_CH_B );  
@@ -227,29 +222,29 @@ void setup(){
 
 boolean mapMode = true;
 byte maze[16][16] = { { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 }, 
-                                    { 0 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 }, 
-                                    { 0 , 1 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 1 , 0 }, 
-                                    { 0 , 1 , 2 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 2 , 1 , 0 }, 
-                                    { 0 , 1 , 2 , 3 , 4 , 4 , 4 , 4 , 4 , 4 , 4 , 4 , 3 , 2 , 1 , 0 }, 
-                                    { 0 , 1 , 2 , 3 , 4 , 5 , 5 , 5 , 5 , 5 , 5 , 4 , 3 , 2 , 1 , 0 }, 
-                                    { 0 , 1 , 2 , 3 , 4 , 5 , 6 , 6 , 6 , 6 , 5 , 4 , 3 , 2 , 1 , 0 }, 
-                                    { 0 , 1 , 2 , 3 , 4 , 5 , 6 , 7 , 7 , 6 , 5 , 4 , 3 , 2 , 1 , 0 }, 
-                                    { 0 , 1 , 2 , 3 , 4 , 5 , 6 , 7 , 7 , 6 , 5 , 4 , 3 , 2 , 1 , 0 }, 
-                                    { 0 , 1 , 2 , 3 , 4 , 5 , 6 , 6 , 6 , 6 , 5 , 4 , 3 , 2 , 1 , 0 }, 
-                                    { 0 , 1 , 2 , 3 , 4 , 5 , 5 , 5 , 5 , 5 , 5 , 4 , 3 , 2 , 1 , 0 }, 
-                                    { 0 , 1 , 2 , 3 , 4 , 4 , 4 , 4 , 4 , 4 , 4 , 4 , 3 , 2 , 1 , 0 }, 
-                                    { 0 , 1 , 2 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 2 , 1 , 0 }, 
-                                    { 0 , 1 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 1 , 0 }, 
-                                    { 0 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 }, 
-                                    { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 } };
+                      { 0 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 }, 
+                      { 0 , 1 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 1 , 0 }, 
+                      { 0 , 1 , 2 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 2 , 1 , 0 }, 
+                      { 0 , 1 , 2 , 3 , 4 , 4 , 4 , 4 , 4 , 4 , 4 , 4 , 3 , 2 , 1 , 0 }, 
+                      { 0 , 1 , 2 , 3 , 4 , 5 , 5 , 5 , 5 , 5 , 5 , 4 , 3 , 2 , 1 , 0 }, 
+                      { 0 , 1 , 2 , 3 , 4 , 5 , 6 , 6 , 6 , 6 , 5 , 4 , 3 , 2 , 1 , 0 }, 
+                      { 0 , 1 , 2 , 3 , 4 , 5 , 6 , 7 , 7 , 6 , 5 , 4 , 3 , 2 , 1 , 0 }, 
+                      { 0 , 1 , 2 , 3 , 4 , 5 , 6 , 7 , 7 , 6 , 5 , 4 , 3 , 2 , 1 , 0 }, 
+                      { 0 , 1 , 2 , 3 , 4 , 5 , 6 , 6 , 6 , 6 , 5 , 4 , 3 , 2 , 1 , 0 }, 
+                      { 0 , 1 , 2 , 3 , 4 , 5 , 5 , 5 , 5 , 5 , 5 , 4 , 3 , 2 , 1 , 0 }, 
+                      { 0 , 1 , 2 , 3 , 4 , 4 , 4 , 4 , 4 , 4 , 4 , 4 , 3 , 2 , 1 , 0 }, 
+                      { 0 , 1 , 2 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 2 , 1 , 0 }, 
+                      { 0 , 1 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 1 , 0 }, 
+                      { 0 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 }, 
+                      { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 } };
                                     
                                     
 void loop(){  
   encTickR = 0;
   encTickL = 0;
   byte turn;
-  mtrL->setForward( 128 );
-  mtrR->setForward( 128 );
+  mtrL->setForward( mapSpeed );
+  mtrR->setForward( mapSpeed );
   
   while(encTickL < 667){
     PID();
@@ -260,8 +255,8 @@ void loop(){
   while(encTickL < 1000){
     PID();
   }
-  mtrL->setBackward(128);
-  mtrR->setBackward(128);
+  mtrL->setBackward(mapSpeed);
+  mtrR->setBackward(mapSpeed);
   
   while(encTickL < 1334){
     stopPID();
@@ -331,11 +326,11 @@ void turnAround() {
 void turnRight() { 
   encTickL = 0;
   encTickR = 0;
-  mtrL->setForward(128);
-  mtrR->setBackward(128);
+  mtrL->setForward(mapSpeed);
+  mtrR->setBackward(mapSpeed);
   while(encTickR < 300){}
-  mtrL->setBackward(128);
-  mtrR->setForward(128);
+  mtrL->setBackward(mapSpeed);
+  mtrR->setForward(mapSpeed);
   while(encTickR < 454){}
   
   currentDirection++;
@@ -343,11 +338,11 @@ void turnRight() {
 void turnLeft() {
   encTickL = 0;
   encTickR = 0;
-  mtrL->setBackward(128);
-  mtrR->setForward(128);
+  mtrL->setBackward(mapSpeed);
+  mtrR->setForward(mapSpeed);
   while(encTickR < 300){}
-  mtrL->setForward(128);
-  mtrR->setBackward(128);
+  mtrL->setForward(mapSpeed);
+  mtrR->setBackward(mapSpeed);
   while(encTickR < 454){}
   
   currentDirection--;
@@ -393,8 +388,8 @@ void PID(){
 error = (KP * errorP) + (KD * errorD);
 oldErrorP = errorP;
 
-mtrL->setForward( 128  - error);
-mtrR->setForward( 128  + error);
+mtrL->setForward( mapSpeed - error);
+mtrR->setForward( mapSpeed + error);
 }
 
 void stopPID(){
@@ -431,8 +426,8 @@ void stopPID(){
 error = (KP * errorP) + (KD * errorD);
 oldErrorP = errorP;
 
-mtrL->setBackward( 128  + error);
-mtrR->setBackward( 128  - error);
+mtrL->setBackward( mapSpeed + error);
+mtrR->setBackward( mapSpeed - error);
   
 }
 
@@ -464,7 +459,7 @@ byte NAV(){
   //0 = N, 1 = E, 2 = S, 3 = W
 
   
-  // 4= S, 5 = R, 6 = L, 7 = U
+  // 4= L, 5 = S, 6 = R, 7 = U
   bool wallLeft = sensor[0]->getIR() > 600;
   bool wallFront = sensor[2]->getIR() > 200;
   bool wallRight = sensor[5]->getIR() > 600; 
