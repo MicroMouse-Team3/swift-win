@@ -83,7 +83,7 @@ unsigned long curt = 0;
 volatile int state = LOW;
 
 //Speeds of motors
-int mapSpeed = 128;
+int mapSpeed = 100;
 int solveSpeed = 255;
  
  
@@ -244,7 +244,7 @@ void loop(){
   encTickL = 0;
   byte turn;
   mtrL->setForward( mapSpeed );
-  mtrR->setForward( mapSpeed );
+   mtrR->setForward( mapSpeed );
   
   //Gets us through the first half of the block just by going Straight.
   while(encTickL < 1000){
@@ -255,7 +255,7 @@ void loop(){
   turn = NAV();
   
   //Contiunes straight until it is time to stop.
-  while(encTickL < 1810  ){
+  while(encTickL < 1500 ){
     PID();
   }
   mtrL->setBackward(mapSpeed);
@@ -264,10 +264,7 @@ void loop(){
   while(encTickL < 2000){
     stopPID();
   }
-  
-  delay(500);
-  
-  
+
   //turnRight();
   
   mtrL->setBackward(0);
