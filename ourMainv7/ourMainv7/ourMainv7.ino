@@ -1,4 +1,4 @@
-  #include <EncoderMM.h>
+    #include <EncoderMM.h>
 #include <LED.h>
 #include <Motor.h>
 #include <Sensor.h>
@@ -83,6 +83,7 @@ int delayTime = 0;
 int previousPos = 0;
 int previousTime = 0;
 unsigned long curt = 0; 
+int stopError = 0;
 
 //Encoder Information
 volatile int state = LOW;
@@ -260,17 +261,20 @@ void loop(){
   turn = NAV();
   
   //Contiunes straight until it is time to stop.
-  while(encTickL < 1315 ){
-    PID();
-  }
-  mtrL->setBackward(mapSpeed);
-  mtrR->setBackward(mapSpeed);
+//  while(encTickL < 1315 ){
+//    PID();
+//  }
+//  mtrL->setBackward(mapSpeed);
+//  mtrR->setBackward(mapSpeed);
   
-  while(encTickL < 2000){
-    stopPID();
-  }
-
-  turn90Right();
+  mystop();
+//  while(encTickL < 2000){
+//    //stopPID();
+//  }
+//
+//
+//  mystop();
+  //turn90Right();
   mtrL->setBackward(0);
   mtrR->setBackward(0);
   
@@ -278,16 +282,17 @@ void loop(){
   
   
 }
-void stop(){
+void mystop(){
    
-   curTime = millis(); 
-   delayTime = curTime - lastSamp;
-   lastSamp = curTime;
-   stopError = P_error() + D_error();
+   
    
   while(P_error() != 0){
-    if(stopError > 100)
-      stopError = 100;
+    curTime = millis(); 
+   delayTime = curTime - lastSamp;
+   lastSamp = curTime;
+   stopError = P_error() + D_error();   
+    if(stopError > 255)
+      stopError = 255;
     if(stopError < 0){
       mtrL->setForward(stopError);
       mtrR->setForward(stopError);
@@ -302,7 +307,7 @@ void stop(){
 
 int P_error(){
   
-  int curPos = (encTick1R + encTickL)/2;
+  int curPos = (encTickR + encTickL)/2;
   int curVel = (curPos - previousPos)/delayTime ;
   previousPos = curPos;
   previousError = curVel;
