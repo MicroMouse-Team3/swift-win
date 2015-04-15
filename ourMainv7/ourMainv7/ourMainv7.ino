@@ -1,4 +1,4 @@
-#include <EncoderMM.h>
+  #include <EncoderMM.h>
 #include <LED.h>
 #include <Motor.h>
 #include <Sensor.h>
@@ -75,8 +75,13 @@ const bool solved = "FALSE";
 
 //Global Values
 const int distancePerMove = 30;
-long int delayLastError = 0;
-int previous_error = 0;
+int previousError = 0;
+int error = 0;
+int curTime = 0;
+int lastSamp = 0;
+int delayTime = 0;
+int previousPos = 0;
+int previousTime = 0;
 unsigned long curt = 0; 
 
 //Encoder Information
@@ -274,20 +279,45 @@ void loop(){
   
   
 }
-
-int current_error(){
-  int curPos = (encTickR + encTickL)/2;
-  int error = curPos - 1334;
-  previous_error = error;
-  return error;
+void stop(){
+   
+   curTime = millis(); 
+   delayTime = curTime - lastSamp;
+   lastSamp = curTime;
+   stopError = P_error() + D_error();
+   
+  while(P_error() != 0){
+    if(stopError > 100)
+      stopError = 100;
+    if(stopError < 0){
+      mtrL->setForward(stopError);
+      mtrR->setForward(stopError);
+    }else{
+      mtrL->setBackward(stopError);
+      mtrR->setBackward(stopError);
+    }
+  }
+ 
+  
 }
+
 int P_error(){
-  delayLastError = millis();
-  return current_error() * 1;
+  
+  int curPos = (encTick1R + encTickL)/2;
+  int curVel = (curPos - previousPos)/delayTime ;
+  previousPos = curPos;
+  previousError = curVel;
+
+  return curVel;
 }
 int D_error(){
-  return (current_error() - previous_error)/(millis() - delayLastError); 
+  int curError = P_error();
+  int derivative = (curError - previousError)/delayTime;
+  previousError = curError;
+  return derivative; 
 }
+
+
 void testSensors(){
   int test1 = sensor[0]->getIR();
   int test2 = sensor[1]->getIR();
