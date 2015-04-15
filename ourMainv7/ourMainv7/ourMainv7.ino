@@ -260,7 +260,7 @@ void loop(){
   turn = NAV();
   
   //Contiunes straight until it is time to stop.
-  while(encTickL < 1500 ){
+  while(encTickL < 1315 ){
     PID();
   }
   mtrL->setBackward(mapSpeed);
@@ -270,8 +270,7 @@ void loop(){
     stopPID();
   }
 
-  //turnRight();
-  
+  turn90Right();
   mtrL->setBackward(0);
   mtrR->setBackward(0);
   
@@ -357,19 +356,39 @@ void turnAround() {
   turnRight(); 
 }
 
+void turnFullRight(){
+   turnRight();
+   turnRight(); 
+   
+   currentDirection++;
+}
+
 //90 degrees for turns
-void turnRight() { 
+void turn90Right() { 
   encTickL = 0;
   encTickR = 0;
   mtrL->setForward(mapSpeed);
   mtrR->setBackward(mapSpeed);
-  while(encTickR < 300){}
+  while(encTickR < 640){}
+  mtrL->setBackward(mapSpeed);
+  mtrR->setForward(mapSpeed);
+  while(encTickR < 908){}
+  
+
+}
+
+void turnRight(){
+  encTickL = 0;
+  encTickR = 0;
+  mtrL->setForward(mapSpeed);
+  mtrR->setBackward(mapSpeed);
+  while(encTickR < 325){}
   mtrL->setBackward(mapSpeed);
   mtrR->setForward(mapSpeed);
   while(encTickR < 454){}
   
-  currentDirection++;
 }
+
 void turnLeft() {
   encTickL = 0;
   encTickR = 0;
