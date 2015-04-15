@@ -155,9 +155,7 @@ void setup(){
   sensor[4] = new Sensor( rightDiagEmitIR , rightDiagRecIR , rightDiagLED );
   //Right Right
   sensor[5] = new Sensor( rightEmitIR , rightRecIR , rightLED ); 
-  
-  ourOffset = sensor[5]->getIR() - sensor[0]->getIR();
-  
+    
   attachInterrupt( L_CH_A , incEncoderL , RISING );
   attachInterrupt( R_CH_A , incEncoderR , RISING );
   
@@ -170,7 +168,7 @@ void setup(){
   digitalWrite(rightDiagLED, HIGH);
   digitalWrite(rightLED, HIGH);
   
-  delay(5000);
+  delay(2000);
   
   digitalWrite(leftLED, LOW);
   digitalWrite(leftDiagLED, LOW);
@@ -179,21 +177,21 @@ void setup(){
   digitalWrite(rightDiagLED, LOW);
   digitalWrite(rightLED, LOW);
   
-  //Traps Setup until both front sensors are higher than 600.
-  digitalWrite(rightFrontLED, HIGH);
-  digitalWrite(leftFrontLED, LOW);
-  delay(500);
-  digitalWrite(leftFrontLED, LOW);
-  digitalWrite(rightFrontLED, HIGH);
-  delay(500);
-  digitalWrite(leftFrontLED, HIGH);
-  digitalWrite(rightFrontLED, LOW);
-  delay(500);
-  digitalWrite(leftFrontLED, LOW);
-  digitalWrite(rightFrontLED, HIGH);
-  delay(500);
-  digitalWrite(leftFrontLED, LOW);
-  digitalWrite(rightFrontLED, LOW);
+//  //Traps Setup until both front sensors are higher than 600.
+//  digitalWrite(rightFrontLED, HIGH);
+//  digitalWrite(leftFrontLED, LOW);
+//  delay(500);
+//  digitalWrite(leftFrontLED, LOW);
+//  digitalWrite(rightFrontLED, HIGH);
+//  delay(500);
+//  digitalWrite(leftFrontLED, HIGH);
+//  digitalWrite(rightFrontLED, LOW);
+//  delay(500);
+//  digitalWrite(leftFrontLED, LOW);
+//  digitalWrite(rightFrontLED, HIGH);
+//  delay(500);
+//  digitalWrite(leftFrontLED, LOW);
+//  digitalWrite(rightFrontLED, LOW);
   
   while ((sensor[2]->getIR() < 800) && (sensor[3]->getIR() < 800)){
    digitalWrite(leftFrontLED, LOW);
@@ -217,6 +215,8 @@ void setup(){
   delay(500);
   digitalWrite(leftFrontLED, LOW);
   digitalWrite(rightFrontLED, LOW);
+  
+    ourOffset = sensor[5]->getIR() - sensor[0]->getIR();
 }
 
 
@@ -252,7 +252,7 @@ void loop(){
   
   turn = NAV();
   
-  while(encTickL < 1000){
+  while(encTickL < 939  ){
     PID();
   }
   mtrL->setBackward(mapSpeed);
