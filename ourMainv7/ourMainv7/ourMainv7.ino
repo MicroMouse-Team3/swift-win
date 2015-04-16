@@ -75,15 +75,16 @@ const bool solved = "FALSE";
 
 //Global Values
 const int distancePerMove = 30;
-float previousError = 0;
+float previousError = 0.0;
 int error = 0;
 int curTime = 0;
 int lastSamp = 0;
 int delayTime = 0;
-float previousPos = 0;
+float previousPos = 0.0;
 int previousTime = 0;
 unsigned long curt = 0; 
-float stopError = 0;
+float stopError = 0.0;
+int kp = 1;
 
 //Encoder Information
 volatile int state = LOW;
@@ -250,7 +251,7 @@ void loop(){
   encTickL = 0;
   byte turn;
   mtrL->setForward( mapSpeed );
-   mtrR->setForward( mapSpeed );
+  mtrR->setForward( mapSpeed );
   
   //Gets us through the first half of the block just by going Straight.
   while(encTickL < 1000){
@@ -287,7 +288,7 @@ void mystop(){
    
    
   while(P_error() != 0){
-    curTime = micros(); 
+   curTime = micros(); 
    delayTime = curTime - lastSamp;
    lastSamp = curTime;
    stopError = P_error() + D_error();   
@@ -308,17 +309,17 @@ void mystop(){
 float P_error(){
   
   float curPos = ((float)(encTickR + encTickL)/2.0);
-  float curVel = (curPos - previousPos)/delayTime ;
+  float curVel = (curPos - previousPos)/((float)delayTime) ;
   previousPos = curPos;
   previousError = curVel;
 
-  return curVel;
+  return kp*curVel;
 }
 float D_error(){
   float curError = P_error();
-  float derivative = (curError - previousError)/delayTime;
+  float derivative = (curError - previousError)/(float)delayTime;
   previousError = curError;
-  return derivative; 
+  return kp*derivative; 
 }
 
 
