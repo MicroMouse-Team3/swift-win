@@ -75,16 +75,20 @@ const bool solved = "FALSE";
 
 //Global Values
 const int distancePerMove = 30;
-float previousError = 0.0;
+double previousError = 0.0;
 int error = 0;
-int curTime = 0;
-int lastSamp = 0;
+unsigned long curTime = 0;
+unsigned long lastSamp = 0;
 int delayTime = 0;
-float previousPos = 0.0;
-int previousTime = 0;
+double previousPos = 0.0;
+unsigned long  previousTime = 0;
 unsigned long curt = 0; 
-float stopError = 0.0;
-int kp = 1;
+double stopError = 0.0;
+long kp = 8L;
+double kd = 0.126;
+int curVel = 0;
+int pwmPD = 0;
+bool backWards = false; 
 
 //Encoder Information
 volatile int state = LOW;
@@ -247,48 +251,47 @@ byte maze[16][16] = { { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 
                                     
                                     
 void loop(){  
-  encTickR = 0;
-  encTickL = 0;
+  
   byte turn;
   mtrL->setForward( mapSpeed );
   mtrR->setForward( mapSpeed );
-  
+  delay(500);s  
   //Gets us through the first half of the block just by going Straight.
-  while(encTickL < 1000){
-    PID();
+  while(encTickL < 2000){
+    curTime = millis(); 
+    delayTime = curTime - lastSamp;
+    lastSamp = curTime;
+    
+    pwmPD = P_error() + D_error();   
+    
+    if(pwmPD > 0){
+      if(pwmPD > 100) pwmPD = 100;
+      mtrL->setForward(pwmPD);
+      mtrR->setForward(pwmPD);
+    }
+    else{
+      pwmPD *= -1;
+      if(pwmPD > 255) pwmPD = 255;
+      mtrL->setBackward(pwmPD);
+      mtrR->setBackward(pwmPD);
+    }
   }
-  
-  //After half way, determines which way we should turn ahead.
-  turn = NAV();
-  
-  //Contiunes straight until it is time to stop.
-//  while(encTickL < 1315 ){
-//    PID();
-//  }
-//  mtrL->setBackward(mapSpeed);
-//  mtrR->setBackward(mapSpeed);
-  
-  mystop();
-//  while(encTickL < 2000){
-//    //stopPID();
-//  }
-//
-//
-//  mystop();
-  //turn90Right();
+ 
   mtrL->setBackward(0);
   mtrR->setBackward(0);
-  
+ 
  delay(5000);
+  encTickR = 0;
+  encTickL = 0;
   
   
 }
 void mystop(){
    
-   
-   
-  while(P_error() != 0){
-   curTime = micros(); 
+  encTickR = 0;
+  encTickL = 0;
+  while(P_error() != 0 && ((encTickR+encTickL)/2) < 1000){
+   curTime = millis(); 
    delayTime = curTime - lastSamp;
    lastSamp = curTime;
    stopError = P_error() + D_error();   
@@ -298,9 +301,12 @@ void mystop(){
       mtrL->setForward(stopError);
       mtrR->setForward(stopError);
     }else{
+     
       mtrL->setBackward(stopError);
       mtrR->setBackward(stopError);
+     
     }
+   
   }
  
   
@@ -308,18 +314,17 @@ void mystop(){
 
 float P_error(){
   
-  float curPos = ((float)(encTickR + encTickL)/2.0);
-  float curVel = (curPos - previousPos)/((float)delayTime) ;
-  previousPos = curPos;
+ // float curPos = ((float)(encTickR + encTickL)/2.0);
+  //float curVel = (curPos - previousPos)/((float)delayTime) ;
+ // previousPos = curPos;
   previousError = curVel;
-
+  curVel = 2000 - encTickL;
+ 
   return kp*curVel;
 }
-float D_error(){
-  float curError = P_error();
-  float derivative = (curError - previousError)/(float)delayTime;
-  previousError = curError;
-  return kp*derivative; 
+double D_error(){
+
+  return kd*(curVel - previousError)/delayTime ;
 }
 
 
@@ -507,7 +512,7 @@ void incEncoderL() {
   encTickL++; 
 }
 void incEncoderR() {
-  encTickR++;
+  encTickR++; 
 }
 
 
