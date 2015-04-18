@@ -137,7 +137,43 @@ void setup(){
   determineOffset();
 }
                                     
-void loop(){  
+void loop(){
+
+  int newSet = 0;
+  int setPoint = 2000;
+  int Direction = 0;
+  
+  while(encTickR < (1000 + newSet)){
+    PID(); 
+  }
+  
+  Direction = NAV();
+  
+  if (Direction == 1){
+      setPoint += 2000;
+  }
+  
+  if (frontWall){
+     setPoint -= 200; 
+  }
+  
+  while(encTickR < 2000 + newSet){
+     speedControl(); 
+  }
+  
+  Direction = MAP();
+  
+  turn(Direction);
+  
+  if (Direction != 1){
+      newSet = 0;
+      encTickR = 0;
+      encTickL = 0;
+  }
+  else{
+     newSet += 2000; 
+  }
+    
 //  encTickR = 0;
 //  encTickL = 0;
 //  byte turn;
@@ -173,7 +209,17 @@ void loop(){
   
   
 }
-void mystop(){   
+
+void speedControl(){
+  
+}
+
+void turn(int thisTurn){
+  
+}
+
+void mystop(){
+   
   while(P_error() != 0){
    curTime = micros(); 
    delayTime = curTime - lastSamp;
@@ -594,6 +640,11 @@ void determineOffset() {
   ourOffset = sensor[5]->getIR() - sensor[0]->getIR();
 }
 
+ 
+int MAP(){
+  return 0;
+}
+
 void initializeInterrupts() {
   attachInterrupt( L_CH_A , incEncoderL , RISING );
   attachInterrupt( R_CH_A , incEncoderR , RISING );
@@ -611,6 +662,7 @@ void incEncoderR() {
   encTickR++;
 }
 
+/*
 void testSensors(){
   int testSense[NUMSENSORS];
   double sum = 0;  
@@ -620,6 +672,7 @@ void testSensors(){
   }
   delay(5000);
 }
+*/
 void LEDsON() {
   for ( byte i = 0 ; i < NUMSENSORS ; i++ ) {
     sensor[i]->getLED().setHIGH();
