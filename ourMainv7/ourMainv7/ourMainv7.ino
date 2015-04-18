@@ -5,6 +5,7 @@
 #include <Sensor.h>
 //#include <Functions.h>
 
+
 //Left Sensors and LEDS
 #define leftEmitIR 3
 #define leftRecIR A12
@@ -807,12 +808,12 @@ byte NAV(){
 }
 
 void setLEDsON() {  
-  for ( byte i = 0 ; i < NUMSENORS ; i++ )
+  for ( byte i = 0 ; i < NUMSENSORS ; i++ )
     sensor[i]->getLED().setHIGH();
 }
 
 void setLEDsOFF() {  
-  for ( byte i = 0 ; i < NUMSENORS ; i++ ) 
+  for ( byte i = 0 ; i < NUMSENSORS ; i++ ) 
     sensor[i]->getLED().setLOW();
 }
 
