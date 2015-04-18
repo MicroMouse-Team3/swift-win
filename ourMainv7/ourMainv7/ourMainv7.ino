@@ -6,6 +6,103 @@
 #include <Sensor.h>
 #include <MMvars.h>
 
+
+//Left Sensors and LEDS
+#define leftEmitIR 3
+#define leftRecIR A12
+#define leftLED 11
+#define leftDiagEmitIR 28
+#define leftDiagRecIR A18
+#define leftDiagLED 30
+#define leftFrontEmitIR 4
+#define leftFrontRecIR A11
+#define leftFrontLED 13
+
+//Right Sensors and= LEDs
+#define rightEmitIR 2 
+#define rightRecIR A13
+#define rightLED 12
+#define rightDiagEmitIR 25
+#define rightDiagRecIR A15
+#define rightDiagLED 27
+#define rightFrontEmitIR 5
+#define rightFrontRecIR A10
+#define rightFrontLED 14
+
+//Enable Pins
+#define L_Enable 16
+#define R_Enable 17
+
+//Motor H-Bridge Pins
+#define L_Mtr_A 20
+#define L_Mtr_B 21
+#define R_Mtr_A 22
+#define R_Mtr_B 23
+
+//Encoder Pins
+#define L_CH_A 9
+#define L_CH_B 10
+#define R_CH_A 7
+#define R_CH_B 8
+
+//Direction
+#define NORTH 0
+#define EAST 1
+#define SOUTH 2
+#define WEST 3
+  // 4= S, 5 = R, 6 = L, 7 = U
+
+#define LEFTTURN 4
+#define STRAIGHT 5
+#define RIGHTTURN 6
+#define UTURN 7
+
+int currentDirection = 4000;
+int x = 0;
+int y = 0;
+
+unsigned long lastTickLeft = 0;
+unsigned long lastTickRight = 0;
+
+const int NUMSENSORS = 6;
+volatile static int encTickL = 0, encTickR = 0;
+int ourOffset = 0;
+
+Motor * mtrL;
+Motor * mtrR;
+Sensor * sensor[NUMSENSORS];
+
+
+//Global Boolean Values
+const bool debugOn = "TRUE";
+const bool solved = "FALSE";
+
+//Global Values
+const int distancePerMove = 30;
+float previousError = 0.0;
+int error = 0;
+int curTime = 0;
+int lastSamp = 0;
+int delayTime = 0;
+float previousPos = 0.0;
+int previousTime = 0;
+unsigned long curt = 0; 
+float stopError = 0.0;
+int kp = 1;  
+
+//Encoder Information
+volatile int state = LOW;
+
+//Speeds of motors
+int mapSpeed = 100;
+int solveSpeed = 255;
+ 
+ 
+//SENSOR Threshold Values
+unsigned int minThresh = 15;
+unsigned int maxThresh = 700;
+>>>>>>> origin/master
+
 /*
 boolean frontWall = false;
 boolean leftWall = true;
@@ -185,38 +282,38 @@ byte dasMaze[32][32] =  { {'X','X','X','X','X','X','X','X','X','X','X','X','X','
                           {'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'} };                          
                                     
 void loop(){  
-  encTickR = 0;
-  encTickL = 0;
-  byte turn;
-  moveForward( mapSpeed );
-  
-  //Gets us through the first half of the block just by going Straight.
-  while(encTickL < 1000){
-    PID();
-  }
-  
-  //After half way, determines which way we should turn ahead.
-  turn = NAV();
-  
-  //Contiunes straight until it is time to stop.
-//  while(encTickL < 1315 ){
+//  encTickR = 0;
+//  encTickL = 0;
+//  byte turn;
+//  moveForward( mapSpeed );
+//  
+//  //Gets us through the first half of the block just by going Straight.
+//  while(encTickL < 1000){
 //    PID();
 //  }
-//  mtrL->setBackward(mapSpeed);
-//  mtrR->setBackward(mapSpeed);
-  
-  mystop();
-//  while(encTickL < 2000){
-//    //stopPID();
-//  }
-//
-//
+//  
+//  //After half way, determines which way we should turn ahead.
+//  turn = NAV();
+//  
+//  //Contiunes straight until it is time to stop.
+////  while(encTickL < 1315 ){
+////    PID();
+////  }
+////  mtrL->setBackward(mapSpeed);
+////  mtrR->setBackward(mapSpeed);
+//  
 //  mystop();
-  //turn90Right();
- 
-  moveBackward( 0 );
-  
- delay(5000);
+////  while(encTickL < 2000){
+////    //stopPID();
+////  }
+////
+////
+////  mystop();
+//  //turn90Right();
+// 
+//  moveBackward( 0 );
+//  
+// delay(5000);
   
   
 }
