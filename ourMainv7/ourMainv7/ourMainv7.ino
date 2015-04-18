@@ -281,7 +281,43 @@ byte dasMaze[32][32] =  { {'X','X','X','X','X','X','X','X','X','X','X','X','X','
                           {'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'}, 
                           {'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'} };                          
                                     
-void loop(){  
+void loop(){
+
+  int newSet = 0;
+  int setPoint = 2000;
+  int Direction = 0;
+  
+  while(encTickR < (1000 + newSet)){
+    PID(); 
+  }
+  
+  Direction = NAV();
+  
+  if (Direction == 1){
+      setPoint += 2000;
+  }
+  
+  if (frontWall){
+     setPoint -= 200; 
+  }
+  
+  while(encTickR < 2000 + newSet){
+     speedControl(); 
+  }
+  
+  Direction = MAP();
+  
+  turn(Direction);
+  
+  if (Direction != 1){
+      newSet = 0;
+      encTickR = 0;
+      encTickL = 0;
+  }
+  else{
+     newSet += 2000; 
+  }
+    
 //  encTickR = 0;
 //  encTickL = 0;
 //  byte turn;
@@ -317,6 +353,15 @@ void loop(){
   
   
 }
+
+void speedControl(){
+  
+}
+
+void turn(int thisTurn){
+  
+}
+
 void mystop(){
    
    
@@ -799,13 +844,12 @@ byte NAV(){
        }
     }
   }
-    
-    
-    
-    
+} 
+int MAP(){
+  return 0;
+}
     
   
-}
 
 void setLEDsON() {  
   for ( byte i = 0 ; i < NUMSENSORS ; i++ )
