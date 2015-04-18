@@ -87,7 +87,7 @@ float previousPos = 0.0;
 int previousTime = 0;
 unsigned long curt = 0; 
 float stopError = 0.0;
-int kp = 1;
+int kp = 1;  
 
 //Encoder Information
 volatile int state = LOW;
@@ -282,38 +282,38 @@ byte dasMaze[32][32] =  { {'X','X','X','X','X','X','X','X','X','X','X','X','X','
                           {'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'} };                          
                                     
 void loop(){  
-  encTickR = 0;
-  encTickL = 0;
-  byte turn;
-  moveForward( mapSpeed );
-  
-  //Gets us through the first half of the block just by going Straight.
-  while(encTickL < 1000){
-    PID();
-  }
-  
-  //After half way, determines which way we should turn ahead.
-  turn = NAV();
-  
-  //Contiunes straight until it is time to stop.
-//  while(encTickL < 1315 ){
+//  encTickR = 0;
+//  encTickL = 0;
+//  byte turn;
+//  moveForward( mapSpeed );
+//  
+//  //Gets us through the first half of the block just by going Straight.
+//  while(encTickL < 1000){
 //    PID();
 //  }
-//  mtrL->setBackward(mapSpeed);
-//  mtrR->setBackward(mapSpeed);
-  
-  mystop();
-//  while(encTickL < 2000){
-//    //stopPID();
-//  }
-//
-//
+//  
+//  //After half way, determines which way we should turn ahead.
+//  turn = NAV();
+//  
+//  //Contiunes straight until it is time to stop.
+////  while(encTickL < 1315 ){
+////    PID();
+////  }
+////  mtrL->setBackward(mapSpeed);
+////  mtrR->setBackward(mapSpeed);
+//  
 //  mystop();
-  //turn90Right();
- 
-  moveBackward( 0 );
-  
- delay(5000);
+////  while(encTickL < 2000){
+////    //stopPID();
+////  }
+////
+////
+////  mystop();
+//  //turn90Right();
+// 
+//  moveBackward( 0 );
+//  
+// delay(5000);
   
   
 }
