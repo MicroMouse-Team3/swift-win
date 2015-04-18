@@ -1,7 +1,9 @@
-    #include <EncoderMM.h>
-#include <LED.h>
+#include <MMvars.h>
+#include <EncoderMM.h>
 #include <Motor.h>
+#include <LED.h>
 #include <Sensor.h>
+//#include <Functions.h>
 
 //Left Sensors and LEDS
 #define leftEmitIR 3
@@ -98,6 +100,13 @@ int solveSpeed = 255;
 unsigned int minThresh = 15;
 unsigned int maxThresh = 700;
 
+boolean frontWall = false;
+boolean leftWall = true;
+boolean leftFrontWall = true;
+boolean rightWall = true;
+boolean rightFrontWall = true;
+boolean myBool = false;
+boolean yourBool = false;
 
 
 /*
@@ -168,21 +177,11 @@ void setup(){
   
   delay(5000);
 
-  digitalWrite(leftLED, HIGH);
-  digitalWrite(leftDiagLED, HIGH);
-  digitalWrite(leftFrontLED, HIGH);
-  digitalWrite(rightFrontLED, HIGH);
-  digitalWrite(rightDiagLED, HIGH);
-  digitalWrite(rightLED, HIGH);
+  setLEDsON();
   
   delay(2000);
-  
-  digitalWrite(leftLED, LOW);
-  digitalWrite(leftDiagLED, LOW);
-  digitalWrite(leftFrontLED, LOW);
-  digitalWrite(rightFrontLED, LOW);
-  digitalWrite(rightDiagLED, LOW);
-  digitalWrite(rightLED, LOW);
+
+  setLEDsOFF();
   
 //  //Traps Setup until both front sensors are higher than 600.
 //  digitalWrite(rightFrontLED, HIGH);
@@ -201,34 +200,36 @@ void setup(){
 //  digitalWrite(rightFrontLED, LOW);
   
   while ((sensor[2]->getIR() < 800) && (sensor[3]->getIR() < 800)){
-   digitalWrite(leftFrontLED, LOW);
-  digitalWrite(rightFrontLED, LOW);
-  delay(128);
-  digitalWrite(leftFrontLED, HIGH);
-  digitalWrite(rightFrontLED, HIGH);
-  delay(128);
+    sensor[2]->getLED().setLOW();
+    sensor[3]->getLED().setLOW();
+    delay(128);
+    sensor[2]->getLED().setHIGH();
+    sensor[3]->getLED().setHIGH();
+    delay(128);
   }
   
   encTickL = 0;
   encTickR = 0;
-  digitalWrite(leftFrontLED, HIGH);
-  digitalWrite(rightFrontLED, HIGH);
+
+  sensor[2]->getLED().setHIGH();
+  sensor[3]->getLED().setHIGH();    
   delay(500);
-  digitalWrite(leftFrontLED, LOW);
-  digitalWrite(rightFrontLED, LOW);
+  sensor[2]->getLED().setLOW();
+  sensor[3]->getLED().setLOW();    
   delay(500);
-  digitalWrite(leftFrontLED, HIGH);
-  digitalWrite(rightFrontLED, HIGH);
+  sensor[2]->getLED().setHIGH();
+  sensor[3]->getLED().setHIGH();    
   delay(500);
-  digitalWrite(leftFrontLED, LOW);
-  digitalWrite(rightFrontLED, LOW);
+  sensor[2]->getLED().setLOW();
+  sensor[3]->getLED().setLOW();
   
-    ourOffset = sensor[5]->getIR() - sensor[0]->getIR();
+  ourOffset = sensor[5]->getIR() - sensor[0]->getIR();
 }
 
 
 boolean mapMode = true;
-byte maze[16][16] = { { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 }, 
+
+byte maze[16][16] =  { { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 }, 
                       { 0 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 }, 
                       { 0 , 1 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 1 , 0 }, 
                       { 0 , 1 , 2 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 2 , 1 , 0 }, 
@@ -244,14 +245,46 @@ byte maze[16][16] = { { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 
                       { 0 , 1 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 1 , 0 }, 
                       { 0 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 }, 
                       { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 } };
-                                    
+                      
+
+byte dasMaze[32][32] =  { {'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'}, 
+                          {'X','0','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'}, 
+                          {'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'}, 
+                          {'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'}, 
+                          {'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'}, 
+                          {'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'}, 
+                          {'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'}, 
+                          {'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'}, 
+                          {'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'}, 
+                          {'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'}, 
+                          {'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'}, 
+                          {'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'}, 
+                          {'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'}, 
+                          {'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'}, 
+                          {'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'}, 
+                          {'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'}, 
+                          {'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'}, 
+                          {'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'}, 
+                          {'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'}, 
+                          {'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'}, 
+                          {'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'}, 
+                          {'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'}, 
+                          {'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'}, 
+                          {'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'}, 
+                          {'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'}, 
+                          {'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'}, 
+                          {'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'}, 
+                          {'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'}, 
+                          {'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'}, 
+                          {'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'}, 
+                          {'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'}, 
+                          {'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'} };                          
                                     
 void loop(){  
   encTickR = 0;
   encTickL = 0;
   byte turn;
-  mtrL->setForward( mapSpeed );
-  mtrR->setForward( mapSpeed );
+  moveForward( mapSpeed );
   
   //Gets us through the first half of the block just by going Straight.
   while(encTickL < 1000){
@@ -276,8 +309,8 @@ void loop(){
 //
 //  mystop();
   //turn90Right();
-  mtrL->setBackward(0);
-  mtrR->setBackward(0);
+ 
+  moveBackward( 0 );
   
  delay(5000);
   
@@ -398,15 +431,21 @@ void turnRight(){
 void turnLeft() {
   encTickL = 0;
   encTickR = 0;
-  mtrL->setBackward(mapSpeed);
-  mtrR->setForward(mapSpeed);
+  moveLeft( mapSpeed );
+//  mtrL->setBackward(mapSpeed);
+//  mtrR->setForward(mapSpeed);
   while(encTickR < 300){}
-  mtrL->setForward(mapSpeed);
-  mtrR->setBackward(mapSpeed);
+  moveRight( mapSpeed );
+//  mtrL->setForward(mapSpeed);
+//  mtrR->setBackward(mapSpeed);
   while(encTickR < 454){}
   
   currentDirection--;
 }
+
+
+
+  
 
 
 /*
@@ -765,4 +804,34 @@ byte NAV(){
     
     
   
+}
+
+void setLEDsON() {  
+  for ( byte i = 0 ; i < NUMSENORS ; i++ )
+    sensor[i]->getLED().setHIGH();
+}
+
+void setLEDsOFF() {  
+  for ( byte i = 0 ; i < NUMSENORS ; i++ ) 
+    sensor[i]->getLED().setLOW();
+}
+
+void moveForward( byte speed ) {
+  mtrL->setForward( speed );
+  mtrR->setForward( speed );
+}
+
+void moveRight( byte speed ) {
+  mtrL->setForward( speed );
+  mtrR->setBackward( speed );
+}
+
+void moveLeft( byte speed ) {
+  mtrL->setBackward( speed );
+  mtrR->setForward( speed );
+}
+
+void moveBackward( byte speed ) {
+  mtrL->setBackward( speed );
+  mtrR->setBackward( speed );
 }
