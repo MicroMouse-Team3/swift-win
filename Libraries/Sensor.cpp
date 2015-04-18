@@ -38,7 +38,7 @@ double Sensor::getIR(){
   recRead = analogRead(sensRecPin);
   digitalWrite(sensEmitPin, LOW);
   if (recRead > 200){
-    led.setHIGH();
+    led.setHIGH();	
   }
   else{
     led.setLOW();

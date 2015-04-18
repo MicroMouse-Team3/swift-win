@@ -1,45 +1,14 @@
-    #include <EncoderMM.h>
-#include <LED.h>
+
+#include <PinDefine.h>
 #include <Motor.h>
+#include <EncoderMM.h>
+#include <LED.h>
 #include <Sensor.h>
+#include <MMvars.h>
+#include <NAV.h>
 
-//Left Sensors and LEDS
-#define leftEmitIR 3
-#define leftRecIR A12
-#define leftLED 11
-#define leftDiagEmitIR 28
-#define leftDiagRecIR A18
-#define leftDiagLED 30
-#define leftFrontEmitIR 4
-#define leftFrontRecIR A11
-#define leftFrontLED 13
 
-//Right Sensors and= LEDs
-#define rightEmitIR 2 
-#define rightRecIR A13
-#define rightLED 12
-#define rightDiagEmitIR 25
-#define rightDiagRecIR A15
-#define rightDiagLED 27
-#define rightFrontEmitIR 5
-#define rightFrontRecIR A10
-#define rightFrontLED 14
 
-//Enable Pins
-#define L_Enable 16
-#define R_Enable 17
-
-//Motor H-Bridge Pins
-#define L_Mtr_A 20
-#define L_Mtr_B 21
-#define R_Mtr_A 22
-#define R_Mtr_B 23
-
-//Encoder Pins
-#define L_CH_A 9
-#define L_CH_B 10
-#define R_CH_A 7
-#define R_CH_B 8
 
 //Direction
 #define NORTH 0
@@ -56,18 +25,8 @@
 int currentDirection = 4000;
 int x = 0;
 int y = 0;
-
-unsigned long lastTickLeft = 0;
-unsigned long lastTickRight = 0;
-
-const int NUMSENSORS = 6;
-volatile static int encTickL = 0, encTickR = 0;
-int ourOffset = 0;
-
-Motor * mtrL;
-Motor * mtrR;
-Sensor * sensor[NUMSENSORS];
-
+int xprev = 0;
+int yprev = 0;
 
 //Global Boolean Values
 const bool debugOn = "TRUE";
@@ -90,6 +49,9 @@ int curVel = 0;
 int pwmPD = 0;
 bool backWards = false; 
 
+int lastTime = millis();
+int lastError = 0;
+
 //Encoder Information
 volatile int state = LOW;
 
@@ -103,6 +65,68 @@ unsigned int minThresh = 15;
 unsigned int maxThresh = 700;
 
 
+unsigned long lastTickLeft = 0;
+unsigned long lastTickRight = 0;
+
+volatile static int encTickL = 0, encTickR = 0;
+int ourOffset = 0;
+
+
+boolean mapMode = true;
+
+byte maze[16][16] =  { { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 }, 
+                       { 0 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 }, 
+                       { 0 , 1 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 1 , 0 }, 
+                       { 0 , 1 , 2 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 2 , 1 , 0 }, 
+                       { 0 , 1 , 2 , 3 , 4 , 4 , 4 , 4 , 4 , 4 , 4 , 4 , 3 , 2 , 1 , 0 }, 
+                       { 0 , 1 , 2 , 3 , 4 , 5 , 5 , 5 , 5 , 5 , 5 , 4 , 3 , 2 , 1 , 0 }, 
+                       { 0 , 1 , 2 , 3 , 4 , 5 , 6 , 6 , 6 , 6 , 5 , 4 , 3 , 2 , 1 , 0 }, 
+                       { 0 , 1 , 2 , 3 , 4 , 5 , 6 , 7 , 7 , 6 , 5 , 4 , 3 , 2 , 1 , 0 }, 
+                       { 0 , 1 , 2 , 3 , 4 , 5 , 6 , 7 , 7 , 6 , 5 , 4 , 3 , 2 , 1 , 0 }, 
+                       { 0 , 1 , 2 , 3 , 4 , 5 , 6 , 6 , 6 , 6 , 5 , 4 , 3 , 2 , 1 , 0 }, 
+                       { 0 , 1 , 2 , 3 , 4 , 5 , 5 , 5 , 5 , 5 , 5 , 4 , 3 , 2 , 1 , 0 }, 
+                       { 0 , 1 , 2 , 3 , 4 , 4 , 4 , 4 , 4 , 4 , 4 , 4 , 3 , 2 , 1 , 0 }, 
+                       { 0 , 1 , 2 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 2 , 1 , 0 }, 
+                       { 0 , 1 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 1 , 0 }, 
+                       { 0 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 }, 
+                       { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 } };
+                      
+byte dasMaze[33][33] =  { 
+                          {'1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1' }, 
+                          {'1','0','1','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','1'},                        
+	                  {'1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1'}, 
+                          {'1','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','1'}, 
+                          {'1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1'},
+                          {'1','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','1'},
+                          {'1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1'},
+                          {'1','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','1'},
+                          {'1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1'},
+                          {'1','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','1'}, 
+                          {'1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1'},
+                          {'1','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','1'}, 
+                          {'1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1'},
+                          {'1','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','1'},
+                          {'1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1'},
+                          {'1','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','1'},
+                          {'1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1'},
+                          {'1','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','1'},
+                          {'1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1'},
+                          {'1','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','1'},
+                          {'1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1'}, 
+                          {'1','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','1'},
+                          {'1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1'}, 
+                          {'1','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','1'},
+                          {'1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1'},
+                          {'1','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','1'},
+                          {'1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1'},
+                          {'1','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','1'},
+                          {'1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1'}, 
+                          {'1','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','1'}, 
+                          {'1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1'} ,
+                          {'1','0','1','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','1'} ,
+                          {'1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1'} };
+
+
 
 /*
 *  MAIN for MicroMouse
@@ -110,109 +134,34 @@ unsigned int maxThresh = 700;
 *  Team 3 - Winter 2015. Hi
 **/
 
-int lastTime = millis();
-int lastError = 0;
-
 void setup(){
-  pinMode(0, INPUT);
-  pinMode(1, OUTPUT);
-  pinMode(2, OUTPUT);
-  pinMode(3, OUTPUT);
-  pinMode(4, OUTPUT);
-  pinMode(5, OUTPUT);
-  pinMode(6, OUTPUT);
-  pinMode(7, INPUT);
-  pinMode(8, INPUT);
-  pinMode(9, INPUT);
-  pinMode(10, INPUT);
-  pinMode(11, OUTPUT);
-  pinMode(12, OUTPUT);
-  pinMode(13, OUTPUT);
-  pinMode(14, OUTPUT);
-  pinMode(15, INPUT);
-  pinMode(16, OUTPUT);
-  pinMode(17, OUTPUT);
-  pinMode(18, INPUT);
-  pinMode(19, INPUT);
-  pinMode(20, OUTPUT);
-  pinMode(21, OUTPUT);
-  pinMode(22, OUTPUT);
-  pinMode(23, OUTPUT);
-  pinMode(24, INPUT);
-  pinMode(25, OUTPUT);
-  pinMode(26, INPUT);
-  pinMode(27, OUTPUT);
-  pinMode(28, OUTPUT);
-  pinMode(29, INPUT);
-  pinMode(30, OUTPUT);
-  pinMode(31, OUTPUT);
-  pinMode(32, OUTPUT);
-  pinMode(33, OUTPUT);
-  
-  
-  mtrL = new Motor( L_Enable , L_Mtr_A , L_Mtr_B , L_CH_A , L_CH_B );  
-  mtrR = new Motor( R_Enable , R_Mtr_A , R_Mtr_B , R_CH_A , R_CH_B );
-  
-  
-   //Left left
-  sensor[0] = new Sensor( leftEmitIR , leftRecIR , leftLED );
-  //Left Diag
-  sensor[1] = new Sensor( leftDiagEmitIR , leftDiagRecIR , leftDiagLED );
-  //Left Front
-  sensor[2] = new Sensor( leftFrontEmitIR , leftFrontRecIR , leftFrontLED );
-  //Right Front
-  sensor[3] = new Sensor( rightFrontEmitIR , rightFrontRecIR , rightFrontLED );
-  //Right Diag
-  sensor[4] = new Sensor( rightDiagEmitIR , rightDiagRecIR , rightDiagLED );
-  //Right Right
-  sensor[5] = new Sensor( rightEmitIR , rightRecIR , rightLED ); 
-    
-  attachInterrupt( L_CH_A , incEncoderL , RISING );
-  attachInterrupt( R_CH_A , incEncoderR , RISING );
+  initializePins();
+  initializeMotors(); 
+  initializeInterrupts();    
   
   delay(5000);
+  
+  ledTest();  
+  determineOffset();
+}
+                                    
+void loop(){
 
-  digitalWrite(leftLED, HIGH);
-  digitalWrite(leftDiagLED, HIGH);
-  digitalWrite(leftFrontLED, HIGH);
-  digitalWrite(rightFrontLED, HIGH);
-  digitalWrite(rightDiagLED, HIGH);
-  digitalWrite(rightLED, HIGH);
+  int newSet = 0;
+  int setPoint = 2000;
+  int Direction = 0;
   
-  delay(2000);
-  
-  digitalWrite(leftLED, LOW);
-  digitalWrite(leftDiagLED, LOW);
-  digitalWrite(leftFrontLED, LOW);
-  digitalWrite(rightFrontLED, LOW);
-  digitalWrite(rightDiagLED, LOW);
-  digitalWrite(rightLED, LOW);
-  
-//  //Traps Setup until both front sensors are higher than 600.
-//  digitalWrite(rightFrontLED, HIGH);
-//  digitalWrite(leftFrontLED, LOW);
-//  delay(500);
-//  digitalWrite(leftFrontLED, LOW);
-//  digitalWrite(rightFrontLED, HIGH);
-//  delay(500);
-//  digitalWrite(leftFrontLED, HIGH);
-//  digitalWrite(rightFrontLED, LOW);
-//  delay(500);
-//  digitalWrite(leftFrontLED, LOW);
-//  digitalWrite(rightFrontLED, HIGH);
-//  delay(500);
-//  digitalWrite(leftFrontLED, LOW);
-//  digitalWrite(rightFrontLED, LOW);
-  
-  while ((sensor[2]->getIR() < 800) && (sensor[3]->getIR() < 800)){
-   digitalWrite(leftFrontLED, LOW);
-  digitalWrite(rightFrontLED, LOW);
-  delay(128);
-  digitalWrite(leftFrontLED, HIGH);
-  digitalWrite(rightFrontLED, HIGH);
-  delay(128);
+  while(encTickR < (1000 + newSet)){
+    PID(); 
   }
   
+  Direction = NAV();
+  
+  if (Direction == 1){
+      setPoint += 2000;
+  }
+  
+<<<<<<< HEAD
   encTickL = 0;
   encTickR = 0;
   digitalWrite(leftFrontLED, HIGH);
@@ -283,15 +232,84 @@ void loop(){
  delay(5000);
   encTickR = 0;
   encTickL = 0;
+=======
+  if (frontWall){
+     setPoint -= 200; 
+  }
   
+  while(encTickR < 2000 + newSet){
+     speedControl(); 
+  }
+  
+  Direction = MAP();
+  
+  turn(Direction);
+  
+  if (Direction != 1){
+      newSet = 0;
+      encTickR = 0;
+      encTickL = 0;
+  }
+  else{
+     newSet += 2000; 
+  }
+    
+//  encTickR = 0;
+//  encTickL = 0;
+//  byte turn;
+//  moveForward( mapSpeed );
+//  
+//  //Gets us through the first half of the block just by going Straight.
+//  while(encTickL < 1000){
+//    PID();
+//  }
+//  
+//  //After half way, determines which way we should turn ahead.
+//  turn = NAV();
+//  
+//  //Contiunes straight until it is time to stop.
+////  while(encTickL < 1315 ){
+////    PID();
+////  }
+////  mtrL->setBackward(mapSpeed);
+////  mtrR->setBackward(mapSpeed);
+//  
+//  mystop();
+////  while(encTickL < 2000){
+////    //stopPID();
+////  }
+////
+////
+////  mystop();
+//  //turn90Right();
+// 
+//  moveBackward( 0 );
+//  
+// delay(5000);
+  
+>>>>>>> origin/master
   
 }
+
+void speedControl(){
+  
+}
+
+void turn(int thisTurn){
+  
+}
+
 void mystop(){
    
+<<<<<<< HEAD
   encTickR = 0;
   encTickL = 0;
   while(P_error() != 0 && ((encTickR+encTickL)/2) < 1000){
    curTime = millis(); 
+=======
+  while(P_error() != 0){
+   curTime = micros(); 
+>>>>>>> origin/master
    delayTime = curTime - lastSamp;
    lastSamp = curTime;
    stopError = P_error() + D_error();   
@@ -328,32 +346,7 @@ double D_error(){
 }
 
 
-void testSensors(){
-  int test1 = sensor[0]->getIR();
-  int test2 = sensor[1]->getIR();
-  int test3 = sensor[2]->getIR();
-  int test4 = sensor[3]->getIR();
-  int test5 = sensor[4]->getIR();
-  int test6 = sensor[5]->getIR();
-  test6 = test5 + test4 + test3 + test2 + test1;
-  delay(5000);
-}
-void LEDsON() {
-  digitalWrite(rightLED, HIGH); delay(50);
-        digitalWrite(rightFrontLED,HIGH); delay(50);
-        digitalWrite(rightDiagLED,HIGH); delay(50);
-        digitalWrite(leftLED, HIGH); delay(50);
-        digitalWrite(leftFrontLED, HIGH); delay(50);
-        digitalWrite(leftDiagLED, HIGH); delay(50);
-}
-void LEDsOFF() {
-         digitalWrite(rightLED, LOW); delay(50);
-        digitalWrite(rightFrontLED,LOW); delay(50);
-        digitalWrite(rightDiagLED,LOW); delay(50);
-        digitalWrite(leftLED, LOW); delay(50);
-        digitalWrite(leftFrontLED, LOW); delay(50);
-        digitalWrite(leftDiagLED, LOW); delay(50);
-}
+
 
 int blockLength = 10;
 
@@ -362,56 +355,6 @@ void mapMaze() {
    encTickL = encTickR = 0;             
 }
 
-void turnAround() {
-  turnRight();
-  turnRight(); 
-}
-
-void turnFullRight(){
-   turnRight();
-   turnRight(); 
-   
-   currentDirection++;
-}
-
-//90 degrees for turns
-void turn90Right() { 
-  encTickL = 0;
-  encTickR = 0;
-  mtrL->setForward(mapSpeed);
-  mtrR->setBackward(mapSpeed);
-  while(encTickR < 640){}
-  mtrL->setBackward(mapSpeed);
-  mtrR->setForward(mapSpeed);
-  while(encTickR < 908){}
-  
-
-}
-
-void turnRight(){
-  encTickL = 0;
-  encTickR = 0;
-  mtrL->setForward(mapSpeed);
-  mtrR->setBackward(mapSpeed);
-  while(encTickR < 325){}
-  mtrL->setBackward(mapSpeed);
-  mtrR->setForward(mapSpeed);
-  while(encTickR < 454){}
-  
-}
-
-void turnLeft() {
-  encTickL = 0;
-  encTickR = 0;
-  mtrL->setBackward(mapSpeed);
-  mtrR->setForward(mapSpeed);
-  while(encTickR < 300){}
-  mtrL->setForward(mapSpeed);
-  mtrR->setBackward(mapSpeed);
-  while(encTickR < 454){}
-  
-  currentDirection--;
-}
 
 
 /*
@@ -496,6 +439,7 @@ mtrR->setBackward( mapSpeed - error);
   
 }
 
+<<<<<<< HEAD
 /********** ENCODER FUNCTIONS **********/
 
 void readBothEnc() {
@@ -517,25 +461,24 @@ void incEncoderR() {
 
 
 
+=======
+>>>>>>> origin/master
 /****************MAPPPPPPING ********************/
 
 byte NAV(){
   
-  //0 = N, 1 = E, 2 = S, 3 = W
-
-  
+  //0 = N, 1 = E, 2 = S, 3 = W  
   // 4= L, 5 = S, 6 = R, 7 = U
-  bool wallLeft = sensor[0]->getIR() > 600;
-  bool wallFront = sensor[2]->getIR() > 200;
-  bool wallRight = sensor[5]->getIR() > 600; 
+  
+  //Determines wallLeft, wallRight, wallFront boolean values
+  checkForWalls();
+
 
   
   if(wallLeft){
      if(wallRight){
-        if(wallFront){
-          
-          return UTURN;
-          
+        if(wallFront){          
+          return UTURN;         
         }
         else{
           return STRAIGHT;
@@ -764,10 +707,137 @@ byte NAV(){
        }
     }
   }
-    
-    
-    
-    
-    
+      
+}
+
+void determineOffset() {
+  //  //Traps Setup until both front sensors are higher than 600.
+//  digitalWrite(rightFrontLED, HIGH);
+//  digitalWrite(leftFrontLED, LOW);
+//  delay(500);
+//  digitalWrite(leftFrontLED, LOW);
+//  digitalWrite(rightFrontLED, HIGH);
+//  delay(500);
+//  digitalWrite(leftFrontLED, HIGH);
+//  digitalWrite(rightFrontLED, LOW);
+//  delay(500);
+//  digitalWrite(leftFrontLED, LOW);
+//  digitalWrite(rightFrontLED, HIGH);
+//  delay(500);
+//  digitalWrite(leftFrontLED, LOW);
+//  digitalWrite(rightFrontLED, LOW);
   
+  while ((sensor[2]->getIR() < 800) && (sensor[3]->getIR() < 800)){
+    sensor[2]->getLED().setLOW();
+    sensor[3]->getLED().setLOW();
+    delay(128);
+    sensor[2]->getLED().setHIGH();
+    sensor[3]->getLED().setHIGH();
+    delay(128);
+  }
+  
+  encTickL = 0;
+  encTickR = 0;
+
+  sensor[2]->getLED().setHIGH();
+  sensor[3]->getLED().setHIGH();    
+  delay(500);
+  sensor[2]->getLED().setLOW();
+  sensor[3]->getLED().setLOW();    
+  delay(500);
+  sensor[2]->getLED().setHIGH();
+  sensor[3]->getLED().setHIGH();    
+  delay(500);
+  sensor[2]->getLED().setLOW();
+  sensor[3]->getLED().setLOW();
+  
+  ourOffset = sensor[5]->getIR() - sensor[0]->getIR();
+}
+
+ 
+int MAP(){
+  return 0;
+}
+
+void initializeInterrupts() {
+  attachInterrupt( L_CH_A , incEncoderL , RISING );
+  attachInterrupt( R_CH_A , incEncoderR , RISING );
+}
+
+/*
+* Encoder Tick Functions
+*
+*
+**/
+void incEncoderL() {
+  encTickL++; 
+}
+void incEncoderR() {
+  encTickR++;
+}
+
+/*
+void testSensors(){
+  int testSense[NUMSENSORS];
+  double sum = 0;  
+  for ( byte i = 0 ; i < NUMSENSORS ; i++ ) {
+    test[i] = sensor[i]->getIR();
+    sum += test[i];
+  }
+  delay(5000);
+}
+*/
+void LEDsON() {
+  for ( byte i = 0 ; i < NUMSENSORS ; i++ ) {
+    sensor[i]->getLED().setHIGH();
+    delay(50);
+  }
+}
+void LEDsOFF() {
+  for ( byte i = 0 ; i < NUMSENSORS ; i++ ) {
+    sensor[i]->getLED().setLOW();
+    delay(50);
+  }
+}
+
+void turnAround() {
+  turnRight();
+  turnRight(); 
+}
+
+void turnFullRight(){
+   turnRight();
+   turnRight(); 
+   currentDirection++;
+}
+
+//90 degrees for turns
+void turn90Right() { 
+  encTickL = 0;
+  encTickR = 0;
+  moveRight( mapSpeed );
+  while(encTickR < 640){}
+  moveLeft( mapSpeed );
+  while(encTickR < 908){}
+}
+
+void turnRight(){
+  encTickL = 0;
+  encTickR = 0;
+  moveRight( mapSpeed );
+  while(encTickR < 325){}
+  moveLeft( mapSpeed );
+  while(encTickR < 454){}
+}
+
+void turnLeft() {
+  encTickL = 0;
+  encTickR = 0;
+  moveLeft( mapSpeed );
+  while(encTickR < 300){}
+  moveRight( mapSpeed );
+
+  while(encTickR < 454){}
+  
+  currentDirection--;
 }
