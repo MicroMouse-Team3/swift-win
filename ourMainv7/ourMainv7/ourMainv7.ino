@@ -1,105 +1,12 @@
-#include <MMvars.h>
+#include <PinDefine.h>
+#include <LED.h>
 #include <EncoderMM.h>
 #include <Motor.h>
-#include <LED.h>
+#include <NAV.h>
 #include <Sensor.h>
-//#include <Functions.h>
+#include <MMvars.h>
 
-//Left Sensors and LEDS
-#define leftEmitIR 3
-#define leftRecIR A12
-#define leftLED 11
-#define leftDiagEmitIR 28
-#define leftDiagRecIR A18
-#define leftDiagLED 30
-#define leftFrontEmitIR 4
-#define leftFrontRecIR A11
-#define leftFrontLED 13
-
-//Right Sensors and= LEDs
-#define rightEmitIR 2 
-#define rightRecIR A13
-#define rightLED 12
-#define rightDiagEmitIR 25
-#define rightDiagRecIR A15
-#define rightDiagLED 27
-#define rightFrontEmitIR 5
-#define rightFrontRecIR A10
-#define rightFrontLED 14
-
-//Enable Pins
-#define L_Enable 16
-#define R_Enable 17
-
-//Motor H-Bridge Pins
-#define L_Mtr_A 20
-#define L_Mtr_B 21
-#define R_Mtr_A 22
-#define R_Mtr_B 23
-
-//Encoder Pins
-#define L_CH_A 9
-#define L_CH_B 10
-#define R_CH_A 7
-#define R_CH_B 8
-
-//Direction
-#define NORTH 0
-#define EAST 1
-#define SOUTH 2
-#define WEST 3
-  // 4= S, 5 = R, 6 = L, 7 = U
-
-#define LEFTTURN 4
-#define STRAIGHT 5
-#define RIGHTTURN 6
-#define UTURN 7
-
-int currentDirection = 4000;
-int x = 0;
-int y = 0;
-
-unsigned long lastTickLeft = 0;
-unsigned long lastTickRight = 0;
-
-const int NUMSENSORS = 6;
-volatile static int encTickL = 0, encTickR = 0;
-int ourOffset = 0;
-
-Motor * mtrL;
-Motor * mtrR;
-Sensor * sensor[NUMSENSORS];
-
-
-//Global Boolean Values
-const bool debugOn = "TRUE";
-const bool solved = "FALSE";
-
-//Global Values
-const int distancePerMove = 30;
-float previousError = 0.0;
-int error = 0;
-int curTime = 0;
-int lastSamp = 0;
-int delayTime = 0;
-float previousPos = 0.0;
-int previousTime = 0;
-unsigned long curt = 0; 
-float stopError = 0.0;
-int kp = 1;
-
-//Encoder Information
-volatile int state = LOW;
-
-//Speeds of motors
-int mapSpeed = 100;
-int solveSpeed = 255;
- 
- 
-//SENSOR Threshold Values
-unsigned int minThresh = 15;
-unsigned int maxThresh = 700;
-
+/*
 boolean frontWall = false;
 boolean leftWall = true;
 boolean leftFrontWall = true;
@@ -107,7 +14,7 @@ boolean rightWall = true;
 boolean rightFrontWall = true;
 boolean myBool = false;
 boolean yourBool = false;
-
+*/
 
 /*
 *  MAIN for MicroMouse
@@ -115,41 +22,38 @@ boolean yourBool = false;
 *  Team 3 - Winter 2015. Hi
 **/
 
-int lastTime = millis();
-int lastError = 0;
-
 void setup(){
   pinMode(0, INPUT);
   pinMode(1, OUTPUT);
-  pinMode(2, OUTPUT);
-  pinMode(3, OUTPUT);
-  pinMode(4, OUTPUT);
-  pinMode(5, OUTPUT);
+  pinMode(rightEmitIR, OUTPUT);
+  pinMode(leftEmitIR, OUTPUT);
+  pinMode(leftFrontEmitIR, OUTPUT);
+  pinMode(rightFrontEmitIR, OUTPUT);
   pinMode(6, OUTPUT);
-  pinMode(7, INPUT);
-  pinMode(8, INPUT);
-  pinMode(9, INPUT);
-  pinMode(10, INPUT);
-  pinMode(11, OUTPUT);
-  pinMode(12, OUTPUT);
-  pinMode(13, OUTPUT);
-  pinMode(14, OUTPUT);
+  pinMode(R_CH_A, INPUT);
+  pinMode(R_CH_B, INPUT);
+  pinMode(L_CH_A, INPUT);
+  pinMode(L_CH_B, INPUT);
+  pinMode(leftLED, OUTPUT);
+  pinMode(rightLED, OUTPUT);
+  pinMode(leftFrontLED, OUTPUT);
+  pinMode(rightFrontLED, OUTPUT);
   pinMode(15, INPUT);
-  pinMode(16, OUTPUT);
-  pinMode(17, OUTPUT);
+  pinMode(L_Enable, OUTPUT);
+  pinMode(R_Enable, OUTPUT);
   pinMode(18, INPUT);
   pinMode(19, INPUT);
-  pinMode(20, OUTPUT);
-  pinMode(21, OUTPUT);
-  pinMode(22, OUTPUT);
-  pinMode(23, OUTPUT);
+  pinMode(L_Mtr_A, OUTPUT);
+  pinMode(L_Mtr_B, OUTPUT);
+  pinMode(R_Mtr_A, OUTPUT);
+  pinMode(R_Mtr_B, OUTPUT);
   pinMode(24, INPUT);
-  pinMode(25, OUTPUT);
+  pinMode(rightDiagEmitIR, OUTPUT);
   pinMode(26, INPUT);
-  pinMode(27, OUTPUT);
-  pinMode(28, OUTPUT);
+  pinMode(rightDiagLED, OUTPUT);
+  pinMode(leftDiagEmitIR, OUTPUT);
   pinMode(29, INPUT);
-  pinMode(30, OUTPUT);
+  pinMode(leftDiagLED, OUTPUT);
   pinMode(31, OUTPUT);
   pinMode(32, OUTPUT);
   pinMode(33, OUTPUT);
@@ -559,17 +463,14 @@ byte NAV(){
 
   
   // 4= L, 5 = S, 6 = R, 7 = U
-  bool wallLeft = sensor[0]->getIR() > 600;
-  bool wallFront = sensor[2]->getIR() > 200;
-  bool wallRight = sensor[5]->getIR() > 600; 
+  checkForWalls();
+
 
   
   if(wallLeft){
      if(wallRight){
-        if(wallFront){
-          
-          return UTURN;
-          
+        if(wallFront){          
+          return UTURN;         
         }
         else{
           return STRAIGHT;
@@ -807,12 +708,12 @@ byte NAV(){
 }
 
 void setLEDsON() {  
-  for ( byte i = 0 ; i < NUMSENORS ; i++ )
+  for ( byte i = 0 ; i < NUMSENSORS ; i++ )
     sensor[i]->getLED().setHIGH();
 }
 
 void setLEDsOFF() {  
-  for ( byte i = 0 ; i < NUMSENORS ; i++ ) 
+  for ( byte i = 0 ; i < NUMSENSORS ; i++ ) 
     sensor[i]->getLED().setLOW();
 }
 
@@ -834,4 +735,10 @@ void moveLeft( byte speed ) {
 void moveBackward( byte speed ) {
   mtrL->setBackward( speed );
   mtrR->setBackward( speed );
+}
+
+void checkForWalls() {
+  wallLeft = sensor[0]->getIR() > 600;
+  wallFront = sensor[2]->getIR() > 200;
+  wallRight = sensor[5]->getIR() > 600; 
 }

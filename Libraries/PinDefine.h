@@ -1,10 +1,9 @@
 
-#ifndef MMvars_h
-#define MMvars_h
+#ifndef PinDefine_h
+#define PinDefine_h
 
 #include "Arduino.h"
 
-/*
 extern boolean frontWall;
 extern boolean leftWall;
 extern boolean leftFrontWall;
@@ -12,7 +11,7 @@ extern boolean rightWall;
 extern boolean rightFrontWall;
 extern boolean myBool;
 extern boolean yourBool;
-*/
+
 
 //Left Sensors and LEDS
 #define leftEmitIR 3      
@@ -52,53 +51,5 @@ extern boolean yourBool;
 #define R_CH_A 7
 #define R_CH_B 8
 
-
-unsigned long lastTickLeft = 0;
-unsigned long lastTickRight = 0;
-
-const byte NUMSENSORS = 6;
-volatile static int encTickL = 0, encTickR = 0;
-int ourOffset = 0;
-
-Motor * mtrL;
-Motor * mtrR;
-Sensor * sensor[NUMSENSORS];
-
-
-//Global Boolean Values
-const bool debugOn = "TRUE";
-const bool solved = "FALSE";
-
-//Global Values
-const int distancePerMove = 30;
-float previousError = 0.0;
-int error = 0;
-int curTime = 0;
-int lastSamp = 0;
-int delayTime = 0;
-float previousPos = 0.0;
-int previousTime = 0;
-unsigned long curt = 0; 
-float stopError = 0.0;
-int kp = 1;
-
-int lastTime = millis();
-int lastError = 0;
-
-//Encoder Information
-volatile int state = LOW;
-
-//Speeds of motors
-int mapSpeed = 100;
-int solveSpeed = 255;
- 
- 
-//SENSOR Threshold Values
-unsigned int minThresh = 15;
-unsigned int maxThresh = 700;
-
-bool wallLeft;
-bool wallFront;
-bool wallRight;
   
 #endif
