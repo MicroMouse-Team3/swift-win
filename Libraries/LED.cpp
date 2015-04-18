@@ -7,7 +7,7 @@ LED::LED ( byte ledPin ) {
 }
     
 void LED::setLOW() {
-  digitalWrite ( ledPin , this->isON = LOW );
+  digitalWrite ( ledPin , this->isON = LOW );  
 }
 
 void LED::setHIGH() {
