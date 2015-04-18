@@ -25,6 +25,8 @@
 int currentDirection = 4000;
 int x = 0;
 int y = 0;
+int xprev = 0;
+int yprev = 0;
 
 //Global Boolean Values
 const bool debugOn = "TRUE";
