@@ -8,7 +8,6 @@
 //Speed Control -> SPEEDME
 //PID -> PIDME
 //EncoderTick -> TICKME
-//Turn -> TURNME
 //Error Functions -> ERRME
 //Get Sensor Functions -> SENME
 //--------------------------------------
@@ -319,23 +318,6 @@ void loop(){
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Turn Function
-//Search Term: TURNME
-void turn(byte thisDirection){
-  switch (thisDirection){
-     case LEFTTURN:
-       turnLeft(); break;
-     case STRAIGHT:
-       break;
-     case RIGHTTURN:
-       turnRight(); break;
-     case UTURN:
-       turnRight(); turnRight(); break;
-     default: break;    
-  }
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Speed Control Function
 //Search Term: SPEEDME
 int speedControl(){
@@ -589,6 +571,20 @@ void rightBackward(byte speedIn){
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Turn Functions
 //TURNME
+void turn(byte thisDirection){
+  switch (thisDirection){
+     case LEFTTURN:
+       turnLeft(); break;
+     case STRAIGHT:
+       break;
+     case RIGHTTURN:
+       turnRight(); break;
+     case UTURN:
+       turnRight(); turnRight(); break;
+     default: break;    
+  }
+}
+
 void turnRight(){
   encTickL = 0;
   encTickR = 0;
