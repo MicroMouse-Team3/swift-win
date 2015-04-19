@@ -4,6 +4,9 @@
 //Initilizations -> INITME
 //Setup -> SETME
 //Loop -> LOOPME
+//Turn -> TURNME
+//Speed Control -> SPEEDME
+//PID -> PIDME
 //EncoderTick -> TICKME
 //Turn -> TURNME
 //Error Functions -> ERRME
@@ -56,6 +59,7 @@
 #define STRAIGHT 5
 #define RIGHTTURN 6
 #define UTURN 7
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Initializations
 //INITME
@@ -85,29 +89,29 @@ int solveSpeed = 255;
 // PID gains
 double Tkp = 8L;
 double Tkd = 6300L;
-double Wkp = 1;
-double Wkd =1;
 
 // Error Tracking
-double ERROROLD = 0;
+double errOld = 0;
 double error = 0;
-double CURRENTTIME = 0;
-double LASTTIME =0;
-int DIRECTION = 0;
+double currTime = 0;
+double lastTime =0;
+double delayTime = 0;
+int currDirection = 0;
+double deltaTime = 0;
 
 // Setpoints
-int CELLDISTANCE = 2200;
-int SETPOINT = CELLDISTANCE;
-int SETVAL = 0;
-int wallOFFSET = 123;
+int cellDistance = 2200;
+int setPoint = cellDistance;
+int setVal = 0;
+int wallOffSet = 123;
 
 // Sensor offsets
-int wallLEFTDIST = 0;
-int wallRIGHTDIST = 0;
+double wallLeftDist = 0;
+double wallRightDist = 0;
 
 //PWM vars
 
-int PWMRATE = 0;
+int pwmRate = 0;
 
 
 //For Sensors
@@ -265,8 +269,11 @@ void setup(){
   digitalWrite(rightFrontLED, LOW);
   
   //Determine Inital Offset
-  ourOffset = getIRLeft() - getIRRight();
-  LASTTIME = micros();
+
+  lastTime = micros();
+  wallLeftDist = getIRLeft();
+  wallRightDist = getIRRight();
+  ourOffset = wallLeftDist - wallRightDist;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -274,15 +281,153 @@ void setup(){
 //Search Term: LOOPME
 void loop(){
   
-  while(encTickL < CELLDISTANCE/2 + SETVAL){
-    PWMRATE = speedControl();
-    PID(PWMRATE);
+  while(encTickL < cellDistance/2 + setVal){
+    pwmRate = speedControl();
+    PID(pwmRate);
   }
-  DIRECTION = NAV();
-  if(DIRECTION == STRAIGHT;
-  if(wallLeftFront && wallRightFront)
-  SETPOINT -= WALLOFFSET;
   
+  currDirection = NAV();
+  
+  if(currDirection == STRAIGHT){
+     setPoint += cellDistance; 
+  }
+  
+  if(wallLeftFront && wallRightFront){
+    setPoint -= wallOffSet;
+  }
+  
+  while(encTickL < cellDistance + setVal){
+     pwmRate = speedControl();
+    PID(pwmRate); 
+  }
+  
+  currDirection = MAP();
+  
+  if (currDirection != STRAIGHT){
+     setPoint = cellDistance;
+     setVal = 0;
+     encTickL = 0;
+     encTickR = 0; 
+  }
+  else{
+     setVal += cellDistance;
+     turn(currDirection); 
+  }
+  
+  
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Turn Function
+//Search Term: TURNME
+void turn(byte thisDirection){
+  
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Speed Control Function
+//Search Term: SPEEDME
+int speedControl(){
+  errOld = error;
+  error = setPoint - encTickR;
+  pwmRate = Tkp * error;
+  currTime = micros();
+  deltaTime = currTime - lastTime;
+  pwmRate += Tkd * (error - errOld)/deltaTime;
+  pwmRate /= 1000;
+  lastTime = currTime;
+  return pwmRate;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//PID Function
+//Search Term: PIDME
+void PID(int PWMRate){
+  int error = 0;
+  int errorP = 0;
+  int errorD = 0;
+  static int oldErrorP = 0;
+  int pwmPlus = 0;
+  int pwmMinus = 0;
+  unsigned int KP = 1;
+  unsigned int KD = 1;
+  
+  int left = getIRLeft();
+  int right = getIRRight();
+  
+  if (wallLeft && wallRight){
+     errorP = right - left - ourOffset;
+     errorD = errorP - oldErrorP;
+  }
+  
+  else if(left){
+     errorP = 2*(wallLeftDist - left);
+     errorD = errorP - oldErrorP;
+  }
+  
+  else if(right){
+     errorP = 2*(right - wallRightDist);
+     errorD = errorP - oldErrorP;
+  }
+  
+  else if (!left && !right){
+     errorP = 0;
+     errorD = 0; 
+  }
+  
+  error = (KP * errorP) + (KD * errorD);
+  oldErrorP = errorP;
+  
+  pwmPlus = pwmRate + error;
+  pwmMinus = pwmRate - error;
+  
+  if(pwmPlus > mapSpeed){
+     pwmPlus = mapSpeed; 
+  }
+  else if(pwmPlus < (-1*solveSpeed)){
+     pwmPlus = -1 * solveSpeed; 
+  }
+  
+  if(pwmMinus > (-1 * solveSpeed)){
+     pwmMinus = -1*solveSpeed; 
+  }
+  else if(pwmMinus < (-1 * solveSpeed)){
+     pwmMinus = -1 * solveSpeed; 
+  }
+  
+  if (pwmRate >= 0){
+      if (pwmPlus >= 0){
+         rightForward(pwmPlus); 
+      }
+      else{
+         pwmPlus *= -1;
+         rightBackward(pwmMinus); 
+      }
+      if (pwmMinus >= 0){
+         leftForward(pwmMinus); 
+      }
+      else{
+         pwmMinus *= -1;
+         leftBackward(pwmMinus); 
+      }
+  }
+
+  else{
+    if(pwmPlus >= 0){
+       leftBackward(pwmPlus); 
+    }
+    else{
+       pwmPlus *= -1;
+       leftForward(pwmPlus); 
+    }
+    if(pwmMinus >= 0){
+       rightBackward(pwmMinus); 
+    }
+    else{
+       pwmMinus *= -1;
+       rightForward(pwmMinus); 
+    }
+  }  
   
 }
 
@@ -456,27 +601,6 @@ void turnLeft(){
   while(encTickR < 454){}
   currentDirection--;
 }
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Error Functions
-//ERRME
-float P_error(){
-  
- // float curPos = ((float)(encTickR + encTickL)/2.0);
-  //float curVel = (curPos - previousPos)/((float)delayTime) ;
- // previousPos = curPos;
-  previousError = curVel;
-  curVel = 2000 - encTickL;
- 
-  return kp*curVel;
-}
-double D_error(){
-
-  return kd*(curVel - previousError)/delayTime ;
-}
-
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //NAV Function
@@ -726,7 +850,13 @@ byte NAV(){
        }
     }
   }
+  
+ return STRAIGHT;
       
+}
+
+byte MAP(){
+  return STRAIGHT;
 }
 
 
