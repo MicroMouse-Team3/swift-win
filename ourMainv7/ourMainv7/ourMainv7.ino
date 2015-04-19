@@ -255,7 +255,7 @@ void loop(){
   byte turn;
   mtrL->setForward( mapSpeed );
   mtrR->setForward( mapSpeed );
-  delay(500);s  
+  delay(500);
   //Gets us through the first half of the block just by going Straight.
   while(encTickL < 2000){
     curTime = millis(); 
