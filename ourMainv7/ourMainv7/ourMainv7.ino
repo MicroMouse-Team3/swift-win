@@ -86,7 +86,7 @@ int curVel = 0;
 int pwmPD = 0;
 bool backWards = false; 
 
-int lastTime = millis();
+int lastTime = micros();
 int lastError = 0;
 
 //Encoder Information
@@ -280,23 +280,38 @@ void setup(){
                                     
 void loop(){
 
-  int newSet = 0;
-  int setPoint = 2000;
-  int Direction = 0;
-  
-  while(encTickR < (1000 + newSet)){
-    PID(); 
+ byte turn;
+  mtrL->setForward( mapSpeed );
+  mtrR->setForward( mapSpeed );
+  delay(500);
+  //Gets us through the first half of the block just by going Straight.
+  while(encTickL < 2000){
+    curTime = micros(); 
+    delayTime = curTime - lastSamp;
+    lastSamp = curTime;
+    
+    pwmPD = P_error() + D_error();   
+    
+    if(pwmPD > 0){
+      if(pwmPD > 100) pwmPD = 100;
+      mtrL->setForward(pwmPD);
+      mtrR->setForward(pwmPD);
+    }
+    else{
+      pwmPD *= -1;
+      if(pwmPD > 255) pwmPD = 255;
+      mtrL->setBackward(pwmPD);
+      mtrR->setBackward(pwmPD);
+    }
   }
-  
-  Direction = NAV();
-  
-  if (Direction == 1){
-      setPoint += 2000;
-  }
-  
-  encTickL = 0;
+ 
+  mtrL->setBackward(0);
+  mtrR->setBackward(0);
+ 
+ delay(5000);
   encTickR = 0;
-  ourOffset = sensor[5]->getIR() - sensor[0]->getIR();
+  encTickL = 0;
+  
 }
 
 void speedControl(){
