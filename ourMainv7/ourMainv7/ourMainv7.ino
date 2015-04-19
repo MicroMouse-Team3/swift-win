@@ -110,7 +110,7 @@ unsigned int maxThresh = 700;
 *  Team 3 - Winter 2015. Hi
 **/
 
-int lastTime = millis();
+int lastTime = micros();
 int lastError = 0;
 
 void setup(){
@@ -188,22 +188,6 @@ void setup(){
   digitalWrite(rightDiagLED, LOW);
   digitalWrite(rightLED, LOW);
   
-//  //Traps Setup until both front sensors are higher than 600.
-//  digitalWrite(rightFrontLED, HIGH);
-//  digitalWrite(leftFrontLED, LOW);
-//  delay(500);
-//  digitalWrite(leftFrontLED, LOW);
-//  digitalWrite(rightFrontLED, HIGH);
-//  delay(500);
-//  digitalWrite(leftFrontLED, HIGH);
-//  digitalWrite(rightFrontLED, LOW);
-//  delay(500);
-//  digitalWrite(leftFrontLED, LOW);
-//  digitalWrite(rightFrontLED, HIGH);
-//  delay(500);
-//  digitalWrite(leftFrontLED, LOW);
-//  digitalWrite(rightFrontLED, LOW);
-  
   while ((sensor[2]->getIR() < 800) && (sensor[3]->getIR() < 800)){
    digitalWrite(leftFrontLED, LOW);
   digitalWrite(rightFrontLED, LOW);
@@ -258,7 +242,7 @@ void loop(){
   delay(500);
   //Gets us through the first half of the block just by going Straight.
   while(encTickL < 2000){
-    curTime = millis(); 
+    curTime = micros(); 
     delayTime = curTime - lastSamp;
     lastSamp = curTime;
     
@@ -291,7 +275,7 @@ void mystop(){
   encTickR = 0;
   encTickL = 0;
   while(P_error() != 0 && ((encTickR+encTickL)/2) < 1000){
-   curTime = millis(); 
+   curTime = micros(); 
    delayTime = curTime - lastSamp;
    lastSamp = curTime;
    stopError = P_error() + D_error();   
