@@ -301,7 +301,8 @@ void loop(){
     PID(pwmRate); 
   }
   
-  currDirection = MAP();
+  //Map isn't ready yet.
+  //currDirection = MAP();
   
   if (currDirection != STRAIGHT){
      setPoint = cellDistance;
@@ -321,7 +322,17 @@ void loop(){
 //Turn Function
 //Search Term: TURNME
 void turn(byte thisDirection){
-  
+  switch (thisDirection){
+     case LEFTTURN:
+       turnLeft(); break;
+     case STRAIGHT:
+       break;
+     case RIGHTTURN:
+       turnRight(); break;
+     case UTURN:
+       turnRight(); turnRight(); break;
+     default: break;    
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
