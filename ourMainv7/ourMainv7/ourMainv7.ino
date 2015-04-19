@@ -1,12 +1,45 @@
-
-#include <PinDefine.h>
 #include <Motor.h>
 #include <EncoderMM.h>
 #include <LED.h>
 #include <Sensor.h>
-#include <MMvars.h>
 #include <NAV.h>
 
+#define leftEmitIR 3      
+#define leftRecIR A12
+#define leftLED 11
+#define leftDiagEmitIR 28
+#define leftDiagRecIR A18
+#define leftDiagLED 30
+#define leftFrontEmitIR 4  
+#define leftFrontRecIR A11
+#define leftFrontLED 13  
+
+//Right Sensors and= LEDs
+#define rightEmitIR 2 
+#define rightRecIR A13
+#define rightLED 12
+#define rightDiagEmitIR 25
+#define rightDiagRecIR A15
+#define rightDiagLED 27
+#define rightFrontEmitIR 5
+#define rightFrontRecIR A10
+#define rightFrontLED 14
+
+//Enable Pins
+#define L_Enable 16
+#define R_Enable 17
+
+//Motor H-Bridge Pins
+#define L_Mtr_A 20
+#define L_Mtr_B 21
+#define R_Mtr_A 22
+#define R_Mtr_B 23
+
+//Encoder Pins
+#define L_CH_A 9
+#define L_CH_B 10
+#define R_CH_A 7
+#define R_CH_B 8
 
 
 
@@ -21,6 +54,13 @@
 #define STRAIGHT 5
 #define RIGHTTURN 6
 #define UTURN 7
+
+
+const byte NUMSENSORS = 6;
+
+Motor * mtrL;
+Motor * mtrR;
+Sensor * sensor[NUMSENSORS];
 
 int currentDirection = 4000;
 int nextDirection = 0;
@@ -139,9 +179,59 @@ byte dasMaze[33][33] =  {
 **/
 
 void setup(){
-  initializePins();
-  initializeMotors(); 
-  initializeInterrupts();    
+  digitalWrite(13, HIGH);
+  delay(5000);
+    //Left left
+  sensor[0] = new Sensor( leftEmitIR , leftRecIR , leftLED );
+  //Left Diag
+  sensor[1] = new Sensor( leftDiagEmitIR , leftDiagRecIR , leftDiagLED );
+  //Left Front
+  sensor[2] = new Sensor( leftFrontEmitIR , leftFrontRecIR , leftFrontLED );
+  //Right Front
+  sensor[3] = new Sensor( rightFrontEmitIR , rightFrontRecIR , rightFrontLED );
+  //Right Diag
+  sensor[4] = new Sensor( rightDiagEmitIR , rightDiagRecIR , rightDiagLED );
+  //Right Right
+  sensor[5] = new Sensor( rightEmitIR , rightRecIR , rightLED );  
+  
+    mtrL = new Motor( L_Enable , L_Mtr_A , L_Mtr_B , L_CH_A , L_CH_B );  
+  mtrR = new Motor( R_Enable , R_Mtr_A , R_Mtr_B , R_CH_A , R_CH_B );
+  
+  
+  pinMode(0, INPUT);
+  pinMode(1, OUTPUT);
+  pinMode(rightEmitIR, OUTPUT);
+  pinMode(leftEmitIR, OUTPUT);
+  pinMode(leftFrontEmitIR, OUTPUT);
+  pinMode(rightFrontEmitIR, OUTPUT);
+  pinMode(6, OUTPUT);
+  pinMode(R_CH_A, INPUT);
+  pinMode(R_CH_B, INPUT);
+  pinMode(L_CH_A, INPUT);
+  pinMode(L_CH_B, INPUT);
+  pinMode(leftLED, OUTPUT);
+  pinMode(rightLED, OUTPUT);
+  pinMode(leftFrontLED, OUTPUT);
+  pinMode(rightFrontLED, OUTPUT);
+  pinMode(15, INPUT);
+  pinMode(L_Enable, OUTPUT);
+  pinMode(R_Enable, OUTPUT);
+  pinMode(18, INPUT);
+  pinMode(19, INPUT);
+  pinMode(L_Mtr_A, OUTPUT);
+  pinMode(L_Mtr_B, OUTPUT);
+  pinMode(R_Mtr_A, OUTPUT);
+  pinMode(R_Mtr_B, OUTPUT);
+  pinMode(24, INPUT);
+  pinMode(rightDiagEmitIR, OUTPUT);
+  pinMode(26, INPUT);
+  pinMode(rightDiagLED, OUTPUT);
+  pinMode(leftDiagEmitIR, OUTPUT);
+  pinMode(29, INPUT);
+  pinMode(leftDiagLED, OUTPUT);
+  pinMode(31, OUTPUT);
+  pinMode(32, OUTPUT);
+  pinMode(33, OUTPUT);
   
   delay(5000);
   
@@ -693,10 +783,27 @@ void testSensors(){
 }
 */
 void LEDsON() {
-  for ( byte i = 0 ; i < NUMSENSORS ; i++ ) {
-    sensor[i]->getLED().setHIGH();
-    delay(50);
-  }
+  
+  
+  //  //Traps Setup until both front sensors are higher than 600.
+  digitalWrite(rightFrontLED, HIGH);
+  digitalWrite(leftFrontLED, LOW);
+  delay(500);
+  digitalWrite(leftFrontLED, LOW);
+  digitalWrite(rightFrontLED, HIGH);
+  delay(500);
+  digitalWrite(leftFrontLED, HIGH);
+  digitalWrite(rightFrontLED, LOW);
+  delay(500);
+  digitalWrite(leftFrontLED, LOW);
+  digitalWrite(rightFrontLED, HIGH);
+  delay(500);
+  digitalWrite(leftFrontLED, LOW);
+  digitalWrite(rightFrontLED, LOW);
+//  for ( byte i = 0 ; i < NUMSENSORS ; i++ ) {
+//    sensor[i]->getLED().setHIGH();
+//    delay(50);
+//  }
 }
 void LEDsOFF() {
   for ( byte i = 0 ; i < NUMSENSORS ; i++ ) {
