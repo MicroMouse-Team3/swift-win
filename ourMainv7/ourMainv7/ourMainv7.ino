@@ -1,13 +1,46 @@
-
-#include <PinDefine.h>
 #include <Motor.h>
 #include <EncoderMM.h>
 #include <LED.h>
 #include <Sensor.h>
-#include <MMvars.h>
 #include <NAV.h>
 
+//Left Sensors and LEDS
+#define leftEmitIR 3      
+#define leftRecIR A12
+#define leftLED 11
+#define leftDiagEmitIR 28
+#define leftDiagRecIR A18
+#define leftDiagLED 30
+#define leftFrontEmitIR 4  
+#define leftFrontRecIR A11
+#define leftFrontLED 13  
 
+//Right Sensors and= LEDs
+#define rightEmitIR 2 
+#define rightRecIR A13
+#define rightLED 12
+#define rightDiagEmitIR 25
+#define rightDiagRecIR A15
+#define rightDiagLED 27
+#define rightFrontEmitIR 5
+#define rightFrontRecIR A10
+#define rightFrontLED 14
+
+//Enable Pins
+#define L_Enable 16
+#define R_Enable 17
+
+//Motor H-Bridge Pins
+#define L_Mtr_A 20
+#define L_Mtr_B 21
+#define R_Mtr_A 22
+#define R_Mtr_B 23
+
+//Encoder Pins
+#define L_CH_A 9
+#define L_CH_B 10
+#define R_CH_A 7
+#define R_CH_B 8
 
 
 //Direction
@@ -21,6 +54,10 @@
 #define STRAIGHT 5
 #define RIGHTTURN 6
 #define UTURN 7
+
+
+const int NUMSENSORS = 6;
+volatile static int encTickL = 0, encTickR = 0;
 
 int currentDirection = 4000;
 int x = 0;
@@ -68,11 +105,14 @@ unsigned int maxThresh = 700;
 unsigned long lastTickLeft = 0;
 unsigned long lastTickRight = 0;
 
-volatile static int encTickL = 0, encTickR = 0;
 int ourOffset = 0;
 
 
 boolean mapMode = true;
+
+Motor * mtrL;
+Motor * mtrR;
+Sensor * sensor[NUMSENSORS];
 
 byte maze[16][16] =  { { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 }, 
                        { 0 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 }, 
@@ -135,14 +175,107 @@ byte dasMaze[33][33] =  {
 **/
 
 void setup(){
-  initializePins();
-  initializeMotors(); 
-  initializeInterrupts();    
+  //initializePins
+  pinMode(0, INPUT);
+  pinMode(1, OUTPUT);
+  pinMode(rightEmitIR, OUTPUT);
+  pinMode(leftEmitIR, OUTPUT);
+  pinMode(leftFrontEmitIR, OUTPUT);
+  pinMode(rightFrontEmitIR, OUTPUT);
+  pinMode(6, OUTPUT);
+  pinMode(R_CH_A, INPUT);
+  pinMode(R_CH_B, INPUT);
+  pinMode(L_CH_A, INPUT);
+  pinMode(L_CH_B, INPUT);
+  pinMode(leftLED, OUTPUT);
+  pinMode(rightLED, OUTPUT);
+  pinMode(leftFrontLED, OUTPUT);
+  pinMode(rightFrontLED, OUTPUT);
+  pinMode(15, INPUT);
+  pinMode(L_Enable, OUTPUT);
+  pinMode(R_Enable, OUTPUT);
+  pinMode(18, INPUT);
+  pinMode(19, INPUT);
+  pinMode(L_Mtr_A, OUTPUT);
+  pinMode(L_Mtr_B, OUTPUT);
+  pinMode(R_Mtr_A, OUTPUT);
+  pinMode(R_Mtr_B, OUTPUT);
+  pinMode(24, INPUT);
+  pinMode(rightDiagEmitIR, OUTPUT);
+  pinMode(26, INPUT);
+  pinMode(rightDiagLED, OUTPUT);
+  pinMode(leftDiagEmitIR, OUTPUT);
+  pinMode(29, INPUT);
+  pinMode(leftDiagLED, OUTPUT);
+  pinMode(31, OUTPUT);
+  pinMode(32, OUTPUT);
+  pinMode(33, OUTPUT);
+  
+  
+  //initalize Motors
+  mtrL = new Motor( L_Enable , L_Mtr_A , L_Mtr_B , L_CH_A , L_CH_B );  
+  mtrR = new Motor( R_Enable , R_Mtr_A , R_Mtr_B , R_CH_A , R_CH_B );
+  
+   sensor[0] = new Sensor( leftEmitIR , leftRecIR , leftLED );
+  //Left Diag
+  sensor[1] = new Sensor( leftDiagEmitIR , leftDiagRecIR , leftDiagLED );
+  //Left Front
+  sensor[2] = new Sensor( leftFrontEmitIR , leftFrontRecIR , leftFrontLED );
+  //Right Front
+  sensor[3] = new Sensor( rightFrontEmitIR , rightFrontRecIR , rightFrontLED );
+  //Right Diag
+  sensor[4] = new Sensor( rightDiagEmitIR , rightDiagRecIR , rightDiagLED );
+  //Right Right
+  sensor[5] = new Sensor( rightEmitIR , rightRecIR , rightLED );
+  
+  //attach interrupts
+  attachInterrupt( L_CH_A , incEncoderL , RISING );
+  attachInterrupt( R_CH_A , incEncoderR , RISING );    
   
   delay(5000);
   
-  ledTest();  
-  determineOffset();
+  //LED Test
+  digitalWrite(leftLED, HIGH);
+  digitalWrite(leftDiagLED, HIGH);
+  digitalWrite(leftFrontLED, HIGH);
+  digitalWrite(rightFrontLED, HIGH);
+  digitalWrite(rightDiagLED, HIGH);
+  digitalWrite(rightLED, HIGH);
+  
+  delay(2000);
+  
+  digitalWrite(leftLED, LOW);
+  digitalWrite(leftDiagLED, LOW);
+  digitalWrite(leftFrontLED, LOW);
+  digitalWrite(rightFrontLED, LOW);
+  digitalWrite(rightDiagLED, LOW);
+  digitalWrite(rightLED, LOW);  
+  
+  //Determine Offset
+  while ((sensor[2]->getIR() < 800) && (sensor[3]->getIR() < 800)){
+   digitalWrite(leftFrontLED, LOW);
+  digitalWrite(rightFrontLED, LOW);
+  delay(128);
+  digitalWrite(leftFrontLED, HIGH);
+  digitalWrite(rightFrontLED, HIGH);
+  delay(128);
+  }
+  
+  encTickL = 0;
+  encTickR = 0;
+  digitalWrite(leftFrontLED, HIGH);
+  digitalWrite(rightFrontLED, HIGH);
+  delay(500);
+  digitalWrite(leftFrontLED, LOW);
+  digitalWrite(rightFrontLED, LOW);
+  delay(500);
+  digitalWrite(leftFrontLED, HIGH);
+  digitalWrite(rightFrontLED, HIGH);
+  delay(500);
+  digitalWrite(leftFrontLED, LOW);
+  digitalWrite(rightFrontLED, LOW);
+  
+   ourOffset = sensor[5]->getIR() - sensor[0]->getIR();
 }
                                     
 void loop(){
@@ -161,134 +294,9 @@ void loop(){
       setPoint += 2000;
   }
   
-<<<<<<< HEAD
   encTickL = 0;
   encTickR = 0;
-  digitalWrite(leftFrontLED, HIGH);
-  digitalWrite(rightFrontLED, HIGH);
-  delay(500);
-  digitalWrite(leftFrontLED, LOW);
-  digitalWrite(rightFrontLED, LOW);
-  delay(500);
-  digitalWrite(leftFrontLED, HIGH);
-  digitalWrite(rightFrontLED, HIGH);
-  delay(500);
-  digitalWrite(leftFrontLED, LOW);
-  digitalWrite(rightFrontLED, LOW);
-  
-    ourOffset = sensor[5]->getIR() - sensor[0]->getIR();
-}
-
-
-boolean mapMode = true;
-byte maze[16][16] = { { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 }, 
-                      { 0 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 }, 
-                      { 0 , 1 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 1 , 0 }, 
-                      { 0 , 1 , 2 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 2 , 1 , 0 }, 
-                      { 0 , 1 , 2 , 3 , 4 , 4 , 4 , 4 , 4 , 4 , 4 , 4 , 3 , 2 , 1 , 0 }, 
-                      { 0 , 1 , 2 , 3 , 4 , 5 , 5 , 5 , 5 , 5 , 5 , 4 , 3 , 2 , 1 , 0 }, 
-                      { 0 , 1 , 2 , 3 , 4 , 5 , 6 , 6 , 6 , 6 , 5 , 4 , 3 , 2 , 1 , 0 }, 
-                      { 0 , 1 , 2 , 3 , 4 , 5 , 6 , 7 , 7 , 6 , 5 , 4 , 3 , 2 , 1 , 0 }, 
-                      { 0 , 1 , 2 , 3 , 4 , 5 , 6 , 7 , 7 , 6 , 5 , 4 , 3 , 2 , 1 , 0 }, 
-                      { 0 , 1 , 2 , 3 , 4 , 5 , 6 , 6 , 6 , 6 , 5 , 4 , 3 , 2 , 1 , 0 }, 
-                      { 0 , 1 , 2 , 3 , 4 , 5 , 5 , 5 , 5 , 5 , 5 , 4 , 3 , 2 , 1 , 0 }, 
-                      { 0 , 1 , 2 , 3 , 4 , 4 , 4 , 4 , 4 , 4 , 4 , 4 , 3 , 2 , 1 , 0 }, 
-                      { 0 , 1 , 2 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 2 , 1 , 0 }, 
-                      { 0 , 1 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 1 , 0 }, 
-                      { 0 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 }, 
-                      { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 } };
-                                    
-                                    
-void loop(){  
-  
-  byte turn;
-  mtrL->setForward( mapSpeed );
-  mtrR->setForward( mapSpeed );
-  delay(500);s  
-  //Gets us through the first half of the block just by going Straight.
-  while(encTickL < 2000){
-    curTime = millis(); 
-    delayTime = curTime - lastSamp;
-    lastSamp = curTime;
-    
-    pwmPD = P_error() + D_error();   
-    
-    if(pwmPD > 0){
-      if(pwmPD > 100) pwmPD = 100;
-      mtrL->setForward(pwmPD);
-      mtrR->setForward(pwmPD);
-    }
-    else{
-      pwmPD *= -1;
-      if(pwmPD > 255) pwmPD = 255;
-      mtrL->setBackward(pwmPD);
-      mtrR->setBackward(pwmPD);
-    }
-  }
- 
-  mtrL->setBackward(0);
-  mtrR->setBackward(0);
- 
- delay(5000);
-  encTickR = 0;
-  encTickL = 0;
-=======
-  if (frontWall){
-     setPoint -= 200; 
-  }
-  
-  while(encTickR < 2000 + newSet){
-     speedControl(); 
-  }
-  
-  Direction = MAP();
-  
-  turn(Direction);
-  
-  if (Direction != 1){
-      newSet = 0;
-      encTickR = 0;
-      encTickL = 0;
-  }
-  else{
-     newSet += 2000; 
-  }
-    
-//  encTickR = 0;
-//  encTickL = 0;
-//  byte turn;
-//  moveForward( mapSpeed );
-//  
-//  //Gets us through the first half of the block just by going Straight.
-//  while(encTickL < 1000){
-//    PID();
-//  }
-//  
-//  //After half way, determines which way we should turn ahead.
-//  turn = NAV();
-//  
-//  //Contiunes straight until it is time to stop.
-////  while(encTickL < 1315 ){
-////    PID();
-////  }
-////  mtrL->setBackward(mapSpeed);
-////  mtrR->setBackward(mapSpeed);
-//  
-//  mystop();
-////  while(encTickL < 2000){
-////    //stopPID();
-////  }
-////
-////
-////  mystop();
-//  //turn90Right();
-// 
-//  moveBackward( 0 );
-//  
-// delay(5000);
-  
->>>>>>> origin/master
-  
+  ourOffset = sensor[5]->getIR() - sensor[0]->getIR();
 }
 
 void speedControl(){
@@ -296,37 +304,6 @@ void speedControl(){
 }
 
 void turn(int thisTurn){
-  
-}
-
-void mystop(){
-   
-<<<<<<< HEAD
-  encTickR = 0;
-  encTickL = 0;
-  while(P_error() != 0 && ((encTickR+encTickL)/2) < 1000){
-   curTime = millis(); 
-=======
-  while(P_error() != 0){
-   curTime = micros(); 
->>>>>>> origin/master
-   delayTime = curTime - lastSamp;
-   lastSamp = curTime;
-   stopError = P_error() + D_error();   
-    if(stopError > 255)
-      stopError = 255;
-    if(stopError < 0){
-      mtrL->setForward(stopError);
-      mtrR->setForward(stopError);
-    }else{
-     
-      mtrL->setBackward(stopError);
-      mtrR->setBackward(stopError);
-     
-    }
-   
-  }
- 
   
 }
 
@@ -438,31 +415,12 @@ mtrL->setBackward( mapSpeed + error);
 mtrR->setBackward( mapSpeed - error);
   
 }
-
-<<<<<<< HEAD
 /********** ENCODER FUNCTIONS **********/
-
-void readBothEnc() {
-  mtrL->getEnc().readEnc();
-  mtrR->getEnc().readEnc();
-}
-
 /*
 * Encoder Tick Functions
 *
 *
 **/
-void incEncoderL() {
-  encTickL++; 
-}
-void incEncoderR() {
-  encTickR++; 
-}
-
-
-
-=======
->>>>>>> origin/master
 /****************MAPPPPPPING ********************/
 
 byte NAV(){
@@ -471,8 +429,10 @@ byte NAV(){
   // 4= L, 5 = S, 6 = R, 7 = U
   
   //Determines wallLeft, wallRight, wallFront boolean values
-  checkForWalls();
-
+  bool wallLeft = sensor[0]->getIR() > 600;
+  bool wallFront = sensor[2]->getIR() > 200;
+  bool wallRight = sensor[5]->getIR() > 600; 
+  
 
   
   if(wallLeft){
@@ -813,30 +773,35 @@ void turnFullRight(){
 
 //90 degrees for turns
 void turn90Right() { 
-  encTickL = 0;
+   encTickL = 0;
   encTickR = 0;
-  moveRight( mapSpeed );
+  mtrL->setForward(mapSpeed);
+  mtrR->setBackward(mapSpeed);
   while(encTickR < 640){}
-  moveLeft( mapSpeed );
+  mtrL->setBackward(mapSpeed);
+  mtrR->setForward(mapSpeed);
   while(encTickR < 908){}
 }
 
 void turnRight(){
   encTickL = 0;
   encTickR = 0;
-  moveRight( mapSpeed );
+  mtrL->setForward(mapSpeed);
+  mtrR->setBackward(mapSpeed);
   while(encTickR < 325){}
-  moveLeft( mapSpeed );
+  mtrL->setBackward(mapSpeed);
+  mtrR->setForward(mapSpeed);
   while(encTickR < 454){}
 }
 
 void turnLeft() {
   encTickL = 0;
   encTickR = 0;
-  moveLeft( mapSpeed );
+  mtrL->setBackward(mapSpeed);
+  mtrR->setForward(mapSpeed);
   while(encTickR < 300){}
-  moveRight( mapSpeed );
-
+  mtrL->setForward(mapSpeed);
+  mtrR->setBackward(mapSpeed);
   while(encTickR < 454){}
   
   currentDirection--;
