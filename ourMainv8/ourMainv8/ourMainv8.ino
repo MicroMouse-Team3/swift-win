@@ -5,6 +5,7 @@
 //Setup -> SETME
 //Loop -> LOOPME
 //EncoderTick -> TICKME
+//Turn -> TURNME
 //Error Functions -> ERRME
 //Get Sensor Functions -> SENME
 //--------------------------------------
@@ -406,6 +407,32 @@ void rightBackward(byte speedIn){
   analogWrite(R_Mtr_B,0);
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Turn Functions
+//TURNME
+void turnRight(){
+  encTickL = 0;
+  encTickR = 0;
+  leftForward(mapSpeed);
+  rightBackward(mapSpeed);
+  while(encTickR < 325){}
+  leftBackward(mapSpeed);
+  rightForward(mapSpeed);
+  while(encTickR < 454){}
+  currentDirection++;
+}
+
+void turnLeft(){
+  encTickL = 0;
+  encTickR = 0;
+  leftBackward(mapSpeed);
+  rightForward(mapSpeed);
+  while(encTickR < 300){}
+  leftForward(mapSpeed);
+  rightBackward(mapSpeed);
+  while(encTickR < 454){}
+  currentDirection--;
+}
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
