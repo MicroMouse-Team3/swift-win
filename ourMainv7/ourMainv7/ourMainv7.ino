@@ -23,10 +23,14 @@
 #define UTURN 7
 
 int currentDirection = 4000;
+int nextDirection = 0;
 int x = 0;
 int y = 0;
 int xprev = 0;
 int yprev = 0;
+
+int setPoint = 0;
+int newSet = 0;
 
 //Global Boolean Values
 const bool debugOn = "TRUE";
@@ -144,67 +148,14 @@ void setup(){
   ledTest();  
   determineOffset();
 }
-                                    
-void loop(){
-
-  int newSet = 0;
-  int setPoint = 2000;
-  int Direction = 0;
-  
-  while(encTickR < (1000 + newSet)){
-    PID(); 
-  }
-  
-  Direction = NAV();
-  
-  if (Direction == 1){
-      setPoint += 2000;
-  }
-  
-<<<<<<< HEAD
-  encTickL = 0;
-  encTickR = 0;
-  digitalWrite(leftFrontLED, HIGH);
-  digitalWrite(rightFrontLED, HIGH);
-  delay(500);
-  digitalWrite(leftFrontLED, LOW);
-  digitalWrite(rightFrontLED, LOW);
-  delay(500);
-  digitalWrite(leftFrontLED, HIGH);
-  digitalWrite(rightFrontLED, HIGH);
-  delay(500);
-  digitalWrite(leftFrontLED, LOW);
-  digitalWrite(rightFrontLED, LOW);
-  
-    ourOffset = sensor[5]->getIR() - sensor[0]->getIR();
-}
-
-
-boolean mapMode = true;
-byte maze[16][16] = { { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 }, 
-                      { 0 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 }, 
-                      { 0 , 1 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 1 , 0 }, 
-                      { 0 , 1 , 2 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 2 , 1 , 0 }, 
-                      { 0 , 1 , 2 , 3 , 4 , 4 , 4 , 4 , 4 , 4 , 4 , 4 , 3 , 2 , 1 , 0 }, 
-                      { 0 , 1 , 2 , 3 , 4 , 5 , 5 , 5 , 5 , 5 , 5 , 4 , 3 , 2 , 1 , 0 }, 
-                      { 0 , 1 , 2 , 3 , 4 , 5 , 6 , 6 , 6 , 6 , 5 , 4 , 3 , 2 , 1 , 0 }, 
-                      { 0 , 1 , 2 , 3 , 4 , 5 , 6 , 7 , 7 , 6 , 5 , 4 , 3 , 2 , 1 , 0 }, 
-                      { 0 , 1 , 2 , 3 , 4 , 5 , 6 , 7 , 7 , 6 , 5 , 4 , 3 , 2 , 1 , 0 }, 
-                      { 0 , 1 , 2 , 3 , 4 , 5 , 6 , 6 , 6 , 6 , 5 , 4 , 3 , 2 , 1 , 0 }, 
-                      { 0 , 1 , 2 , 3 , 4 , 5 , 5 , 5 , 5 , 5 , 5 , 4 , 3 , 2 , 1 , 0 }, 
-                      { 0 , 1 , 2 , 3 , 4 , 4 , 4 , 4 , 4 , 4 , 4 , 4 , 3 , 2 , 1 , 0 }, 
-                      { 0 , 1 , 2 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 2 , 1 , 0 }, 
-                      { 0 , 1 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 1 , 0 }, 
-                      { 0 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 }, 
-                      { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 } };
-                                    
+                                                                       
                                     
 void loop(){  
   
   byte turn;
   mtrL->setForward( mapSpeed );
   mtrR->setForward( mapSpeed );
-  delay(500);s  
+  delay(500); 
   //Gets us through the first half of the block just by going Straight.
   while(encTickL < 2000){
     curTime = millis(); 
@@ -232,7 +183,6 @@ void loop(){
  delay(5000);
   encTickR = 0;
   encTickL = 0;
-=======
   if (frontWall){
      setPoint -= 200; 
   }
@@ -241,11 +191,11 @@ void loop(){
      speedControl(); 
   }
   
-  Direction = MAP();
+  nextDirection = MAP();
   
-  turn(Direction);
+  thisTurn(nextDirection);
   
-  if (Direction != 1){
+  if (nextDirection != 1){
       newSet = 0;
       encTickR = 0;
       encTickL = 0;
@@ -287,7 +237,6 @@ void loop(){
 //  
 // delay(5000);
   
->>>>>>> origin/master
   
 }
 
@@ -295,38 +244,7 @@ void speedControl(){
   
 }
 
-void turn(int thisTurn){
-  
-}
-
-void mystop(){
-   
-<<<<<<< HEAD
-  encTickR = 0;
-  encTickL = 0;
-  while(P_error() != 0 && ((encTickR+encTickL)/2) < 1000){
-   curTime = millis(); 
-=======
-  while(P_error() != 0){
-   curTime = micros(); 
->>>>>>> origin/master
-   delayTime = curTime - lastSamp;
-   lastSamp = curTime;
-   stopError = P_error() + D_error();   
-    if(stopError > 255)
-      stopError = 255;
-    if(stopError < 0){
-      mtrL->setForward(stopError);
-      mtrR->setForward(stopError);
-    }else{
-     
-      mtrL->setBackward(stopError);
-      mtrR->setBackward(stopError);
-     
-    }
-   
-  }
- 
+void thisTurn(int thisTurn){
   
 }
 
@@ -439,30 +357,17 @@ mtrR->setBackward( mapSpeed - error);
   
 }
 
-<<<<<<< HEAD
 /********** ENCODER FUNCTIONS **********/
-
-void readBothEnc() {
-  mtrL->getEnc().readEnc();
-  mtrR->getEnc().readEnc();
-}
 
 /*
 * Encoder Tick Functions
 *
 *
 **/
-void incEncoderL() {
-  encTickL++; 
-}
-void incEncoderR() {
-  encTickR++; 
-}
 
 
 
-=======
->>>>>>> origin/master
+
 /****************MAPPPPPPING ********************/
 
 byte NAV(){
