@@ -66,7 +66,7 @@ int y = 0;
 int xprev = 0;
 int yprev = 0;
 const bool solved = "FALSE";
-bool backWards = false; 
+
 boolean mapMode = true;
 bool wallLeft = false;
 bool wallLeftDiag = false;
@@ -81,21 +81,34 @@ int mapSpeed = 100;
 int solveSpeed = 255; 
 
 //For PID
-double previousError = 0.0;
-int error = 0;
-unsigned long curTime = 0;
-unsigned long lastSamp = 0;
-int delayTime = 0;
-double previousPos = 0.0;
-unsigned long  previousTime = 0;
-unsigned long curt = 0; 
-double stopError = 0.0;
-long kp = 8L;
-double kd = 0.126;
-int curVel = 0;
-int pwmPD = 0;
-int lastTime = micros();
-int lastError = 0;
+
+// PID gains
+double Tkp = 8L;
+double Tkd = 6300L;
+double Wkp = 1;
+double Wkd =1;
+
+// Error Tracking
+double ERROROLD = 0;
+double error = 0;
+double CURRENTTIME = 0;
+double LASTTIME =0;
+int DIRECTION = 0;
+
+// Setpoints
+int CELLDISTANCE = 2200;
+int SETPOINT = CELLDISTANCE;
+int SETVAL = 0;
+int wallOFFSET = 123;
+
+// Sensor offsets
+int wallLEFTDIST = 0;
+int wallRIGHTDIST = 0;
+
+//PWM vars
+
+int PWMRATE = 0;
+
 
 //For Sensors
 const int NUMSENSORS = 6;
@@ -253,13 +266,23 @@ void setup(){
   
   //Determine Inital Offset
   ourOffset = getIRLeft() - getIRRight();
-  
+  LASTTIME = micros();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Loop Functions
 //Search Term: LOOPME
 void loop(){
+  
+  while(encTickL < CELLDISTANCE/2 + SETVAL){
+    PWMRATE = speedControl();
+    PID(PWMRATE);
+  }
+  DIRECTION = NAV();
+  if(DIRECTION == STRAIGHT;
+  if(wallLeftFront && wallRightFront)
+  SETPOINT -= WALLOFFSET;
+  
   
 }
 
