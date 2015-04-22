@@ -1,5 +1,5 @@
 //TABLE OF CONTENTS (SEARCH FOR THESE TERMS)
-////////////////////////////
+//////////////////////////////
 //Defintions -> DEFINEME
 //Initilizations -> INITME
 //Setup -> SETME
@@ -272,7 +272,7 @@ void setup(){
   lastTime = micros();
   wallLeftDist = getIRLeft();
   wallRightDist = getIRRight();
-  ourOffset = wallLeftDist - wallRightDist;
+  ourOffset = wallRightDist - wallLeftDist;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -292,12 +292,16 @@ void loop(){
   }
   
   if(wallLeftFront && wallRightFront){
-    setPoint -= wallOffSet;
+    while(getIRLeftDiag() < XXX && getIRRightDiag() < XXX){
+      pwmRate = wallControl();
+      wallPID(pwmRate); 
+    }
   }
-  
-  while(encTickL < cellDistance + setVal){
-     pwmRate = speedControl();
-    PID(pwmRate); 
+  else{
+    while(encTickL < cellDistance + setVal){
+      pwmRate = speedControl();
+      PID(pwmRate); 
+    }
   }
   
   //Map isn't ready yet.
@@ -332,6 +336,19 @@ int speedControl(){
   return pwmRate;
 }
 
+// ***********************NEEDS WORK***********************************
+int wallControl(){
+  errOld = error;
+  error = setPoint - encTickR;
+  pwmRate = Tkp * error;
+  currTime = micros();
+  deltaTime = currTime - lastTime;
+  pwmRate += Tkd * (error - errOld)/deltaTime;
+  pwmRate /= 1000;
+  lastTime = currTime;
+  return pwmRate;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //PID Function
 //Search Term: PIDME
@@ -350,6 +367,96 @@ void PID(int PWMRate){
   
   if (wallLeft && wallRight){
      errorP = right - left - ourOffset;
+     errorD = errorP - oldErrorP;
+  }
+  
+  else if(left){
+     errorP = 2*(wallLeftDist - left);
+     errorD = errorP - oldErrorP;
+  }
+  
+  else if(right){
+     errorP = 2*(right - wallRightDist);
+     errorD = errorP - oldErrorP;
+  }
+  
+  else if (!left && !right){
+     errorP = 0;
+     errorD = 0; 
+  }
+  
+  error = (KP * errorP) + (KD * errorD);
+  oldErrorP = errorP;
+  
+  pwmPlus = pwmRate + error;
+  pwmMinus = pwmRate - error;
+  
+  if(pwmPlus > mapSpeed){
+     pwmPlus = mapSpeed; 
+  }
+  else if(pwmPlus < (-1*solveSpeed)){
+     pwmPlus = -1 * solveSpeed; 
+  }
+  
+  if(pwmMinus > (-1 * solveSpeed)){
+     pwmMinus = -1*solveSpeed; 
+  }
+  else if(pwmMinus < (-1 * solveSpeed)){
+     pwmMinus = -1 * solveSpeed; 
+  }
+  
+  if (pwmRate >= 0){
+      if (pwmPlus >= 0){
+         rightForward(pwmPlus); 
+      }
+      else{
+         pwmPlus *= -1;
+         rightBackward(pwmMinus); 
+      }
+      if (pwmMinus >= 0){
+         leftForward(pwmMinus); 
+      }
+      else{
+         pwmMinus *= -1;
+         leftBackward(pwmMinus); 
+      }
+  }
+
+  else{
+    if(pwmPlus >= 0){
+       leftBackward(pwmPlus); 
+    }
+    else{
+       pwmPlus *= -1;
+       leftForward(pwmPlus); 
+    }
+    if(pwmMinus >= 0){
+       rightBackward(pwmMinus); 
+    }
+    else{
+       pwmMinus *= -1;
+       rightForward(pwmMinus); 
+    }
+  }  
+  
+}
+
+// ************************NEEDS WORK************************************
+void wallPID(int PWMRate){
+  int error = 0;
+  int errorP = 0;
+  int errorD = 0;
+  static int oldErrorP = 0;
+  int pwmPlus = 0;
+  int pwmMinus = 0;
+  unsigned int KP = 1;
+  unsigned int KD = 1;
+  
+  int left = getIRLeftDiag();
+  int right = getIRRightDiag();
+  
+  if (wallLeft && wallRight){
+     errorP = right - left;
      errorD = errorP - oldErrorP;
   }
   
@@ -585,6 +692,8 @@ void turn(byte thisDirection){
   }
 }
 
+
+// *******************NEED WORK ********************
 void turnRight(){
   encTickL = 0;
   encTickR = 0;
@@ -862,14 +971,37 @@ byte NAV(){
       
 }
 
+
+
+
 byte MAP(){
   return STRAIGHT;
 }
 
+// This function updates the floodfill value
+void updateMap(){
+  
+}
 
+// this function updates the wall locations and places known to have no walls
+void updateWalls(){
+  
+}
 
+// This function solves the flood fill
+void SOLVE(){
+  
+}
 
+// This function drives straight to the finish
+void solve(){
+  
+}
 
+// This function returns to the starting position
+void start(){
+  
+}
 
 
 
