@@ -1050,6 +1050,7 @@ byte NAV(){
 
 byte MAP(){
   checkSensors();
+  mapTurn();
   updateWalls();
   return STRAIGHT;  
 }
