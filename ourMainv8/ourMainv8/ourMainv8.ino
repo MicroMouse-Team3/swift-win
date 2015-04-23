@@ -737,6 +737,65 @@ void turnLeft(){
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+std:: stack<byte> pathStack;
+std:: stack<byte> wallStack;
+pathStack.push(STRAIGHT);
+
+byte floodFill[16][16];
+
+for(int i=0; i<256; i++){
+  for(int j=0; j<256; j++){
+    foodFill[i][j] = -1;
+  }
+}
+  floodFill[0][0] = 256;
+  floodFill[8][8] = 0;
+  floodFill[8][9] = 0;
+  floodFill[9][8] = 0;
+  floodFill[9][9] = 0;
+
+
+// 4= S, 5 = R, 6 = L, 7 = U
+
+byte map(pathStack, navDir){
+    
+  if(navDir == STRAIGHT){
+     if(floodFill[x][y] != -1)
+       floodFill[x][y] = flood[xprev][yprev] -1;
+       return navDir; //no need to override
+     else if(floodFill[x][y]>floodFill[xprev][yprev]){
+         turnAround(); //turn around first and return straight
+         return STRAIGHT;
+     }
+     else if(floodFill[x][y]< floodFill[xprev][yprev]){
+         floodfill[x][y] = floodFill[xprev][yprev] - 1;
+     }
+        
+  }
+  else if{navDir == RIGHTTURN){
+    if(floodFill[x][y] != -1)
+       floodFill[x][y] = flood[xprev][yprev] -1;
+       return navDir; //no need to override
+     else if(floodFill[x][y]>floodFill[xprev][yprev]){
+         turnLeft(); //turn left first and return straight
+         return STRAIGHT;
+     }
+     else if(floodFill[x][y]< floodFill[xprev][yprev]){
+         floodfill[x][y] = floodFill[xprev][yprev] - 1;
+     }
+    
+  }
+  else if(navDir == LEFTTURN){
+   
+  }
+  else{ // UTURN
+    
+  }
+  
+  }
+  
+}
 //NAV Function
 //NAVME
 byte NAV(){
