@@ -992,6 +992,7 @@ byte NAV(){
 
 byte MAP(){
   checkSensors();
+  updateWalls();
   return STRAIGHT;  
 }
 
@@ -999,12 +1000,12 @@ byte MAP(){
 
 // This function updates the floodfill value
 void updateMap(){
-  
+    
 }
 
 // this function updates the wall locations and places known to have no walls
 void updateWalls(){
-//  wallMap[wallX][wallY] = 0;
+  wallMap[wallX][wallY] = 0;
   if ( wallLeft )
     wallMap[wallX-1][wallY] = 1;  
   if ( wallRight )
@@ -1030,15 +1031,15 @@ void start(){
   
 }
 
-void mapTurn( int currDirection ) {
+void mapTurn( int nextTurn ) {
   int tmp = dx;
-  if ( currDirection == LEFTTURN ) {
+  if ( nextTurn == currentDirection ) {
     dx = -dy;
     dy = tmp;
-  } else if ( currDirection == RIGHTTURN ) {
+  } else if ( nextTurn == currentDirection ) {
     dx = dy;
     dy = -tmp;
-  } else if ( currDirection == UTURN ) {
+  } else if ( nextTurn == currentDirection ) {
     dx = -dx;
     dy = -dy;
   }   
