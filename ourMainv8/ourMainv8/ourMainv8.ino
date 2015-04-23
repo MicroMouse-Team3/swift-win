@@ -86,8 +86,8 @@ int solveSpeed = 255;
 //For PID
 
 // PID gains
-double Tkp = 8L;
-double Tkd = 6300L;
+double Tkp = 1860L;  // 1.86 * 1000
+double Tkd = 86L;  // 0.086 * 1000
 
 // Error Tracking
 double errOld = 0;
@@ -95,7 +95,7 @@ double error = 0;
 double currTime = 0;
 double lastTime =0;
 double delayTime = 0;
-int currDirection = 0;
+int nextTurn = 0;
 double deltaTime = 0;
 
 // Setpoints
@@ -218,6 +218,10 @@ void setup(){
   pinMode(32, OUTPUT);
   pinMode(33, OUTPUT);
   
+  // TROUBLESHOOTING
+  Serial.begin(9600);
+  
+  
    //attach interrupts
   attachInterrupt( L_CH_A , incEncoderL , RISING );
   attachInterrupt( R_CH_A , incEncoderR , RISING );
@@ -279,20 +283,22 @@ void setup(){
 //Loop Functions
 //Search Term: LOOPME
 void loop(){
-  
+ 
+ 
+ /* 
   while(encTickL < cellDistance/2 + setVal){
     pwmRate = speedControl();
     PID(pwmRate);
   }
   
-  currDirection = NAV();
+  nextTurn = NAV();
   
-  if(currDirection == STRAIGHT){
+  if(nextTurn == STRAIGHT){
      setPoint += cellDistance; 
   }
   
   if(wallLeftFront && wallRightFront){
-    while(getIRLeftDiag() < XXX && getIRRightDiag() < XXX){
+    while(getIRLeftDiag() < XXX            && getIRRightDiag() < XXX){
       pwmRate = wallControl();
       wallPID(pwmRate); 
     }
@@ -305,9 +311,9 @@ void loop(){
   }
   
   //Map isn't ready yet.
-  //currDirection = MAP();
+  //nextTurn = MAP();
   
-  if (currDirection != STRAIGHT){
+  if (nextTurn != STRAIGHT){
      setPoint = cellDistance;
      setVal = 0;
      encTickL = 0;
@@ -315,9 +321,11 @@ void loop(){
   }
   else{
      setVal += cellDistance;
-     turn(currDirection); 
+     turn(nextTurn); 
   }
+  */
   
+  print(
   
 }
 
