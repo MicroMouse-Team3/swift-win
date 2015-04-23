@@ -61,6 +61,7 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int dx = 0, dy = 1;
+int wallX = 1, wallY = 31;
 //Initializations
 //INITME
 //For Mapping
@@ -74,6 +75,7 @@ const bool solved = "FALSE";
 boolean mapMode = true;
 bool wallLeft = false;
 bool wallLeftDiag = false;
+bool wallFront = false;
 bool wallLeftFront = false;
 bool wallRightFront = false;
 bool wallRightDiag = false;
@@ -146,7 +148,7 @@ byte maze[16][16] =  { { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ,
                        
 int floodFill[16][16] =  { -1, };                       
                        
-byte dasMaze[33][33] =  { 
+byte wallMap[33][33] =  { 
                           {'1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1' }, 
                           {'1','0','1','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','1'},                        
 	                  {'1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1'}, 
@@ -732,9 +734,7 @@ byte NAV(){
   
   //Determines wallLeft, wallRight, wallFront boolean values
 
-  wallLeft = getIRLeft() > 600;
-  wallLeftFront = getIRLeftFront() > 200;
-  wallRight = getIRRight() > 600; 
+  checkSensors();
 
 
   
@@ -979,10 +979,11 @@ byte NAV(){
 
 
 byte MAP(){
-  return STRAIGHT;
-  
-  
+  checkSensors();
+  return STRAIGHT;  
 }
+
+
 
 // This function updates the floodfill value
 void updateMap(){
@@ -991,12 +992,15 @@ void updateMap(){
 
 // this function updates the wall locations and places known to have no walls
 void updateWalls(){
-  if ( leftWall == true ) {
-  }
-  if ( rightWall == true ) {
-  }
-  if ( frontWall == true) ) {
-  }
+//  wallMap[wallX][wallY] = 0;
+  if ( wallLeft )
+    wallMap[wallX-1][wallY] = 1;  
+  if ( wallRight )
+    wallMap[wallX+1][wallY] = 1;  
+  if ( wallFront )
+    wallMap[wallX][wallY+1] = 1;  
+  wallX = wallX + 2 * dx;
+  wallY = wallY + 2 * dy;
 }
 
 // This function solves the flood fill
@@ -1022,6 +1026,9 @@ void mapTurn( int currDirection ) {
   } else if ( currDirection == RIGHTTURN ) {
     dx = dy;
     dy = -tmp;
+  } else if ( currDirection == UTURN ) {
+    dx = -dx;
+    dy = -dy;
   }   
 }
 /*
@@ -1036,4 +1043,8 @@ class point {// (int x, int y) {
 };
 */
 
-
+void checkSensors() {
+  wallLeft = getIRLeft() > 600;
+  wallFront = wallLeftFront = getIRLeftFront() > 200;
+  wallRight = getIRRight() > 600; 
+}
