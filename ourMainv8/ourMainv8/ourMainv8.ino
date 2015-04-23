@@ -1005,13 +1005,20 @@ void updateMap(){
 
 // this function updates the wall locations and places known to have no walls
 void updateWalls(){
-  wallMap[wallX][wallY] = 0;
+  wallMap[wallX-dx][wallY-dy] = 0;
   if ( wallLeft )
     wallMap[wallX-1][wallY] = 1;  
+  else
+    wallMap[wallX-1][wallY] = 2;
   if ( wallRight )
-    wallMap[wallX+1][wallY] = 1;  
+    wallMap[wallX+1][wallY] = 1;
+  else
+    wallMap[wallX+1][WallY] = 2;  
   if ( wallFront )
     wallMap[wallX][wallY+1] = 1;  
+  else
+    wallMap[wallX][wallY+1] = 2;  
+  
   wallX = wallX + 2 * dx;
   wallY = wallY + 2 * dy;
 }
