@@ -72,7 +72,7 @@ int xprev = 0;
 int yprev = 0;
 const bool solved = "FALSE";
 
-boolean mapMode = true;
+bool mapMode = true;
 bool wallLeft = false;
 bool wallLeftDiag = false;
 bool wallFront = false;
@@ -90,7 +90,7 @@ int solveSpeed = 255;
 
 // PID gains
 double Tkp = 1860L;  // 1.86 * 1000
-double Tkd = 86L;  // 0.086 * 1000
+double Tkd = 86000000L;  // 0.086 * 1000 * 1000000
 
 // Error Tracking
 double errOld = 0;
@@ -225,7 +225,7 @@ void setup(){
   pinMode(33, OUTPUT);
   
   // TROUBLESHOOTING
-  Serial.begin(9600);
+  //Serial.begin(9600);
   
   
    //attach interrupts
@@ -290,8 +290,6 @@ void setup(){
 //Search Term: LOOPME
 void loop(){
  
- 
- /* 
   while(encTickL < cellDistance/2 + setVal){
     pwmRate = speedControl();
     PID(pwmRate);
@@ -304,7 +302,7 @@ void loop(){
   }
   int XXX = -1;
   if(wallLeftFront && wallRightFront){
-    while(getIRLeftDiag() < XXX            && getIRRightDiag() < XXX){
+    while(getIRLeftDiag() < XXX && getIRRightDiag() < XXX){
       pwmRate = wallControl();
       wallPID(pwmRate); 
     }
@@ -317,11 +315,7 @@ void loop(){
   }
   
   //Map isn't ready yet.
-<<<<<<< HEAD
   //nextTurn = MAP();
-=======
-  currDirection = MAP();
->>>>>>> origin/master
   
   if (nextTurn != STRAIGHT){
      setPoint = cellDistance;
@@ -333,10 +327,11 @@ void loop(){
      setVal += cellDistance;
      turn(nextTurn); 
   }
-  */
   
-  print(
   
+  /*Serial.print("Left Diag: "); Serial.println(getIRLeftFront());
+  Serial.print("Right Diag: "); Serial.println(getIRRightFront());
+  delay(1000);*/
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1007,10 +1002,13 @@ void updateWalls(){
 //  wallMap[wallX][wallY] = 0;
   if ( wallLeft )
     wallMap[wallX-1][wallY] = 1;  
+  else wallMap[wallX-1][wallY] = 0;  
   if ( wallRight )
-    wallMap[wallX+1][wallY] = 1;  
+    wallMap[wallX+1][wallY] = 1; 
+  else wallMap[wallX+1][wallY] = 0;  
   if ( wallFront )
     wallMap[wallX][wallY+1] = 1;  
+  else wallMap[wallX][wallY+1] = 0; 
   wallX = wallX + 2 * dx;
   wallY = wallY + 2 * dy;
 }
@@ -1030,30 +1028,19 @@ void start(){
   
 }
 
-void mapTurn( int currDirection ) {
+void mapTurn( int nextTurn ) {
   int tmp = dx;
-  if ( currDirection == LEFTTURN ) {
+  if ( nextTurn == LEFTTURN ) {
     dx = -dy;
     dy = tmp;
-  } else if ( currDirection == RIGHTTURN ) {
+  } else if ( nextTurn == RIGHTTURN ) {
     dx = dy;
     dy = -tmp;
-  } else if ( currDirection == UTURN ) {
+  } else if ( nextTurn == UTURN ) {
     dx = -dx;
     dy = -dy;
   }   
 }
-/*
-class point {// (int x, int y) {
-  int x,y;
-  
-  point(int x,int y) {
-    this->x = x;
-    this->y = y;
-  }
-  
-};
-*/
 
 void checkSensors() {
   wallLeft = getIRLeft() > 600;
