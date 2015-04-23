@@ -1133,5 +1133,8 @@ void checkSensors() {
 }
 
 void ImTheMap() {
-//  floodMap
+  floodMap[0][15] = floodfill;
+  wallMap[1][31] = 0;
+  dx = 0;
+  dy = 1;
 }
