@@ -1050,7 +1050,7 @@ byte NAV(){
 
 byte MAP(){
   checkSensors();
-  mapTurn();
+  mapTurn(nextTurn);
   updateWalls();
   return STRAIGHT;  
 }
@@ -1068,15 +1068,22 @@ void updateFloodMap() {
 
 // this function updates the wall locations and places known to have no walls
 void updateWalls(){
+  //update behind us
   wallMap[wallX-dx][wallY-dy] = 0;
+  
+  //wall on left
   if ( wallLeft )
     wallMap[wallX-1][wallY] = 1;  
   else
     wallMap[wallX-1][wallY] = 2;
+    
+  //wall on right
   if ( wallRight )
     wallMap[wallX+1][wallY] = 1;
   else
     wallMap[wallX+1][wallY] = 2;  
+  
+  //wall in front
   if ( wallFront )
     wallMap[wallX][wallY+1] = 1;  
   else
@@ -1115,6 +1122,7 @@ void mapTurn( int nextTurn ) {
   }
   //else straight keeps same parameters
 }
+
 /*
 class point {// (int x, int y) {
   int x,y;
