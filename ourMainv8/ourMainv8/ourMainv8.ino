@@ -293,7 +293,11 @@ void setup(){
 void loop(){
  
  
+<<<<<<< Updated upstream
   
+=======
+ /* 
+>>>>>>> Stashed changes
   while(encTickL < cellDistance/2 + setVal){
     pwmRate = speedControl();
     PID(pwmRate);
@@ -319,11 +323,19 @@ void loop(){
   }
   
   //Map isn't ready yet.
+<<<<<<< Updated upstream
 
   //nextTurn = MAP();
 
   currentDirection = MAP();
 
+=======
+<<<<<<< HEAD
+  //nextTurn = MAP();
+=======
+  currDirection = MAP();
+>>>>>>> origin/master
+>>>>>>> Stashed changes
   
   if (nextTurn != STRAIGHT){
      setPoint = cellDistance;
@@ -334,7 +346,14 @@ void loop(){
   else{
      setVal += cellDistance;
      turn(nextTurn); 
+<<<<<<< Updated upstream
   }      
+=======
+  }
+  */
+  
+  print(
+>>>>>>> Stashed changes
   
 }
 
@@ -1058,17 +1077,41 @@ byte MAP(){
 
 
 // This function updates the floodfill value
+<<<<<<< Updated upstream
 void updateMap(){
     
 }
 
 void updateFloodMap() {
   
+=======
+void updateMap(int nextTurn){
+	if (nextTurn == STRAIGHT){ //STRAIGHT
+		mapTurn(nextTurn);
+		floodMap[posX+dx][posY+dy] = floodfill--;
+	}
+	if (nextTurn == LEFTTURN){
+		mapTurn(nextTurn);
+		floodMap[posX+dx][posY+dy] = floodfill--;
+	}
+	if(nextTurn == RIGHTTURN){
+		mapTurn(nextTurn);
+		floodMap[posX+dx][posY+dy] = floodfill--;
+	}
+	if(nextTurn == UTURN){
+		mapTurn(nextTurn);
+		floodMap[posX+dx][posY+dy] = floodfill--;
+	}
+>>>>>>> Stashed changes
 }
 
 // this function updates the wall locations and places known to have no walls
 void updateWalls(){
+<<<<<<< Updated upstream
   //update behind us
+=======
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
   wallMap[wallX-dx][wallY-dy] = 0;
   
   //wall on left
@@ -1089,13 +1132,22 @@ void updateWalls(){
   else
     wallMap[wallX][wallY+1] = 2;  
   
+=======
+  wallMap[wallX][wallY] = 0;
+  if ( wallLeft )
+    wallMap[wallX-1][wallY] = 1;  
+  if ( wallRight )
+    wallMap[wallX+1][wallY] = 1;  
+  if ( wallFront )
+    wallMap[wallX][wallY+1] = 1;  
+>>>>>>> Stashed changes
   wallX = wallX + 2 * dx;
   wallY = wallY + 2 * dy;
 }
 
 // This function solves the flood fill
 void SOLVE(){
-  
+	
 }
 
 // This function drives straight to the finish
@@ -1110,6 +1162,7 @@ void start(){
 
 void mapTurn( int nextTurn ) {
   int tmp = dx;
+<<<<<<< Updated upstream
   if ( nextTurn == LEFTTURN ) {
     dx = -dy;
     dy = tmp;
@@ -1121,6 +1174,18 @@ void mapTurn( int nextTurn ) {
     dy = -dy;
   }
   //else straight keeps same parameters
+=======
+  if ( nextTurn == currentDirection ) {
+    dx = -dy;
+    dy = tmp;
+  } else if ( nextTurn == currentDirection ) {
+    dx = dy;
+    dy = -tmp;
+  } else if ( nextTurn == currentDirection ) {
+    dx = -dx;
+    dy = -dy;
+  }   
+>>>>>>> Stashed changes
 }
 
 /*
@@ -1139,6 +1204,7 @@ void checkSensors() {
   wallLeft = getIRLeft() > 600;
   wallFront = wallLeftFront = getIRLeftFront() > 200;
   wallRight = getIRRight() > 600; 
+<<<<<<< Updated upstream
 }
 
 void ImTheMap() {
@@ -1147,3 +1213,6 @@ void ImTheMap() {
   dx = 0;
   dy = 1;
 }
+=======
+}
+>>>>>>> Stashed changes
