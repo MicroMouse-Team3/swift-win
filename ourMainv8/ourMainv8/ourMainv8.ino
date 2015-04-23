@@ -60,6 +60,7 @@
 #define UTURN 7
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+int dx = 0, dy = 1;
 //Initializations
 //INITME
 //For Mapping
@@ -142,6 +143,9 @@ byte maze[16][16] =  { { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ,
                        { 0 , 1 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 1 , 0 }, 
                        { 0 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 }, 
                        { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 } };                     
+                       
+int floodFill[16][16] =  { -1, };                       
+                       
 byte dasMaze[33][33] =  { 
                           {'1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1' }, 
                           {'1','0','1','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','1'},                        
@@ -290,7 +294,7 @@ void loop(){
   if(currDirection == STRAIGHT){
      setPoint += cellDistance; 
   }
-  
+  int XXX = -1;
   if(wallLeftFront && wallRightFront){
     while(getIRLeftDiag() < XXX && getIRRightDiag() < XXX){
       pwmRate = wallControl();
@@ -305,7 +309,7 @@ void loop(){
   }
   
   //Map isn't ready yet.
-  //currDirection = MAP();
+  currDirection = MAP();
   
   if (currDirection != STRAIGHT){
      setPoint = cellDistance;
@@ -976,6 +980,8 @@ byte NAV(){
 
 byte MAP(){
   return STRAIGHT;
+  
+  
 }
 
 // This function updates the floodfill value
@@ -985,7 +991,12 @@ void updateMap(){
 
 // this function updates the wall locations and places known to have no walls
 void updateWalls(){
-  
+  if ( leftWall == true ) {
+  }
+  if ( rightWall == true ) {
+  }
+  if ( frontWall == true) ) {
+  }
 }
 
 // This function solves the flood fill
@@ -1003,7 +1014,26 @@ void start(){
   
 }
 
-
-
+void mapTurn( int currDirection ) {
+  int tmp = dx;
+  if ( currDirection == LEFTTURN ) {
+    dx = -dy;
+    dy = tmp;
+  } else if ( currDirection == RIGHTTURN ) {
+    dx = dy;
+    dy = -tmp;
+  }   
+}
+/*
+class point {// (int x, int y) {
+  int x,y;
+  
+  point(int x,int y) {
+    this->x = x;
+    this->y = y;
+  }
+  
+};
+*/
 
 
