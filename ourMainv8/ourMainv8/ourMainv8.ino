@@ -310,7 +310,6 @@ void loop(){
 
   if(wallLeftFront){
     errOld = 0;
-    int currentDistance = getIRFrontRight;
     while(!wallRightFront){
       pwmRate = wallControl();
       wallPID(pwmRate); 
@@ -363,7 +362,7 @@ int wallControl(){
   //Needs to be able to stop when very close to wall.
   
   int distanceToStop = 500; //random value to be used. This will become how close we want to stop in front of the wall.
-  int currentDistance = getIRFrontRight();
+  int currentDistance = getIRRightFront();
   
   errOld = error;
   error = distanceToStop - currentDistance;
@@ -397,17 +396,17 @@ void PID(int PWMRate){
      errorD = errorP - oldErrorP;
   }
   
-  else if(wallLeft){
+  else if(left){
      errorP = 2*(wallLeftDist - left);
      errorD = errorP - oldErrorP;
   }
   
-  else if(wallRight){
+  else if(right){
      errorP = 2*(right - wallRightDist);
      errorD = errorP - oldErrorP;
   }
   
-  else if (!wallLeft && !wallRight){
+  else if (!left && !right){
      errorP = 0;
      errorD = 0; 
   }
