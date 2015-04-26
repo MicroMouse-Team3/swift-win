@@ -62,8 +62,8 @@
 #define UTURN 7
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-std::stack<byte> pathStack;
-std::stack<byte> wallStack;
+//stack<byte> pathStack;
+//stack<byte> wallStack;
 int navDir;
 int dx = 0, dy = 1;
 int wallX = 1, wallY = 31;
@@ -90,6 +90,7 @@ bool wallRight = false;
 const int distancePerMove = 30;
 int mapSpeed = 100;
 int solveSpeed = 255; 
+int ticksForTurn = 748;
 
 //For PID
 
@@ -230,7 +231,7 @@ void setup(){
   pinMode(33, OUTPUT);
   
   // TROUBLESHOOTING
-  //Serial.begin(9600);
+  Serial.begin(9600);
   
   
    //attach interrupts
@@ -289,7 +290,7 @@ void setup(){
   wallRightDist = getIRRight();
   ourOffset = wallRightDist - wallLeftDist;
   
-  ImTheMap();
+  //ImTheMap();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -297,48 +298,49 @@ void setup(){
 //Search Term: LOOPME
 void loop(){
  
-  while(encTickL < cellDistance/2 + setVal){
-    pwmRate = speedControl();
-    PID(pwmRate);
-  }
-  
-  nextTurn = NAV();
-  
-  if(nextTurn == STRAIGHT){
-     setPoint += cellDistance; 
-  }
-  int XXX = -1;
-  if(wallLeftFront && wallRightFront){
-    while(getIRLeftDiag() < XXX && getIRRightDiag() < XXX){
-      pwmRate = wallControl();
-      wallPID(pwmRate); 
-    }
-  }
-  else{
-    while(encTickL < cellDistance + setVal){
-      pwmRate = speedControl();
-      PID(pwmRate); 
-    }
-  }
-  
-  //Map isn't ready yet.
-  //nextTurn = MAP();
-  
-  if (nextTurn != STRAIGHT){
-     setPoint = cellDistance;
-     setVal = 0;
-     encTickL = 0;
-     encTickR = 0; 
-  }
-  else{
-     setVal += cellDistance;
-  }
-  
-  turn(nextTurn); 
-  
-  /*Serial.print("Left Diag: "); Serial.println(getIRLeftFront());
-  Serial.print("Right Diag: "); Serial.println(getIRRightFront());
-  delay(1000);*/
+//  while(encTickL < cellDistance/2 + setVal){
+//    pwmRate = speedControl();
+//    PID(pwmRate);
+//  }
+//  
+//  nextTurn = NAV();
+//  
+//  if(nextTurn == STRAIGHT){
+//     setPoint += cellDistance; 
+//  }
+//
+//  if(wallLeftFront){
+//    errOld = 0;
+//    while(!wallRightFront){
+//      pwmRate = wallControl();
+//      wallPID(pwmRate); 
+//    }
+//  }
+//  else{
+//    while(encTickL < cellDistance + setVal){
+//      pwmRate = speedControl();
+//      PID(pwmRate); 
+//    }
+//  }
+//  
+//  //Map isn't ready yet.
+//  //nextTurn = MAP();
+//  
+//  if (nextTurn != STRAIGHT){
+//     setPoint = cellDistance;
+//     setVal = 0;
+//     encTickL = 0;
+//     encTickR = 0; 
+//  }
+//  else{
+//     setVal += cellDistance;
+//  }
+//  
+//  turn(nextTurn); 
+//  
+  Serial.print("L R: "); Serial.println(getIRLeftFront());
+  Serial.print("CR: "); Serial.println(getIRRightFront());
+  delay(1000);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -346,7 +348,7 @@ void loop(){
 //Search Term: SPEEDME
 int speedControl(){
   errOld = error;
-  error = setPoint - encTickR;
+  error = cellDistance - ((encTickR + encTickL)/2);
   pwmRate = Tkp * error;
   currTime = micros();
   deltaTime = currTime - lastTime;
@@ -356,10 +358,28 @@ int speedControl(){
   return pwmRate;
 }
 
-// ***********************NEEDS WORK***********************************
 int wallControl(){
+  //Needs to be able to stop when very close to wall.
+  
+  int distanceToStop = 500; //random value to be used. This will become how close we want to stop in front of the wall.
+  int currentDistance = getIRRightFront();
+  
   errOld = error;
-  error = setPoint - encTickR;
+  error = distanceToStop - currentDistance;
+  pwmRate = Tkp * error;
+  currTime = micros();
+  deltaTime = currTime - lastTime;
+  pwmRate += Tkd * (error - errOld)/deltaTime;
+  pwmRate /= 1000;
+  lastTime = currTime;
+  return pwmRate;
+}
+
+int turnControl(){
+  //Needs to be able to stop when very close to wall.
+  
+  errOld = error;
+  error = ticksForTurn - ((encTickR + encTickL)/2);
   pwmRate = Tkp * error;
   currTime = micros();
   deltaTime = currTime - lastTime;
@@ -390,17 +410,17 @@ void PID(int PWMRate){
      errorD = errorP - oldErrorP;
   }
   
-  else if(wallLeft){
+  else if(left){
      errorP = 2*(wallLeftDist - left);
      errorD = errorP - oldErrorP;
   }
   
-  else if(wallRight){
+  else if(right){
      errorP = 2*(right - wallRightDist);
      errorD = errorP - oldErrorP;
   }
   
-  else if (!wallLeft && !wallRight){
+  else if (!left && !right){
      errorP = 0;
      errorD = 0; 
   }
@@ -717,48 +737,82 @@ void turn(byte thisDirection){
 void turnRight(){
   encTickL = 0;
   encTickR = 0;
-  leftForward(mapSpeed);
-  rightBackward(mapSpeed);
-  while(encTickR < 325){}
-  leftBackward(mapSpeed);
-  rightForward(mapSpeed);
-  while(encTickR < 454){}
+  error = 0;
+  
+  
+  while(encTickR < ticksForTurn){
+    pwmRate = turnControl();
+  
+    if(pwmRate > mapSpeed){
+       pwmRate = mapSpeed; 
+     }
+    else if(pwmRate < (-1*solveSpeed)){
+      pwmRate = -1 * solveSpeed; 
+    }
+    
+    if (pwmRate >= 0){
+       rightBackward(pwmRate);
+       leftForward(pwmRate);   
+    }
+    else{
+       rightForward(pwmRate);
+       leftBackward(pwmRate);
+    }
+  }
+  
   currentDirection++;
 }
 
 void turnLeft(){
   encTickL = 0;
   encTickR = 0;
-  leftBackward(mapSpeed);
-  rightForward(mapSpeed);
-  while(encTickR < 300){}
-  leftForward(mapSpeed);
-  rightBackward(mapSpeed);
-  while(encTickR < 454){}
+  error = 0;
+  
+  while(encTickR < ticksForTurn){
+    pwmRate = turnControl();
+  
+    if(pwmRate > mapSpeed){
+       pwmRate = mapSpeed; 
+     }
+    else if(pwmRate < (-1*solveSpeed)){
+      pwmRate = -1 * solveSpeed; 
+    }
+    
+    if (pwmRate >= 0){
+       leftBackward(pwmRate);
+       rightForward(pwmRate);   
+    }
+    else{
+       leftForward(pwmRate);
+       rightBackward(pwmRate);
+    }
+  }
+  
   currentDirection--;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-pathStack.push(STRAIGHT);
-
-//byte floodFill[16][16];
-
-for( byte i = 0 ; i < 256 ; i++ ){
-  for( byte j = 0 ; j < 256 ; j++ ){
-    floodFill[i][j] = -1;
-  }
-}
-  floodFill[0][0] = 256;
-  floodFill[8][8] = 0;
-  floodFill[8][9] = 0;
-  floodFill[9][8] = 0;
-  floodFill[9][9] = 0;
+////pathStack.push(STRAIGHT);
+//
+////byte floodFill[16][16];
+//
+//for( byte i = 0 ; i < 256 ; i++ ){
+//  for( byte j = 0 ; j < 256 ; j++ ){
+//    floodFill[i][j] = -1;
+//  }
+//}
+//  floodFill[0][0] = 256;
+//  floodFill[8][8] = 0;
+//  floodFill[8][9] = 0;
+//  floodFill[9][8] = 0;
+//  floodFill[9][9] = 0;
 
 
 // 4= L, 5 = S, 6 = R, 7 = U
 
+<<<<<<< HEAD
 
 
 byte mapDisThang(pathStack, nextTurn) {
@@ -1224,6 +1278,46 @@ byte mapDisThang(pathStack, nextTurn) {
   }
   
 }
+=======
+//byte mapDisThang(pathStack, navDir) {
+//    
+//  if(navDir == STRAIGHT){
+//     if(floodFill[x][y] != -1)
+//       floodFill[x][y] = flood[xprev][yprev] -1;
+//       return navDir; //no need to override
+//     else if(floodFill[x][y]>floodFill[xprev][yprev]){
+//         turnAround(); //turn around first and return straight
+//         return STRAIGHT;
+//     }
+//     else if(floodFill[x][y]< floodFill[xprev][yprev]){
+//         floodfill[x][y] = floodFill[xprev][yprev] - 1;
+//     }
+//        
+//  }
+//  else if{navDir == RIGHTTURN){
+//    if(floodFill[x][y] != -1)
+//       floodFill[x][y] = flood[xprev][yprev] -1;
+//       return navDir; //no need to override
+//     else if(floodFill[x][y]>floodFill[xprev][yprev]){
+//         turnLeft(); //turn left first and return straight
+//         return STRAIGHT;
+//     }
+//     else if(floodFill[x][y]< floodFill[xprev][yprev]){
+//         floodfill[x][y] = floodFill[xprev][yprev] - 1;
+//     }
+//    
+//  }
+//  else if(navDir == LEFTTURN){
+//   
+//  }
+//  else{ // UTURN
+//    
+//  }
+//  
+//  }
+//  
+//}
+>>>>>>> origin/master
 //NAV Function
 //NAVME
 byte NAV(){
@@ -1476,12 +1570,12 @@ byte NAV(){
 
 
 
-byte MAPME(){
-  checkSensors();
-  mapTurn(nextTurn);
-  updateWalls();
-  return STRAIGHT;  
-}
+//byte MAPME(){
+//  checkSensors();
+//  mapTurn(nextTurn);
+//  updateWalls();
+//  return STRAIGHT;  
+//}
 
 
 
@@ -1494,24 +1588,24 @@ void updateFloodMap() {
   
 }
 
-void updateMap(int nextTurn){
-	if (nextTurn == STRAIGHT){ //STRAIGHT
-		mapTurn(nextTurn);
-		floodMap[posX+dx][posY+dy] = floodfill--;
-	}
-	if (nextTurn == LEFTTURN){
-		mapTurn(nextTurn);
-		floodMap[posX+dx][posY+dy] = floodfill--;
-	}
-	if(nextTurn == RIGHTTURN){
-		mapTurn(nextTurn);
-		floodMap[posX+dx][posY+dy] = floodfill--;
-	}
-	if(nextTurn == UTURN){
-		mapTurn(nextTurn);
-		floodMap[posX+dx][posY+dy] = floodfill--;
-	}
-}
+//void updateMap(int nextTurn){
+//	if (nextTurn == STRAIGHT){ //STRAIGHT
+//		mapTurn(nextTurn);
+//		floodMap[posX+dx][posY+dy] = floodfill--;
+//	}
+//	if (nextTurn == LEFTTURN){
+//		mapTurn(nextTurn);
+//		floodMap[posX+dx][posY+dy] = floodfill--;
+//	}
+//	if(nextTurn == RIGHTTURN){
+//		mapTurn(nextTurn);
+//		floodMap[posX+dx][posY+dy] = floodfill--;
+//	}
+//	if(nextTurn == UTURN){
+//		mapTurn(nextTurn);
+//		floodMap[posX+dx][posY+dy] = floodfill--;
+//	}
+//}
 
 // this function updates the wall locations and places known to have no walls
 void updateWalls(){
@@ -1558,6 +1652,7 @@ void start(){
   
 }
 
+<<<<<<< HEAD
 
 
 void mapTurn( int nextTurn ) {
@@ -1591,6 +1686,39 @@ void mapTurn( int nextTurn ) {
     dy = -dy;
   }   
 }
+=======
+//void mapTurn( int nextTurn ) {
+//  int tmp = dx;
+//  if ( nextTurn == LEFTTURN ) {
+//    dx = -dy;
+//    dy = tmp;
+//  } else if ( nextTurn == RIGHTTURN ) {
+//    dx = dy;
+//    dy = -tmp;
+//  } else if ( nextTurn == UTURN ) {
+//  if ( nextTurn == LEFTTURN ) {
+//    dx = -dy;
+//    dy = tmp;
+//  } else if ( nextTurn == RIGHTTURN ) {
+//    dx = dy;
+//    dy = -tmp;
+//  } else if ( nextTurn == UTURN ) {
+//    dx = -dx;
+//    dy = -dy;
+//  }
+//  //else straight keeps same parameters
+//  if ( nextTurn == currentDirection ) {
+//    dx = -dy;
+//    dy = tmp;
+//  } else if ( nextTurn == currentDirection ) {
+//    dx = dy;
+//    dy = -tmp;
+//  } else if ( nextTurn == currentDirection ) {
+//    dx = -dx;
+//    dy = -dy;
+//  }   
+//}
+>>>>>>> origin/master
 
 
 void checkSensors() {
@@ -1599,6 +1727,7 @@ void checkSensors() {
   wallRight = getIRRight() > 600; 
 }
 
+<<<<<<< HEAD
 void ImTheMap() {
   floodMap[0][15] = floodfill;
   wallMap[1][31] = 0;
@@ -1610,3 +1739,11 @@ void updateAllMaps() {
   updateFloodFillMap();
   updateWallMap();
 }
+=======
+//void ImTheMap() {
+//  floodMap[0][15] = floodfill;
+//  wallMap[1][31] = 0;
+//  dx = 0;
+//  dy = 1;
+//}
+>>>>>>> origin/master
