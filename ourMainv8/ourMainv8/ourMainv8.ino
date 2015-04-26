@@ -347,7 +347,7 @@ void loop(){
 //Search Term: SPEEDME
 int speedControl(){
   errOld = error;
-  error = setPoint - encTickR;
+  error = cellDistance - encTickR;
   pwmRate = Tkp * error;
   currTime = micros();
   deltaTime = currTime - lastTime;
@@ -756,24 +756,18 @@ void turn(byte thisDirection){
 void turnRight(){
   encTickL = 0;
   encTickR = 0;
-  leftForward(mapSpeed);
-  rightBackward(mapSpeed);
-  while(encTickR < 325){}
-  leftBackward(mapSpeed);
-  rightForward(mapSpeed);
-  while(encTickR < 454){}
+  
+  rightControl();
+  
   currentDirection++;
 }
 
 void turnLeft(){
   encTickL = 0;
   encTickR = 0;
-  leftBackward(mapSpeed);
-  rightForward(mapSpeed);
-  while(encTickR < 300){}
-  leftForward(mapSpeed);
-  rightBackward(mapSpeed);
-  while(encTickR < 454){}
+  
+  leftControl();
+  
   currentDirection--;
 }
 
