@@ -737,6 +737,7 @@ void turn(byte thisDirection){
 void turnRight(){
   encTickL = 0;
   encTickR = 0;
+  error = 0;
   
   
   while(encTickR < ticksForTurn){
@@ -765,6 +766,7 @@ void turnRight(){
 void turnLeft(){
   encTickL = 0;
   encTickR = 0;
+  error = 0;
   
   while(encTickR < ticksForTurn){
     pwmRate = turnControl();
