@@ -60,6 +60,9 @@
 #define UTURN 7
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+std::stack<byte> pathStack;
+std::stack<byte> wallStack;
+int navDir;
 int dx = 0, dy = 1;
 int wallX = 1, wallY = 31;
 //Initializations
@@ -146,7 +149,7 @@ byte maze[16][16] =  { { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ,
                        { 0 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 }, 
                        { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 } };                     
                        
-int floodFill[16][16] =  { -1, };                       
+int floodFill[16][16] =  { {-1,}, {-1} };                       
                        
 byte wallMap[33][33] =  { 
                           {'1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1' }, 
@@ -735,15 +738,14 @@ void turnLeft(){
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std:: stack<byte> pathStack;
-std:: stack<byte> wallStack;
+
 pathStack.push(STRAIGHT);
 
-byte floodFill[16][16];
+//byte floodFill[16][16];
 
-for(int i=0; i<256; i++){
-  for(int j=0; j<256; j++){
-    foodFill[i][j] = -1;
+for( byte i = 0 ; i < 256 ; i++ ){
+  for( byte j = 0 ; j < 256 ; j++ ){
+    floodFill[i][j] = -1;
   }
 }
   floodFill[0][0] = 256;
@@ -755,7 +757,7 @@ for(int i=0; i<256; i++){
 
 // 4= L, 5 = S, 6 = R, 7 = U
 
-byte map(pathStack, navDir){
+byte mapDisThang(pathStack, navDir) {
     
   if(navDir == STRAIGHT){
      if(floodFill[x][y] != -1)
@@ -1046,7 +1048,7 @@ byte NAV(){
 
 
 
-byte MAP(){
+byte MAPME(){
   checkSensors();
   mapTurn(nextTurn);
   updateWalls();
@@ -1127,7 +1129,6 @@ void start(){
 
 void mapTurn( int nextTurn ) {
   int tmp = dx;
-<<<<<<< HEAD
   if ( nextTurn == LEFTTURN ) {
     dx = -dy;
     dy = tmp;
@@ -1135,8 +1136,6 @@ void mapTurn( int nextTurn ) {
     dx = dy;
     dy = -tmp;
   } else if ( nextTurn == UTURN ) {
-=======
-<<<<<<< Updated upstream
   if ( nextTurn == LEFTTURN ) {
     dx = -dy;
     dy = tmp;
@@ -1148,7 +1147,6 @@ void mapTurn( int nextTurn ) {
     dy = -dy;
   }
   //else straight keeps same parameters
-=======
   if ( nextTurn == currentDirection ) {
     dx = -dy;
     dy = tmp;
@@ -1156,11 +1154,9 @@ void mapTurn( int nextTurn ) {
     dx = dy;
     dy = -tmp;
   } else if ( nextTurn == currentDirection ) {
->>>>>>> origin/master
     dx = -dx;
     dy = -dy;
   }   
->>>>>>> Stashed changes
 }
 
 
