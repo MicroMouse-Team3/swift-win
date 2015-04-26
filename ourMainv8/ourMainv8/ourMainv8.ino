@@ -397,17 +397,17 @@ void PID(int PWMRate){
      errorD = errorP - oldErrorP;
   }
   
-  else if(left){
+  else if(wallLeft){
      errorP = 2*(wallLeftDist - left);
      errorD = errorP - oldErrorP;
   }
   
-  else if(right){
+  else if(wallRight){
      errorP = 2*(right - wallRightDist);
      errorD = errorP - oldErrorP;
   }
   
-  else if (!left && !right){
+  else if (!wallLeft && !wallRight){
      errorP = 0;
      errorD = 0; 
   }
