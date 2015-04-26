@@ -305,9 +305,13 @@ void loop(){
   if(nextTurn == STRAIGHT){
      setPoint += cellDistance; 
   }
+  
   int XXX = -1;
-  if(wallLeftFront && wallRightFront){
-    while(getIRLeftDiag() < XXX && getIRRightDiag() < XXX){
+
+  if(wallLeftFront){
+    errOld = 0;
+    int currentDistance = getIRFrontRight;
+    while(!wallRightFront){
       pwmRate = wallControl();
       wallPID(pwmRate); 
     }
@@ -356,8 +360,13 @@ int speedControl(){
 
 // ***********************NEEDS WORK***********************************
 int wallControl(){
+  //Needs to be able to stop when very close to wall.
+  
+  int distanceToStop = 500; //random value to be used. This will become how close we want to stop in front of the wall.
+  int currentDistance = getIRFrontRight();
+  
   errOld = error;
-  error = setPoint - encTickR;
+  error = distanceToStop - currentDistance;
   pwmRate = Tkp * error;
   currTime = micros();
   deltaTime = currTime - lastTime;
