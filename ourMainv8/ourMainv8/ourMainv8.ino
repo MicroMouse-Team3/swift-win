@@ -16,6 +16,8 @@
 //Definitions
 //Search Term: DEFINEME
 //Left Sensors and LEDS
+
+
 #define leftEmitIR 3      
 #define leftRecIR A12
 #define leftLED 11
@@ -149,7 +151,7 @@ byte maze[16][16] =  { { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ,
                        { 0 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 }, 
                        { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 } };                     
                        
-int floodFill[16][16] =  { {-1,}, {-1} };                       
+int floodFillMap[16][16] =  { {-1,}, {-1} };                       
                        
 byte wallMap[33][33] =  { 
                           {'1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1' }, 
@@ -757,8 +759,435 @@ for( byte i = 0 ; i < 256 ; i++ ){
 
 // 4= L, 5 = S, 6 = R, 7 = U
 
-byte mapDisThang(pathStack, navDir) {
-    
+
+
+byte mapDisThang(pathStack, nextTurn) {
+  if ( floodFillNum < currentFFVal )
+    floodFillNum = currentFFVal;
+  
+   updateWallMap();  
+  
+  
+  floodFill[posX][posY] = floodFillNum--;  
+  
+  if(wallLeft){
+     if(wallRight){
+        if(wallFront){          
+          //TODO: Fix this
+          return UTURN;         
+        }
+        else{
+          //TODO:  conditional of prev floodfillVal
+          return STRAIGHT;
+        }
+     }
+    else{ //no wall right
+       if(wallFront){
+                    
+          return RIGHTTURN;
+          
+       }
+       else{
+          switch(currentDirection % 4){
+            case NORTH : if(floodFillMap[x][y+1] > floodFillMap[x+1][y]){
+                           
+                           return RIGHTTURN;
+                        }    
+                       else{
+                         return STRAIGHT;
+                       }
+                       break;  
+            case EAST : if(floodFillMap[x+1][y] > floodFillMap[x][y-1]){
+                           return RIGHTTURN;
+                        }
+                       else{
+                         return STRAIGHT;
+                       }
+                       break;
+            case SOUTH : if(floodFillMap[x][y-1] > floodFillMap[x-1][y]){
+                           return RIGHTTURN;
+                          }
+                         else{
+                           return STRAIGHT;
+                         }
+                         break;
+            case WEST : if(floodFillMap[x-1][y] > floodFillMap[x][y+1]){
+                           return RIGHTTURN;
+                         }
+                         else{
+                           return STRAIGHT;
+                         }
+                         break;
+            }
+            
+       }
+    } 
+  }
+  else{ //no wallLeft
+    if(wallRight){        
+        if(wallLeftFront){
+          if ( floodFillNum < floodFillMap[x][y] )
+            floodFillNum = floodFillMap[x][y];
+            
+          floodFillMap[x][y] = floodFillMap[xPrev][yPrev] - 1;
+          updateWallMap();
+          
+          return LEFTTURN;
+          
+        }
+        else{ //no wall front
+          switch(currentDirection % 4){
+            case NORTH : if(floodFillMap[x][y+1] > floodFillMap[x-1][y]){                               
+              
+                           return LEFTTURN;
+                        }    
+                       else{
+                         return STRAIGHT;
+                       }
+                       break;  
+            case EAST : if(floodFillMap[x+1][y] > floodFillMap[x][y+1]){
+                           return LEFTTURN;
+                        }
+                       else{
+                         return STRAIGHT;
+                       }
+                       break;
+            case SOUTH : if(floodFillMap[x][y-1] > floodFillMap[x+1][y]){
+                           return LEFTTURN;
+                          }
+                         else{
+                           return STRAIGHT;
+                         }
+                         break;
+            case WEST : if(floodFillMap[x-1][y] > floodFillMap[x][y-1]){
+                           return LEFTTURN;
+                         }
+                         else{
+                           return STRAIGHT;
+                         }
+                         break;
+            }
+        }
+     }
+    else{ //No wallRight
+       if(wallLeftFront){
+          switch(currentDirection % 4){
+            case NORTH : if(floodFillMap[x-1][y] < floodFillMap[x+1][y]){
+                           return LEFTTURN;
+                        }    
+                       else{
+                         return RIGHTTURN;
+                       }
+                       break;  
+            case EAST : if(floodFillMap[x][y+1] < floodFillMap[x][y-1]){
+                           return LEFTTURN;
+                        }
+                       else{
+                         return RIGHTTURN;
+                       }
+                       break;
+            case SOUTH : if(floodFillMap[x-1][y] > floodFillMap[x+1][y]){
+                           return LEFTTURN;
+                          }
+                         else{
+                           return RIGHTTURN;
+                         }
+                         break;
+            case WEST : if(floodFillMap[x][y-1] < floodFillMap[x][y+1]){
+                           return LEFTTURN;
+                         }
+                         else{
+                           return RIGHTTURN;
+                         }
+                         break;
+            }   
+       }
+       else{ //no walls at all, priority is STRAIGHT THEN TURN RIGHT if its equal
+       
+           switch(nextTurn) {
+             case STRAIGHT:
+                             switch(currentDirection) {
+                               case NORTH:
+                                 if ( floodFillMap[x][y+1] == -1 )
+                                   floodFillMap[x][y+1] == floodFillMap[xprev][yprev];                                   
+                                 else if ( floodFillMap[x-1][y] == -1 )
+                                   nextTurn = LEFTTURN;                                                                                                                                      
+                                 else if ( floodFillMap[x+1][y] == -1 )
+                                   floodFillMap[x+1][y] == floodFillMap[xprev][yprev];                                   
+                                 else if ( floodFillMap[x-1][y] == -1 )
+                                   nextTurn = RIGHTTURN;
+                                 else {
+                                   if ( Math.abs(floodFillMap[x+1][y] - floodFillNum) == 1 || Math.abs(floodFillMap[x][y +1] - floodFillNum) == 1 || Math.abs(floodFillMap[x-1][y] - floodFillNum) == 1 ) {
+                                     if ( floodFillMap[x+1][y] > floodFillMap[x][y+1] )
+                                       if ( floodFillMap[x+1][y] > floodFillMap[x-1][y] )
+                                         nextTurn = RIGHTTURN;
+                                     else if ( floodFillMap[x-1][y] > floodFillMap[x][y+1] )
+                                       nextTurn = LEFTTURN;
+                                     else
+                                       nextTurn = STRAIGHT;  
+                                   }
+                                 }                                                                      
+                                 break;
+                               case EAST:
+                                 if ( floodFillMap[x+1][y] == -1 )
+                                   floodFillMap[x+1][y] == floodFillMap[xprev][yprev];                                   
+                                 else if ( floodFillMap[x][y-1] == -1 )
+                                   nextTurn = RIGHTTURN;                                                                                                                                      
+                                 else if ( floodFillMap[x][y+1] == -1 )
+                                   floodFillMap[x][y+1] == floodFill[xprev][yprev];                                   
+                                 else if ( floodFillMap[x][y+1] == -1 )
+                                   nextTurn = LEFTTURN;
+                                 else {
+                                   if ( Math.abs(floodFillMap[x+1][y] - floodFillNum) == 1 || Math.abs(floodFillMap[x][y-1] - floodFillNum == 1) || Math.abs(floodFillMap[x][y+1] - floodFillNum) == 1 ) {
+                                     if ( floodFillMap[x+1][y] > floodFillMap[x][y+1] )
+                                       if ( floodFillMap[x+1][y] > floodFillMap[x][y-1] )
+                                         nextTurn = STRAIGHT;
+                                     else if ( floodFillMap[x][y-1] > floodFillMap[x][y+1] )
+                                       nextTurn = RIGHTTURN;
+                                     else
+                                       nextTurn = LEFTTURN;  
+                                   }
+                                 }       
+                                 break;
+                               case SOUTH:
+                                 if ( floodFillMap[x][y+1] == -1 )
+                                   floodFillMap[x][y+1] == floodFillMap[xprev][yprev];                                   
+                                 else if ( floodFillMap[x-1][y] == -1 )
+                                   nextTurn = RIGHTTURN;                                                                                                                                      
+                                 else if ( floodFillMap[x+1][y] == -1 )
+                                   nextTurn = LEFTTURN;
+//                                 else if ( floodFillMap[x][y+1] == -1 )
+//                                   nextTurn = LEFTTURN;
+                                 else {
+                                   if ( Math.abs(floodFillMap[x][y+1] - floodFillNum) == 1 || Math.abs(floodFillMap[x-1][y] - floodFillNum == 1) || Math.abs(floodFillMap[x+1][y] - floodFillNum) == 1 ) {
+                                     if ( floodFillMap[x+1][y] > floodFillMap[x][y+1] )
+                                       if ( floodFillMap[x+1][y] > floodFillMap[x-1][y] )
+                                         nextTurn = LEFTTURN;
+                                     else if ( floodFillMap[x-1][y] > floodFillMap[x][y+1] )
+                                       nextTurn = RIGHTTURN;
+                                     else
+                                       nextTurn = STRAIGHT;  
+                                   }
+                                 }                                      
+                                 break;
+                               case WEST:
+                                 if ( floodFillMap[x-1][y] == -1 )
+                                   floodFillMap[x-1][y] == floodFillMap[xprev][yprev];                                   
+                                 else if ( floodFillMap[x][y+1] == -1 )
+                                   nextTurn = RIGHTTURN;                                                                                                                                      
+                                 else if ( floodFillMap[x][y-1] == -1 )
+                                   nextTurn = LEFTTURN;
+//                                 else if ( floodFillMap[x][y+1] == -1 )
+//                                   nextTurn = LEFTTURN;
+                                 else {
+                                   if ( Math.abs(floodFillMap[x-1][y] - floodFillNum) == 1 || Math.abs(floodFillMap[x][y+1] - floodFillNum == 1) || Math.abs(floodFillMap[x][y-1] - floodFillNum) == 1 ) {
+                                     if ( floodFillMap[x][y-1] > floodFillMap[x-1][y] )
+                                       if ( floodFillMap[x][y-1] > floodFillMap[x][y+1] )
+                                         nextTurn = LEFTTURN;
+                                     else if ( floodFillMap[x][y+1] > floodFillMap[x-1][y] )
+                                       nextTurn = RIGHTTURN;
+                                     else
+                                       nextTurn = STRAIGHT;  
+                                   }
+                                 }                                                       
+                                 break;                            
+                             }   break;
+             case RIGHTTURN:
+                             switch(currentDirection) {
+                               case NORTH:
+                                 break;
+                               case EAST:
+                                 break;
+                               case SOUTH:
+                                 break;
+                               case WEST:
+                                 break;                            
+                             }   break;
+             case LEFTTURN:
+                             switch(currentDirection) {
+                               case NORTH:
+                                 break;
+                               case EAST:
+                                 break;
+                               case SOUTH:
+                                 break;
+                               case WEST:
+                                 break;                            
+                             }   break;
+             case UTURN:
+                             switch(currentDirection) {
+                               case NORTH:
+                                 break;
+                               case EAST:
+                                 break;
+                               case SOUTH:
+                                 break;
+                               case WEST:
+                                 break;                            
+                             }   break;
+           }
+       
+          if ( floodFillNum < floodFillMap[x][y] )
+            floodFillNum = floodFillMap[x][y];
+          switch(currentDirection % 4){
+            case NORTH : if(floodFillMap[x-1][y] < floodFillMap[x+1][y]){
+                             if(floodFillMap[x-1][y] < floodFillMap[x][y+1])
+                                 return LEFTTURN;
+                             else if(floodFillMap[x][y+1] > floodFillMap[x-1][y])
+                                 return STRAIGHT;
+                             else 
+                                 return RIGHTTURN;
+                         }    
+                       else if(floodFillMap[x-1][y] < floodFillMap[x+1][y]){
+                             if(floodFillMap[x+1][y] > floodFillMap[x][y+1])
+                                 return RIGHTTURN;
+                             else if(floodFillMap[x][y+1] > floodFillMap[x+1][y])
+                                 return STRAIGHT;
+                             else 
+                                 return LEFTTURN;
+                       }
+                       else{
+                            if(floodFillMap[x-1][y] == floodFillMap[x+1][y])
+                               return RIGHTTURN;
+                            else if(floodFillMap[x][y+1] == floodFillMap[x+1][y])
+                               return STRAIGHT;
+                            else
+                               return STRAIGHT;
+                       }
+                       /*
+                       if ( adjCell > 1 && adjCell > floodfillNum && adjCell != -1 )
+                            floodFillNum = adjCell - 1;                       
+                         */   
+                       if ( floodFillNum[x+1][y] - floodFillNum > 1 && floodFillNum[x+1][y] > floodFillNum && floodFillNum[x+1][y] != -1 )
+                            floodfillNum = floodFillNum[x+1][y] - 1;                     
+                       else if ( floodFillNum[x][y+1] - floodFillNum > 1 && floodFillNum[x][y+1] > floodFillNum && floodFillNum[x][y+1] != -1 )
+                            floodfillNum = floodFillNum[x+1][y] - 1;   
+                       else if ( floodFillNum[x-1][y] - floodFillNum > 1 && floodFillNum[x-1][y] > floodFillNum && floodFillNum[x-1][y] != -1 )
+                            floodfillNum = floodFillNum[x+1][y] - 1;   
+//                       else if ( floodFillNum[x][y-1] - floodFillNum > 1 && floodFillNum[x][y-1] > floodFillNum && floodFillNum[x][y-1] != -1 )
+  //                          floodfillNum = floodFillNum[x+1][y] - 1;                                                                                                       
+
+                        
+                       
+                       break;  
+                       
+            case EAST : if(floodFillMap[x][y+1] > floodFillMap[x][y-1]){
+                             if(floodFillMap[x][y+1] > floodFillMap[x+1][y])
+                                 return LEFTTURN;
+                             else if(floodFillMap[x][y+1] > floodFillMap[x][y-1])
+                                 return STRAIGHT;
+                             else 
+                                 return RIGHTTURN;
+                         }    
+                       else if(floodFillMap[x][y+1] < floodFillMap[x][y-1]){
+                             if(floodFillMap[x][y-1] > floodFillMap[x+1][y])
+                                 return RIGHTTURN;
+                             else if(floodFillMap[x+1][y] > floodFillMap[x][y+1])
+                                 return STRAIGHT;
+                             else 
+                                 return LEFTTURN;
+                       }
+                       else{
+                            if(floodFillMap[x-1][y] == floodFillMap[x+1][y])
+                               return RIGHTTURN;
+                            else if(floodFillMap[x][y+1] == floodFillMap[x+1][y])
+                               return STRAIGHT;
+                            else
+                               return STRAIGHT;
+                       }
+                       
+                       if ( floodFillNum[x+1][y] - floodFillNum > 1 && floodFillNum[x+1][y] > floodFillNum && floodFillNum[x+1][y] != -1 )
+                            floodfillNum = floodFillNum[x+1][y] - 1;                     
+                       else if ( floodFillNum[x][y+1] - floodFillNum > 1 && floodFillNum[x][y+1] > floodFillNum && floodFillNum[x][y+1] != -1 )
+                            floodfillNum = floodFillNum[x+1][y] - 1;   
+//                       else if ( floodFillNum[x-1][y] - floodFillNum > 1 && floodFillNum[x-1][y] > floodFillNum && floodFillNum[x-1][y] != -1 )
+  //                          floodfillNum = floodFillNum[x+1][y] - 1;   
+                       else if ( floodFillNum[x][y-1] - floodFillNum > 1 && floodFillNum[x][y-1] > floodFillNum && floodFillNum[x][y-1] != -1 )
+                            floodfillNum = floodFillNum[x+1][y] - 1;                               
+                       
+                       break;
+                       
+            case SOUTH : if(floodFillMap[x-1][y] < floodFillMap[x+1][y]){
+                             if(floodFillMap[x+1][y] > floodFillMap[x][y-1])
+                                 return LEFTTURN;
+                             else if(floodFillMap[x][y-1] > floodFillMap[x-1][y])
+                                 return STRAIGHT;
+                             else 
+                                 return RIGHTTURN;
+                         }    
+                       else if(floodFillMap[x-1][y] > floodFillMap[x+1][y]){
+                             if(floodFillMap[x-1][y] > floodFillMap[x][y-1])
+                                 return RIGHTTURN;
+                             else if(floodFillMap[x][y-1] > floodFillMap[x+1][y])
+                                 return STRAIGHT;
+                             else 
+                                 return LEFTTURN;
+                       }
+                       else{
+                            if(floodFillMap[x-1][y] == floodFillMap[x+1][y])
+                               return RIGHTTURN;
+                            else if(floodFillMap[x][y+1] == floodFillMap[x+1][y])
+                               return STRAIGHT;
+                            else
+                               return STRAIGHT;
+                       }
+                       
+                       if ( floodFillNum[x+1][y] - floodFillNum > 1 && floodFillNum[x+1][y] > floodFillNum && floodFillNum[x+1][y] != -1 )
+                            floodfillNum = floodFillNum[x+1][y] - 1;                     
+//                       else if ( floodFillNum[x][y+1] - floodFillNum > 1 && floodFillNum[x][y+1] > floodFillNum && floodFillNum[x][y+1] != -1 )
+  //                          floodfillNum = floodFillNum[x+1][y] - 1;   
+                       else if ( floodFillNum[x-1][y] - floodFillNum > 1 && floodFillNum[x-1][y] > floodFillNum && floodFillNum[x-1][y] != -1 )
+                            floodfillNum = floodFillNum[x+1][y] - 1;   
+                       else if ( floodFillNum[x][y-1] - floodFillNum > 1 && floodFillNum[x][y-1] > floodFillNum && floodFillNum[x][y-1] != -1 )
+                            floodfillNum = floodFillNum[x+1][y] - 1;                               
+                       
+                       break; 
+                         
+            case WEST : if(floodFillMap[x][y+1] < floodFillMap[x][y-1]){
+                             if(floodFillMap[x][y-1] > floodFillMap[x-1][y])
+                                 return LEFTTURN;
+                             else if(floodFillMap[x-1][y] > floodFillMap[x][y+1])
+                                 return STRAIGHT;
+                             else 
+                                 return RIGHTTURN;
+                         }    
+                       else if(floodFillMap[x][y+1] > floodFillMap[x][y-1]){
+                             if(floodFillMap[x][y+1] > floodFillMap[x-1][y])
+                                 return RIGHTTURN;
+                             else if(floodFillMap[x-1][y] > floodFillMap[x][y-1])
+                                 return STRAIGHT;
+                             else 
+                                 return LEFTTURN;
+                       }
+                       else{
+                            if(floodFillMap[x-1][y] == floodFillMap[x+1][y])
+                               return RIGHTTURN;
+                            else if(floodFillMap[x][y+1] == floodFillMap[x+1][y])
+                               return STRAIGHT;
+                            else
+                               return STRAIGHT;
+                       }
+                       
+//                       if ( floodFillNum[x+1][y] - floodFillNum > 1 && floodFillNum[x+1][y] > floodFillNum && floodFillNum[x+1][y] != -1 )
+  //                          floodfillNum = floodFillNum[x+1][y] - 1;                     
+                       if ( floodFillNum[x][y+1] - floodFillNum > 1 && floodFillNum[x][y+1] > floodFillNum && floodFillNum[x][y+1] != -1 )
+                            floodfillNum = floodFillNum[x+1][y] - 1;   
+                       else if ( floodFillNum[x-1][y] - floodFillNum > 1 && floodFillNum[x-1][y] > floodFillNum && floodFillNum[x-1][y] != -1 )
+                            floodfillNum = floodFillNum[x+1][y] - 1;   
+                       else if ( floodFillNum[x][y-1] - floodFillNum > 1 && floodFillNum[x][y-1] > floodFillNum && floodFillNum[x][y-1] != -1 )
+                            floodfillNum = floodFillNum[x+1][y] - 1;                               
+                       
+                       break;
+            }
+            
+       }
+    }
+    floodFill[x][y] = floodFillNum--;
+    return nextTurn;
+  }
+  
+ return STRAIGHT;
+  /*
   if(navDir == STRAIGHT){
      if(floodFill[x][y] != -1)
        floodFill[x][y] = flood[xprev][yprev] -1;
@@ -791,7 +1220,7 @@ byte mapDisThang(pathStack, navDir) {
   else{ // UTURN
     
   }
-  
+  */
   }
   
 }
@@ -1041,8 +1470,7 @@ byte NAV(){
     }
   }
   
- return STRAIGHT;
-      
+ return STRAIGHT;      
 }
 
 
@@ -1088,6 +1516,8 @@ void updateMap(int nextTurn){
 // this function updates the wall locations and places known to have no walls
 void updateWalls(){
   //update behind us
+  
+  /*
   wallMap[wallX-dx][wallY-dy] = 0;
   
   //wall on left
@@ -1110,6 +1540,7 @@ void updateWalls(){
 
   wallX = wallX + 2 * dx;
   wallY = wallY + 2 * dy;
+  */
 }
 
 // This function solves the flood fill
@@ -1126,6 +1557,8 @@ void solve(){
 void start(){
   
 }
+
+
 
 void mapTurn( int nextTurn ) {
   int tmp = dx;
@@ -1171,4 +1604,9 @@ void ImTheMap() {
   wallMap[1][31] = 0;
   dx = 0;
   dy = 1;
+}
+
+void updateAllMaps() {
+  updateFloodFillMap();
+  updateWallMap();
 }
