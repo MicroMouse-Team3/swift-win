@@ -357,8 +357,41 @@ int speedControl(){
   return pwmRate;
 }
 
-// ***********************NEEDS WORK***********************************
 int wallControl(){
+  //Needs to be able to stop when very close to wall.
+  
+  int distanceToStop = 500; //random value to be used. This will become how close we want to stop in front of the wall.
+  int currentDistance = getIRRightFront();
+  
+  errOld = error;
+  error = distanceToStop - currentDistance;
+  pwmRate = Tkp * error;
+  currTime = micros();
+  deltaTime = currTime - lastTime;
+  pwmRate += Tkd * (error - errOld)/deltaTime;
+  pwmRate /= 1000;
+  lastTime = currTime;
+  return pwmRate;
+}
+
+int rightControl(){
+  //Needs to be able to stop when very close to wall.
+  
+  int distanceToStop = 500; //random value to be used. This will become how close we want to stop in front of the wall.
+  int currentDistance = getIRRightFront();
+  
+  errOld = error;
+  error = distanceToStop - currentDistance;
+  pwmRate = Tkp * error;
+  currTime = micros();
+  deltaTime = currTime - lastTime;
+  pwmRate += Tkd * (error - errOld)/deltaTime;
+  pwmRate /= 1000;
+  lastTime = currTime;
+  return pwmRate;
+}
+
+int leftControl(){
   //Needs to be able to stop when very close to wall.
   
   int distanceToStop = 500; //random value to be used. This will become how close we want to stop in front of the wall.
