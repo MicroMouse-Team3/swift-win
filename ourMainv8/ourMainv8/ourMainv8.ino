@@ -88,6 +88,7 @@ bool wallRight = false;
 const int distancePerMove = 30;
 int mapSpeed = 100;
 int solveSpeed = 255; 
+int ticksForTurn = 748;
 
 //For PID
 
@@ -347,7 +348,7 @@ void loop(){
 //Search Term: SPEEDME
 int speedControl(){
   errOld = error;
-  error = cellDistance - encTickR;
+  error = cellDistance - ((encTickR + encTickL)/2);
   pwmRate = Tkp * error;
   currTime = micros();
   deltaTime = currTime - lastTime;
@@ -374,31 +375,11 @@ int wallControl(){
   return pwmRate;
 }
 
-int rightControl(){
+int turnControl(){
   //Needs to be able to stop when very close to wall.
   
-  int distanceToStop = 500; //random value to be used. This will become how close we want to stop in front of the wall.
-  int currentDistance = getIRRightFront();
-  
   errOld = error;
-  error = distanceToStop - currentDistance;
-  pwmRate = Tkp * error;
-  currTime = micros();
-  deltaTime = currTime - lastTime;
-  pwmRate += Tkd * (error - errOld)/deltaTime;
-  pwmRate /= 1000;
-  lastTime = currTime;
-  return pwmRate;
-}
-
-int leftControl(){
-  //Needs to be able to stop when very close to wall.
-  
-  int distanceToStop = 500; //random value to be used. This will become how close we want to stop in front of the wall.
-  int currentDistance = getIRRightFront();
-  
-  errOld = error;
-  error = distanceToStop - currentDistance;
+  error = ticksForTurn - ((encTickR + encTickL)/2);
   pwmRate = Tkp * error;
   currTime = micros();
   deltaTime = currTime - lastTime;
@@ -757,7 +738,26 @@ void turnRight(){
   encTickL = 0;
   encTickR = 0;
   
-  rightControl();
+  
+  while(encTickR < ticksForTurn){
+    pwmRate = turnControl();
+  
+    if(pwmRate > mapSpeed){
+       pwmRate = mapSpeed; 
+     }
+    else if(pwmRate < (-1*solveSpeed)){
+      pwmRate = -1 * solveSpeed; 
+    }
+    
+    if (pwmRate >= 0){
+       rightReverse(pwmRate);
+       leftForward(pwmRate);   
+    }
+    else{
+       rightForward(pwmRate);
+       leftReverse(pwmRate);
+    }
+  }
   
   currentDirection++;
 }
@@ -766,7 +766,25 @@ void turnLeft(){
   encTickL = 0;
   encTickR = 0;
   
-  leftControl();
+  while(encTickR < ticksForTurn){
+    pwmRate = turnControl();
+  
+    if(pwmRate > mapSpeed){
+       pwmRate = mapSpeed; 
+     }
+    else if(pwmRate < (-1*solveSpeed)){
+      pwmRate = -1 * solveSpeed; 
+    }
+    
+    if (pwmRate >= 0){
+       leftReverse(pwmRate);
+       rightForward(pwmRate);   
+    }
+    else{
+       leftForward(pwmRate);
+       rightReverse(pwmRate);
+    }
+  }
   
   currentDirection--;
 }
