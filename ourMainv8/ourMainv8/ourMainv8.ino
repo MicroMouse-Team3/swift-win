@@ -812,10 +812,10 @@ void turnLeft(){
 
 // 4= L, 5 = S, 6 = R, 7 = U
 
-<<<<<<< HEAD
 
 
 byte mapDisThang(pathStack, nextTurn) {
+
   if ( floodFillNum < currentFFVal )
     floodFillNum = currentFFVal;
   
@@ -992,7 +992,7 @@ byte mapDisThang(pathStack, nextTurn) {
                                  else if ( floodFillMap[x][y+1] == -1 )
                                    nextTurn = LEFTTURN;
                                  else {
-                                   if ( Math.abs(floodFillMap[x+1][y] - floodFillNum) == 1 || Math.abs(floodFillMap[x][y-1] - floodFillNum == 1) || Math.abs(floodFillMap[x][y+1] - floodFillNum) == 1 ) {
+                                   if ( Math.abs(floodFillMap[x+1][y] - floodFillNum) == 1 || Math.abs(floodFillMap[x][y-1] - floodFillNum) == 1 || Math.abs(floodFillMap[x][y+1] - floodFillNum) == 1 ) {
                                      if ( floodFillMap[x+1][y] > floodFillMap[x][y+1] )
                                        if ( floodFillMap[x+1][y] > floodFillMap[x][y-1] )
                                          nextTurn = STRAIGHT;
@@ -1013,7 +1013,7 @@ byte mapDisThang(pathStack, nextTurn) {
 //                                 else if ( floodFillMap[x][y+1] == -1 )
 //                                   nextTurn = LEFTTURN;
                                  else {
-                                   if ( Math.abs(floodFillMap[x][y+1] - floodFillNum) == 1 || Math.abs(floodFillMap[x-1][y] - floodFillNum == 1) || Math.abs(floodFillMap[x+1][y] - floodFillNum) == 1 ) {
+                                   if ( Math.abs(floodFillMap[x][y+1] - floodFillNum) == 1 || Math.abs(floodFillMap[x-1][y] - floodFillNum) == 1 || Math.abs(floodFillMap[x+1][y] - floodFillNum) == 1 ) {
                                      if ( floodFillMap[x+1][y] > floodFillMap[x][y+1] )
                                        if ( floodFillMap[x+1][y] > floodFillMap[x-1][y] )
                                          nextTurn = LEFTTURN;
@@ -1034,7 +1034,7 @@ byte mapDisThang(pathStack, nextTurn) {
 //                                 else if ( floodFillMap[x][y+1] == -1 )
 //                                   nextTurn = LEFTTURN;
                                  else {
-                                   if ( Math.abs(floodFillMap[x-1][y] - floodFillNum) == 1 || Math.abs(floodFillMap[x][y+1] - floodFillNum == 1) || Math.abs(floodFillMap[x][y-1] - floodFillNum) == 1 ) {
+                                   if ( Math.abs(floodFillMap[x-1][y] - floodFillNum) == 1 || Math.abs(floodFillMap[x][y+1] - floodFillNum) == 1 || Math.abs(floodFillMap[x][y-1] - floodFillNum) == 1 ) {
                                      if ( floodFillMap[x][y-1] > floodFillMap[x-1][y] )
                                        if ( floodFillMap[x][y-1] > floodFillMap[x][y+1] )
                                          nextTurn = LEFTTURN;
@@ -1047,8 +1047,34 @@ byte mapDisThang(pathStack, nextTurn) {
                                  break;                            
                              }   break;
              case RIGHTTURN:
+             //-Francisco: We need to reconfigure our floodfill values to now store it into FFVAL, previoous code does not do this. The last peice of code in this function might do this, but need for reevaluation to make sure.
+                           //reordered the presedence of conditionals to reflect the logic of SwirlIEEEs choices.
                              switch(currentDirection) {
                                case NORTH:
+                                 if ( floodFillMap[x+1][y] == -1 )
+                                   floodFillNum = floodFillMap[x+1][y];
+                                 else if ( floodFillMap[x][y+1] == -1 )
+                                   nextTurn = STRAIGHT;                                                                                                                                      
+                                 else if(floodFillMap[x-1][y] == -1 )
+                                 {
+                                   floodFillNum == floodFillMap[x-1][y];                                   
+                                   nextTurn = LEFTTURN;
+                                 }
+                                //this else if is in case every value in adjacent cell does not have a -1
+                                 else{
+                                   if ( Math.abs(floodFillMap[x+1][y] - floodFillNum) == 1 || Math.abs(floodFillMap[x][y +1] - floodFillNum) == 1 || Math.abs(floodFillMap[x-1][y] - floodFillNum) == 1 ) {
+                                     if ( floodFillMap[x+1][y] > floodFillMap[x][y+1] ){
+                                       if ( floodFillMap[x+1][y] > floodFillMap[x-1][y] )
+                                         nextTurn = RIGHTTURN;
+                                     }
+                                     else if ( floodFillMap[x-1][y] > floodFillMap[x][y+1] )
+                                       nextTurn = LEFTTURN;
+                                     else
+                                       nextTurn = STRAIGHT;  
+                                   }
+                                 }
+                                 
+                                 break;
                                  break;
                                case EAST:
                                  break;
@@ -1242,8 +1268,10 @@ byte mapDisThang(pathStack, nextTurn) {
   
  return STRAIGHT;
   /*
+=======
+  /**
   if(navDir == STRAIGHT){
-     if(floodFill[x][y] != -1)
+     if(floodFill[x][y] != -1) // check problem for begining start
        floodFill[x][y] = flood[xprev][yprev] -1;
        return navDir; //no need to override
      else if(floodFill[x][y]>floodFill[xprev][yprev]){
@@ -1277,8 +1305,246 @@ byte mapDisThang(pathStack, nextTurn) {
   */
   }
   
+  **/
+  
+  if(wallLeft){
+     if(wallRight){
+        if(wallFront){          
+          /*******TO DO *******/
+        }
+        else{
+          
+          
+        }
+     }
+    else{ //no wall right
+       if(wallLeftFront){
+          return RIGHTTURN;
+          
+       }
+       else{
+          switch(currentDirection % 4){
+            case NORTH : if(maze[x][y+1] < maze[x+1][y]){
+                           return RIGHTTURN;
+                        }    
+                       else{
+                         return STRAIGHT;
+                       }
+                       break;  
+            case EAST : if(maze[x+1][y] < maze[x][y-1]){
+                           return RIGHTTURN;
+                        }
+                       else{
+                         return STRAIGHT;
+                       }
+                       break;
+            case SOUTH : if(maze[x][y-1] < maze[x-1][y]){
+                           return RIGHTTURN;
+                          }
+                         else{
+                           return STRAIGHT;
+                         }
+                         break;
+            case WEST : if(maze[x-1][y] < maze[x][y+1]){
+                           return RIGHTTURN;
+                         }
+                         else{
+                           return STRAIGHT;
+                         }
+                         break;
+            }
+            
+       }
+    } 
+  }
+  else{ //no wallLeft
+    if(wallRight){
+        if(wallLeftFront){
+          
+          return LEFTTURN;
+          
+        }
+        else{ //no wall front
+          switch(currentDirection % 4){
+            case NORTH : if(maze[x][y+1] < maze[x-1][y]){
+                           return LEFTTURN;
+                        }    
+                       else{
+                         return STRAIGHT;
+                       }
+                       break;  
+            case EAST : if(maze[x+1][y] < maze[x][y+1]){
+                           return LEFTTURN;
+                        }
+                       else{
+                         return STRAIGHT;
+                       }
+                       break;
+            case SOUTH : if(maze[x][y-1] < maze[x+1][y]){
+                           return LEFTTURN;
+                          }
+                         else{
+                           return STRAIGHT;
+                         }
+                         break;
+            case WEST : if(maze[x-1][y] < maze[x][y-1]){
+                           return LEFTTURN;
+                         }
+                         else{
+                           return STRAIGHT;
+                         }
+                         break;
+            }
+        }
+     }
+    else{ //No wallRight
+       if(wallLeftFront){
+          switch(currentDirection % 4){
+            case NORTH : if(maze[x-1][y] > maze[x+1][y]){
+                           return LEFTTURN;
+                        }    
+                       else{
+                         return RIGHTTURN;
+                       }
+                       break;  
+            case EAST : if(maze[x][y+1] > maze[x][y-1]){
+                           return LEFTTURN;
+                        }
+                       else{
+                         return RIGHTTURN;
+                       }
+                       break;
+            case SOUTH : if(maze[x+1][y] > maze[x-1][y]){
+                           return LEFTTURN;
+                          }
+                         else{
+                           return RIGHTTURN;
+                         }
+                         break;
+            case WEST : if(maze[x][y-1] > maze[x][y+1]){
+                           return LEFTTURN;
+                         }
+                         else{
+                           return RIGHTTURN;
+                         }
+                         break;
+            }   
+       }
+       else{ //no walls at all, priority is STRAIGHT THEN TURN RIGHT if its equal
+          switch(currentDirection % 4){
+            case NORTH : if(maze[x-1][y] > maze[x+1][y]){
+                             if(maze[x-1][y] > maze[x][y+1])
+                                 return LEFTTURN;
+                             else if(maze[x][y+1] > maze[x-1][y])
+                                 return STRAIGHT;
+                             else 
+                                 return RIGHTTURN;
+                         }    
+                       else if(maze[x-1][y] < maze[x+1][y]){
+                             if(maze[x+1][y] > maze[x][y+1])
+                                 return RIGHTTURN;
+                             else if(maze[x][y+1] > maze[x+1][y])
+                                 return STRAIGHT;
+                             else 
+                                 return LEFTTURN;
+                       }
+                       else{
+                            if(maze[x-1][y] == maze[x+1][y])
+                               return RIGHTTURN;
+                            else if(maze[x][y+1] == maze[x+1][y])
+                               return STRAIGHT;
+                            else
+                               return STRAIGHT;
+                       }
+                       
+                       break;  
+                       
+            case EAST : if(maze[x][y+1] > maze[x][y-1]){
+                             if(maze[x][y+1] > maze[x+1][y])
+                                 return LEFTTURN;
+                             else if(maze[x][y+1] > maze[x][y-1])
+                                 return STRAIGHT;
+                             else 
+                                 return RIGHTTURN;
+                         }    
+                       else if(maze[x][y+1] < maze[x][y-1]){
+                             if(maze[x][y-1] > maze[x+1][y])
+                                 return RIGHTTURN;
+                             else if(maze[x+1][y] > maze[x][y+1])
+                                 return STRAIGHT;
+                             else 
+                                 return LEFTTURN;
+                       }
+                       else{
+                            if(maze[x-1][y] == maze[x+1][y])
+                               return RIGHTTURN;
+                            else if(maze[x][y+1] == maze[x+1][y])
+                               return STRAIGHT;
+                            else
+                               return STRAIGHT;
+                       }
+                       break;
+                       
+            case SOUTH : if(maze[x-1][y] < maze[x+1][y]){
+                             if(maze[x+1][y] > maze[x][y-1])
+                                 return LEFTTURN;
+                             else if(maze[x][y-1] > maze[x-1][y])
+                                 return STRAIGHT;
+                             else 
+                                 return RIGHTTURN;
+                         }    
+                       else if(maze[x-1][y] > maze[x+1][y]){
+                             if(maze[x-1][y] > maze[x][y-1])
+                                 return RIGHTTURN;
+                             else if(maze[x][y-1] > maze[x+1][y])
+                                 return STRAIGHT;
+                             else 
+                                 return LEFTTURN;
+                       }
+                       else{
+                            if(maze[x-1][y] == maze[x+1][y])
+                               return RIGHTTURN;
+                            else if(maze[x][y+1] == maze[x+1][y])
+                               return STRAIGHT;
+                            else
+                               return STRAIGHT;
+                       }
+                       break; 
+                         
+            case WEST : if(maze[x][y+1] < maze[x][y-1]){
+                             if(maze[x][y-1] > maze[x-1][y])
+                                 return LEFTTURN;
+                             else if(maze[x-1][y] > maze[x][y+1])
+                                 return STRAIGHT;
+                             else 
+                                 return RIGHTTURN;
+                         }    
+                       else if(maze[x][y+1] > maze[x][y-1]){
+                             if(maze[x][y+1] > maze[x-1][y])
+                                 return RIGHTTURN;
+                             else if(maze[x-1][y] > maze[x][y-1])
+                                 return STRAIGHT;
+                             else 
+                                 return LEFTTURN;
+                       }
+                       else{
+                            if(maze[x-1][y] == maze[x+1][y])
+                               return RIGHTTURN;
+                            else if(maze[x][y+1] == maze[x+1][y])
+                               return STRAIGHT;
+                            else
+                               return STRAIGHT;
+                       }
+                       break;
+            }
+            
+       }
+    }
+  }
+  
+ return STRAIGHT;
+      
 }
-=======
 //byte mapDisThang(pathStack, navDir) {
 //    
 //  if(navDir == STRAIGHT){
@@ -1317,7 +1583,6 @@ byte mapDisThang(pathStack, nextTurn) {
 //  }
 //  
 //}
->>>>>>> origin/master
 //NAV Function
 //NAVME
 byte NAV(){
@@ -1652,8 +1917,6 @@ void start(){
   
 }
 
-<<<<<<< HEAD
-
 
 void mapTurn( int nextTurn ) {
   int tmp = dx;
@@ -1686,7 +1949,7 @@ void mapTurn( int nextTurn ) {
     dy = -dy;
   }   
 }
-=======
+
 //void mapTurn( int nextTurn ) {
 //  int tmp = dx;
 //  if ( nextTurn == LEFTTURN ) {
@@ -1718,7 +1981,7 @@ void mapTurn( int nextTurn ) {
 //    dy = -dy;
 //  }   
 //}
->>>>>>> origin/master
+
 
 
 void checkSensors() {
@@ -1727,7 +1990,6 @@ void checkSensors() {
   wallRight = getIRRight() > 600; 
 }
 
-<<<<<<< HEAD
 void ImTheMap() {
   floodMap[0][15] = floodfill;
   wallMap[1][31] = 0;
@@ -1739,11 +2001,10 @@ void updateAllMaps() {
   updateFloodFillMap();
   updateWallMap();
 }
-=======
+
 //void ImTheMap() {
 //  floodMap[0][15] = floodfill;
 //  wallMap[1][31] = 0;
 //  dx = 0;
 //  dy = 1;
 //}
->>>>>>> origin/master
