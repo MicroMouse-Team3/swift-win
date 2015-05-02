@@ -17,36 +17,10 @@
 //Search Term: DEFINEME
 //Left Sensors and LEDS
 
-#define MAXSIZE 1000
+int floodFillNum = 0, currentFFVal;
+int xPrev, yPrev, posX, posY;
+#define MAXSIZE 255
 
-class Stack {
-  int stk[MAXSIZE];
-  int nelems;
-} stack s;
-
-typedef struct Stack Stack;
-
-void Stack_Init(Stack *S) {
-  S->nelems = 0;
-}
-
-int top(Stack *S) {
-  if (S->nelems == 0)
-    return -1;
-  return S->stk[S->nelems-1];
-}
-void push(Stack *S, int d) {
-  if (S->nelems < MAXSIZE)
-    S->data[S->nelems++] = d;
-  else
-    printf("ERR\n");
-}
-int pop(Stack *S) {
-  if ( S->nelems == 0 )
-    printf("ERR\n");
-  else
-    S->nelems--;
-}
 
 
 
@@ -96,8 +70,6 @@ int pop(Stack *S) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //stack<byte> pathStack;
 //stack<byte> wallStack;
-Stack pathStack;
-Stack wallStack;
 int navDir;
 int dx = 0, dy = 1;
 int wallX = 1, wallY = 31;
@@ -184,9 +156,9 @@ byte maze[16][16] =  { { 14 , 13 , 12 , 11 , 10 ,  9 ,  8 ,  7 ,  7 ,  8 ,  9 , 
                        { 11 , 10 ,  9 ,  8 ,  7 ,  3 ,  3 ,  4 ,  4 ,  5 ,  6 ,  7 ,  8 ,  9 , 10 , 11 }, 
                        { 12 , 11 , 10 ,  9 ,  8 ,  7 ,  2 ,  5 ,  5 ,  6 ,  7 ,  8 ,  9 , 10 , 11 , 12 }, 
                        { 13 , 12 , 11 , 10 ,  9 ,  8 ,  7 ,  6 ,  6 ,  7 ,  8 ,  9 , 10 , 11 , 12 , 13 }, 
-                       { 14 , 13 , 12 , 11 , 10 ,  9 ,  8 ,  7 ,  7 ,  8 ,  9 , 10 , 11 , 12 , 13 , 14 } };                     
+                       { 14 , 13 , 12 , 11 , 10 ,  9 ,  8 ,  7 ,  7 ,  8 ,  9 , 10 , 11 , 12 , 13 , 14 } };                  
                        
-int floodFillMap[16][16] =  { -1, };                       
+int floodFillMap[16][16] =  { {-1,}, {-1} };                       
                        
 byte wallMap[33][33] =  { 
                           {'1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1' }, 
@@ -223,11 +195,12 @@ byte wallMap[33][33] =  {
                           {'1','0','1','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','1'},
                           {'1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1'} };
                     
-
+Stack s = new Stack(MAXSIZE);
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Setup Function
 //SETME
 void setup(){
+
   //initializePins
   pinMode(0, INPUT);
   pinMode(1, OUTPUT);
@@ -375,6 +348,8 @@ void loop(){
   Serial.print("L R: "); Serial.println(getIRLeftFront());
   Serial.print("CR: "); Serial.println(getIRRightFront());
   delay(1000);
+  
+//  mapDisThang(s,1);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -848,15 +823,15 @@ void turnLeft(){
 
 
 
-byte mapDisThang( Stack pathStack, Stack nextTurn) {
+byte mapDisThang(s, nextTurn) {
 
   if ( floodFillNum < currentFFVal )
     floodFillNum = currentFFVal;
   
-   updateWallMap();  
+//   updateWallMap();  
   
   
-  floodFill[posX][posY] = floodFillNum--;  
+  floodFillMap[posX][posY] = floodFillNum--;  
   
   if(wallLeft){
      if(wallRight){
@@ -918,7 +893,7 @@ byte mapDisThang( Stack pathStack, Stack nextTurn) {
             floodFillNum = floodFillMap[x][y];
             
           floodFillMap[x][y] = floodFillMap[xPrev][yPrev] - 1;
-          updateWallMap();
+       //   updateWallMap();
           
           return LEFTTURN;
           
@@ -1005,7 +980,7 @@ byte mapDisThang( Stack pathStack, Stack nextTurn) {
                                  else if ( floodFillMap[x-1][y] == -1 )
                                    nextTurn = RIGHTTURN;
                                  else {
-                                   if ( Math.abs(floodFillMap[x+1][y] - floodFillNum) == 1 || Math.abs(floodFillMap[x][y +1] - floodFillNum) == 1 || Math.abs(floodFillMap[x-1][y] - floodFillNum) == 1 ) {
+                                   if ( absVal(floodFillMap[x+1][y] - floodFillNum) == 1 || absVal(floodFillMap[x][y +1] - floodFillNum) == 1 || absVal(floodFillMap[x-1][y] - floodFillNum) == 1 ) {
                                      if ( floodFillMap[x+1][y] > floodFillMap[x][y+1] )
                                        if ( floodFillMap[x+1][y] > floodFillMap[x-1][y] )
                                          nextTurn = RIGHTTURN;
@@ -1022,11 +997,11 @@ byte mapDisThang( Stack pathStack, Stack nextTurn) {
                                  else if ( floodFillMap[x][y-1] == -1 )
                                    nextTurn = RIGHTTURN;                                                                                                                                      
                                  else if ( floodFillMap[x][y+1] == -1 )
-                                   floodFillMap[x][y+1] == floodFill[xprev][yprev];                                   
+                                   floodFillMap[x][y+1] == floodFillMap[xprev][yprev];                                   
                                  else if ( floodFillMap[x][y+1] == -1 )
                                    nextTurn = LEFTTURN;
                                  else {
-                                   if ( Math.abs(floodFillMap[x+1][y] - floodFillNum) == 1 || Math.abs(floodFillMap[x][y-1] - floodFillNum) == 1 || Math.abs(floodFillMap[x][y+1] - floodFillNum) == 1 ) {
+                                   if ( absVal(floodFillMap[x+1][y] - floodFillNum) == 1 || absVal(floodFillMap[x][y-1] - floodFillNum) == 1 || absVal(floodFillMap[x][y+1] - floodFillNum) == 1 ) {
                                      if ( floodFillMap[x+1][y] > floodFillMap[x][y+1] )
                                        if ( floodFillMap[x+1][y] > floodFillMap[x][y-1] )
                                          nextTurn = STRAIGHT;
@@ -1047,7 +1022,7 @@ byte mapDisThang( Stack pathStack, Stack nextTurn) {
 //                                 else if ( floodFillMap[x][y+1] == -1 )
 //                                   nextTurn = LEFTTURN;
                                  else {
-                                   if ( Math.abs(floodFillMap[x][y+1] - floodFillNum) == 1 || Math.abs(floodFillMap[x-1][y] - floodFillNum) == 1 || Math.abs(floodFillMap[x+1][y] - floodFillNum) == 1 ) {
+                                   if ( absVal(floodFillMap[x][y+1] - floodFillNum) == 1 || absVal(floodFillMap[x-1][y] - floodFillNum) == 1 || absVal(floodFillMap[x+1][y] - floodFillNum) == 1 ) {
                                      if ( floodFillMap[x+1][y] > floodFillMap[x][y+1] )
                                        if ( floodFillMap[x+1][y] > floodFillMap[x-1][y] )
                                          nextTurn = LEFTTURN;
@@ -1068,7 +1043,7 @@ byte mapDisThang( Stack pathStack, Stack nextTurn) {
 //                                 else if ( floodFillMap[x][y+1] == -1 )
 //                                   nextTurn = LEFTTURN;
                                  else {
-                                   if ( Math.abs(floodFillMap[x-1][y] - floodFillNum) == 1 || Math.abs(floodFillMap[x][y+1] - floodFillNum) == 1 || Math.abs(floodFillMap[x][y-1] - floodFillNum) == 1 ) {
+                                   if ( absVal(floodFillMap[x-1][y] - floodFillNum) == 1 || absVal(floodFillMap[x][y+1] - floodFillNum) == 1 || absVal(floodFillMap[x][y-1] - floodFillNum) == 1 ) {
                                      if ( floodFillMap[x][y-1] > floodFillMap[x-1][y] )
                                        if ( floodFillMap[x][y-1] > floodFillMap[x][y+1] )
                                          nextTurn = LEFTTURN;
@@ -1096,7 +1071,7 @@ byte mapDisThang( Stack pathStack, Stack nextTurn) {
                                  }
                                 //this else if is in case every value in adjacent cell does not have a -1
                                  else{
-                                   if ( Math.abs(floodFillMap[x+1][y] - floodFillNum) == 1 || Math.abs(floodFillMap[x][y +1] - floodFillNum) == 1 || Math.abs(floodFillMap[x-1][y] - floodFillNum) == 1 ) {
+                                   if ( absVal(floodFillMap[x+1][y] - floodFillNum) == 1 || absVal(floodFillMap[x][y +1] - floodFillNum) == 1 || absVal(floodFillMap[x-1][y] - floodFillNum) == 1 ) {
                                      if ( floodFillMap[x+1][y] > floodFillMap[x][y+1] ){
                                        if ( floodFillMap[x+1][y] > floodFillMap[x-1][y] )
                                          nextTurn = RIGHTTURN;
@@ -1169,17 +1144,17 @@ byte mapDisThang( Stack pathStack, Stack nextTurn) {
                                return STRAIGHT;
                        }
                        /*
-                       if ( adjCell > 1 && adjCell > floodfillNum && adjCell != -1 )
+                       if ( adjCell > 1 && adjCell > floodFillNum && adjCell != -1 )
                             floodFillNum = adjCell - 1;                       
                          */   
-                       if ( floodFillNum[x+1][y] - floodFillNum > 1 && floodFillNum[x+1][y] > floodFillNum && floodFillNum[x+1][y] != -1 )
-                            floodfillNum = floodFillNum[x+1][y] - 1;                     
-                       else if ( floodFillNum[x][y+1] - floodFillNum > 1 && floodFillNum[x][y+1] > floodFillNum && floodFillNum[x][y+1] != -1 )
-                            floodfillNum = floodFillNum[x+1][y] - 1;   
-                       else if ( floodFillNum[x-1][y] - floodFillNum > 1 && floodFillNum[x-1][y] > floodFillNum && floodFillNum[x-1][y] != -1 )
-                            floodfillNum = floodFillNum[x+1][y] - 1;   
-//                       else if ( floodFillNum[x][y-1] - floodFillNum > 1 && floodFillNum[x][y-1] > floodFillNum && floodFillNum[x][y-1] != -1 )
-  //                          floodfillNum = floodFillNum[x+1][y] - 1;                                                                                                       
+                       if ( floodFillMap[x+1][y] - floodFillNum > 1 && floodFillMap[x+1][y] > floodFillNum && floodFillMap[x+1][y] != -1 )
+                            floodFillNum = floodFillMap[x+1][y] - 1;                     
+                       else if ( floodFillMap[x][y+1] - floodFillNum > 1 && floodFillMap[x][y+1] > floodFillNum && floodFillMap[x][y+1] != -1 )
+                            floodFillNum = floodFillMap[x+1][y] - 1;   
+                       else if ( floodFillMap[x-1][y] - floodFillNum > 1 && floodFillMap[x-1][y] > floodFillNum && floodFillMap[x-1][y] != -1 )
+                            floodFillNum = floodFillMap[x+1][y] - 1;   
+//                       else if ( floodFillMap[x][y-1] - floodFillNum > 1 && floodFillMap[x][y-1] > floodFillNum && floodFillMap[x][y-1] != -1 )
+  //                          floodFillNum = floodFillMap[x+1][y] - 1;                                                                                                       
 
                         
                        
@@ -1210,14 +1185,14 @@ byte mapDisThang( Stack pathStack, Stack nextTurn) {
                                return STRAIGHT;
                        }
                        
-                       if ( floodFillNum[x+1][y] - floodFillNum > 1 && floodFillNum[x+1][y] > floodFillNum && floodFillNum[x+1][y] != -1 )
-                            floodfillNum = floodFillNum[x+1][y] - 1;                     
-                       else if ( floodFillNum[x][y+1] - floodFillNum > 1 && floodFillNum[x][y+1] > floodFillNum && floodFillNum[x][y+1] != -1 )
-                            floodfillNum = floodFillNum[x+1][y] - 1;   
-//                       else if ( floodFillNum[x-1][y] - floodFillNum > 1 && floodFillNum[x-1][y] > floodFillNum && floodFillNum[x-1][y] != -1 )
-  //                          floodfillNum = floodFillNum[x+1][y] - 1;   
-                       else if ( floodFillNum[x][y-1] - floodFillNum > 1 && floodFillNum[x][y-1] > floodFillNum && floodFillNum[x][y-1] != -1 )
-                            floodfillNum = floodFillNum[x+1][y] - 1;                               
+                       if ( floodFillMap[x+1][y] - floodFillNum > 1 && floodFillMap[x+1][y] > floodFillNum && floodFillMap[x+1][y] != -1 )
+                            floodFillNum = floodFillMap[x+1][y] - 1;                     
+                       else if ( floodFillMap[x][y+1] - floodFillNum > 1 && floodFillMap[x][y+1] > floodFillNum && floodFillMap[x][y+1] != -1 )
+                            floodFillNum = floodFillMap[x+1][y] - 1;   
+//                       else if ( floodFillMap[x-1][y] - floodFillNum > 1 && floodFillMap[x-1][y] > floodFillNum && floodFillMap[x-1][y] != -1 )
+  //                          floodFillNum = floodFillMap[x+1][y] - 1;   
+                       else if ( floodFillMap[x][y-1] - floodFillNum > 1 && floodFillMap[x][y-1] > floodFillNum && floodFillMap[x][y-1] != -1 )
+                            floodFillNum = floodFillMap[x+1][y] - 1;                               
                        
                        break;
                        
@@ -1246,14 +1221,14 @@ byte mapDisThang( Stack pathStack, Stack nextTurn) {
                                return STRAIGHT;
                        }
                        
-                       if ( floodFillNum[x+1][y] - floodFillNum > 1 && floodFillNum[x+1][y] > floodFillNum && floodFillNum[x+1][y] != -1 )
-                            floodfillNum = floodFillNum[x+1][y] - 1;                     
-//                       else if ( floodFillNum[x][y+1] - floodFillNum > 1 && floodFillNum[x][y+1] > floodFillNum && floodFillNum[x][y+1] != -1 )
-  //                          floodfillNum = floodFillNum[x+1][y] - 1;   
-                       else if ( floodFillNum[x-1][y] - floodFillNum > 1 && floodFillNum[x-1][y] > floodFillNum && floodFillNum[x-1][y] != -1 )
-                            floodfillNum = floodFillNum[x+1][y] - 1;   
-                       else if ( floodFillNum[x][y-1] - floodFillNum > 1 && floodFillNum[x][y-1] > floodFillNum && floodFillNum[x][y-1] != -1 )
-                            floodfillNum = floodFillNum[x+1][y] - 1;                               
+                       if ( floodFillMap[x+1][y] - floodFillNum > 1 && floodFillMap[x+1][y] > floodFillNum && floodFillMap[x+1][y] != -1 )
+                            floodFillNum = floodFillMap[x+1][y] - 1;                     
+//                       else if ( floodFillMap[x][y+1] - floodFillNum > 1 && floodFillMap[x][y+1] > floodFillNum && floodFillMap[x][y+1] != -1 )
+  //                          floodFillNum = floodFillMap[x+1][y] - 1;   
+                       else if ( floodFillMap[x-1][y] - floodFillNum > 1 && floodFillMap[x-1][y] > floodFillNum && floodFillMap[x-1][y] != -1 )
+                            floodFillNum = floodFillMap[x+1][y] - 1;   
+                       else if ( floodFillMap[x][y-1] - floodFillNum > 1 && floodFillMap[x][y-1] > floodFillNum && floodFillMap[x][y-1] != -1 )
+                            floodFillNum = floodFillMap[x+1][y] - 1;                               
                        
                        break; 
                          
@@ -1282,27 +1257,26 @@ byte mapDisThang( Stack pathStack, Stack nextTurn) {
                                return STRAIGHT;
                        }
                        
-//                       if ( floodFillNum[x+1][y] - floodFillNum > 1 && floodFillNum[x+1][y] > floodFillNum && floodFillNum[x+1][y] != -1 )
-  //                          floodfillNum = floodFillNum[x+1][y] - 1;                     
-                       if ( floodFillNum[x][y+1] - floodFillNum > 1 && floodFillNum[x][y+1] > floodFillNum && floodFillNum[x][y+1] != -1 )
-                            floodfillNum = floodFillNum[x+1][y] - 1;   
-                       else if ( floodFillNum[x-1][y] - floodFillNum > 1 && floodFillNum[x-1][y] > floodFillNum && floodFillNum[x-1][y] != -1 )
-                            floodfillNum = floodFillNum[x+1][y] - 1;   
-                       else if ( floodFillNum[x][y-1] - floodFillNum > 1 && floodFillNum[x][y-1] > floodFillNum && floodFillNum[x][y-1] != -1 )
-                            floodfillNum = floodFillNum[x+1][y] - 1;                               
+//                       if ( floodFillMap[x+1][y] - floodFillNum > 1 && floodFillMap[x+1][y] > floodFillNum && floodFillMap[x+1][y] != -1 )
+  //                          floodFillNum = floodFillMap[x+1][y] - 1;                     
+                       if ( floodFillMap[x][y+1] - floodFillNum > 1 && floodFillMap[x][y+1] > floodFillNum && floodFillMap[x][y+1] != -1 )
+                            floodFillNum = floodFillMap[x+1][y] - 1;   
+                       else if ( floodFillMap[x-1][y] - floodFillNum > 1 && floodFillMap[x-1][y] > floodFillNum && floodFillMap[x-1][y] != -1 )
+                            floodFillNum = floodFillMap[x+1][y] - 1;   
+                       else if ( floodFillMap[x][y-1] - floodFillNum > 1 && floodFillMap[x][y-1] > floodFillNum && floodFillMap[x][y-1] != -1 )
+                            floodFillNum = floodFillMap[x+1][y] - 1;                               
                        
                        break;
             }
             
        }
     }
-    floodFill[x][y] = floodFillNum--;
+    floodFillMap[x][y] = floodFillNum--;
     return nextTurn;
   }
   
  return STRAIGHT;
-  /*
-=======
+  
   /**
   if(navDir == STRAIGHT){
      if(floodFill[x][y] != -1) // check problem for begining start
@@ -1336,7 +1310,7 @@ byte mapDisThang( Stack pathStack, Stack nextTurn) {
   else{ // UTURN
     
   }
-  */
+  
   }
   
   **/
@@ -1579,7 +1553,7 @@ byte mapDisThang( Stack pathStack, Stack nextTurn) {
  return STRAIGHT;
       
 }
-//byte mapDisThang(pathStack, navDir) {
+//byte mapDisThangs(pathStack, navDir) {
 //    
 //  if(navDir == STRAIGHT){
 //     if(floodFill[x][y] != -1)
@@ -2026,46 +2000,56 @@ void checkSensors() {
 }
 
 void ImTheMap() {
-  floodMap[0][15] = floodfill;
+  floodFillMap[0][15] = floodFillNum;
   wallMap[1][31] = 0;
   dx = 0;
   dy = 1;
 }
 
 void updateAllMaps() {
-  updateFloodFillMap();
-  updateWallMap();
+ // updateFloodFillMap();
+//  updateWallMap();
+}
+
+//void ImTheMap() {
+//  floodMap[0][15] = floodfill;
+//  wallMap[1][31] = 0;
+//  dx = 0;
+//  dy = 1;
+//}
+
+int absVal(int val) {
+  if ( val < 0 )
+    val = -val;
+  return val;
 }
 
 
 
-/*
-
-void push( int input ) {
-  int num;
-  if (s.top == (MAXSIZE - 1) ) {
-    printf("Stack is Full\n");
-    return;
-  } else {
-    s.top++;
-    s.stk[s.top] = input;
-  }
-  return;
-}
-
-int pop() {
-  int num;
-  if ( s.top == -1 ) {
-    printf("Stack is empty\n");
-    return (s.top);
-  } else {
-    num = s.stk[s.top];
-    s.top--;
-  }
-  return (num);
-}
-
-
-
-
-*/
+class Stack {
+  
+  int nelems;
+  int top;
+  
+  class Point {
+  int x,y;
+  
+  public:
+    Point(int x, int y) : x(x), y(y) {}
+    int getX() { return x; }
+    int getY() { return y; } 
+    int dist() { return sqrt( (x * x) + (y * y) ); }
+  };
+  
+  Point stack[MAXSIZE] = { Point(0,0), Point(0,1), Point(0,2), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0),
+                      Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0),
+                      Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0),
+                      Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0),
+                      Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0),
+                      Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0) };
+  
+  public:
+  Stack( int nelems ) : nelems(nelems) {}
+  void push( Point pt ) { stack[++top] = pt; }
+  Point pop() { return stack[--top]; }
+};
