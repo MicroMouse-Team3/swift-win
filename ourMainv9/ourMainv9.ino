@@ -324,20 +324,22 @@ void setup(){
 //Loop Functions
 //Search Term: LOOPME
 void loop(){
-
-  while(encTickL < cellDistance/2){
+  
+    rightForward(45);
+    leftForward(35);
+//  while(encTickL < cellDistance/2){
 //  sysStick();
 //  getEncoderStatus();
-    pwmRate = speedControl();
-    PID();
+   // pwmRate = speedControl();
+   // PID();
     
 //  Serial.print("Encoder error: ");
 //  Serial.print(encTickL);
 //  Serial.print(" ");
 //  Serial.println(encTickR);
-   }
+  // }
   
-  nextTurn = NAV();
+ // nextTurn = NAV();
   
 //  if(wallLeftFront){
 //    errOld = 0;
@@ -348,17 +350,28 @@ void loop(){
 //    }
 //  }
 //  else{
-      while(encTickL < cellDistance){
-        sysStick();
-        getEncoderStatus();
-        pwmRate = speedControl();
-        PID();
+      while(encTickL < cellDistance-275){
+        jankyPID();
+     //   sysStick();
+       // getEncoderStatus();
+       // pwmRate = speedControl();
+       // PID();
         
 //      Serial.print("Encoder error: ");
 //      Serial.print(encTickL);
 //      Serial.print(" ");
 //      Serial.println(encTickR);
+        
       }
+      
+      rightBackward(85);
+      leftBackward(90);
+      while(encTickL < cellDistance){}
+      rightBackward(0);
+      leftBackward(0);
+      delay(1000);
+      encTickL = 0;
+      encTickR = 0;
 //  }
     
 //  while(curVelX > 0){
@@ -370,9 +383,9 @@ void loop(){
   //Map isn't ready yet.
   //nextTurn = MAP();
  
-  encTickL = 0;
-  encTickR = 0;
-  turn(STRAIGHT); 
+  //encTickL = 0;
+  //encTickR = 0;
+ // turn(STRAIGHT); 
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -444,6 +457,39 @@ int turnControl(){
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //PID Function
 //Search Term: PIDME
+void jankyPID(){
+  int left = getIRLeft();
+  int right = getIRRight();
+  int myError = 0;
+  
+   if (wallLeft && wallRight){
+     myError = right - left - ourOffset;
+   }
+   else if (wallLeft){
+     myError = wallLeftDist - left;
+   }
+   else if (wallRight){
+     myError = right - wallRightDist; 
+   }
+   else{
+     myError = 0; 
+   }
+   
+   if (myError < 0){
+      leftForward(40);
+      rightForward(40); 
+   }
+   else if (myError > 0){
+       leftForward(30);
+       rightForward(50);
+   }
+   else{
+      leftForward(35);
+      rightForward(45); 
+   }
+   
+}
+
 void PID(){
   int error = 0;
   int errorP = 0;
@@ -768,30 +814,6 @@ void turnLeft(){
   currentDirection--;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-////pathStack.push(STRAIGHT);
-//
-////byte floodFill[16][16];
-//
-//for( byte i = 0 ; i < 256 ; i++ ){
-//  for( byte j = 0 ; j < 256 ; j++ ){
-//    floodFill[i][j] = -1;
-//  }
-//}
-//  floodFill[0][0] = 256;
-//  floodFill[8][8] = 0;
-//  floodFill[8][9] = 0;
-//  floodFill[9][8] = 0;
-//  floodFill[9][9] = 0;
-
-
-// 4= L, 5 = S, 6 = R, 7 = U
-
-<<<<<<< HEAD
-//
-//
 //byte mapDisThang(s, nextTurn) {
 //
 //  if ( floodFillNum < currentFFVal )
@@ -2000,33 +2022,3 @@ int absVal(int val) {
     val = -val;
   return val;
 }
-
-
-//class Stack {
-//  
-//  int nelems;
-//  int top;
-//  
-//  class Point {
-//  int x,y;
-//  
-//  public:
-//    Point(int x, int y) : x(x), y(y) {}
-//    int getX() { return x; }
-//    int getY() { return y; } 
-//    int dist() { return sqrt( (x * x) + (y * y) ); }
-//  };
-//  
-//  Point stack[MAXSIZE] = { Point(0,0), Point(0,1), Point(0,2), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0),
-//                      Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0),
-//                      Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0),
-//                      Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0),
-//                      Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0),
-//                      Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0) };
-//  
-//  public:
-//  Stack( int nelems ) : nelems(nelems) {}
-//  void push( Point pt ) { stack[++top] = pt; }
-//  Point pop() { return stack[--top]; }
-//}
-
