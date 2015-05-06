@@ -1,8 +1,5 @@
-<<<<<<< HEAD
 //#include <Encoder.h>
-=======
 #include <StackArray.h>
->>>>>>> origin/master
 
 //TABLE OF CONTENTS (SEARCH FOR THESE TERMS)
 //////////////////////////////
@@ -27,9 +24,6 @@ int floodFillNum = 0, currentFFVal;
 int xPrev, yPrev, posX, posY;
 #define MAXSIZE 255
 
-
-
-
 #define leftEmitIR 3      
 #define leftRecIR A12
 #define leftLED 11
@@ -39,6 +33,7 @@ int xPrev, yPrev, posX, posY;
 #define leftFrontEmitIR 4  
 #define leftFrontRecIR A11
 #define leftFrontLED 13  
+
 //Right Sensors and= LEDs
 #define rightEmitIR 2 
 #define rightRecIR A13
@@ -49,24 +44,29 @@ int xPrev, yPrev, posX, posY;
 #define rightFrontEmitIR 5
 #define rightFrontRecIR A10
 #define rightFrontLED 14
+
 //Enable Pins
 #define L_Enable 16
 #define R_Enable 17
+
 //Motor H-Bridge Pins
 #define L_Mtr_A 20
 #define L_Mtr_B 21
 #define R_Mtr_A 22
 #define R_Mtr_B 23
+
 //Encoder Pins
 #define L_CH_A 9
 #define L_CH_B 10
 #define R_CH_A 7
 #define R_CH_B 8
+
 //Direction
 #define NORTH 0
 #define EAST 1
 #define SOUTH 2
 #define WEST 3
+
 // 4= S, 5 = R, 6 = L, 7 = U
 #define LEFTTURN 4
 #define STRAIGHT 5
@@ -212,13 +212,10 @@ byte wallMap[33][33] =  {
                           {'1','0','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1'},
                           {'1','0','1','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','1'},
                           {'1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1'} };
-<<<<<<< HEAD
-                    
+                   
 //Stack s = new Stack(MAXSIZE);
-=======
 StackArray <char> stack;                    
 
->>>>>>> origin/master
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Setup Function
 //SETME
@@ -329,11 +326,12 @@ void setup(){
 void loop(){
 
   while(encTickL < cellDistance/2){
-    //sysStick();
-    //getEncoderStatus();
+//  sysStick();
+//  getEncoderStatus();
     pwmRate = speedControl();
     PID();
-//      Serial.print("Encoder error: ");
+    
+//  Serial.print("Encoder error: ");
 //  Serial.print(encTickL);
 //  Serial.print(" ");
 //  Serial.println(encTickR);
@@ -344,22 +342,23 @@ void loop(){
 //  if(wallLeftFront){
 //    errOld = 0;
 //    while(!wallRightFront){
-//      //sysStick();
+//      sysStick();
 //      pwmRate = wallControl();
 //      PID(); 
 //    }
 //  }
 //  else{
-    while(encTickL < cellDistance){
-      //sysStick();
-      //getEncoderStatus();
-      pwmRate = speedControl();
-      PID();
-//        Serial.print("Encoder error: ");
-//  Serial.print(encTickL);
-//  Serial.print(" ");
-//  Serial.println(encTickR);
-    }
+      while(encTickL < cellDistance){
+        sysStick();
+        getEncoderStatus();
+        pwmRate = speedControl();
+        PID();
+        
+//      Serial.print("Encoder error: ");
+//      Serial.print(encTickL);
+//      Serial.print(" ");
+//      Serial.println(encTickR);
+      }
 //  }
     
 //  while(curVelX > 0){
@@ -382,8 +381,6 @@ void loop(){
 int speedControl(){
   errOld = error;
   error = (cellDistance) - (encTickR+encTickL)/2;
-//  Serial.print("distance error: ");
-//  Serial.println(error);
   pwmRate = Tkp * error + Tkd * (error - errOld);
   return pwmRate;
 }
@@ -392,9 +389,7 @@ int speedControl(){
 void getEncoderStatus(){
   leftEncoderChange = encTickL - leftEncoderOld;
   rightEncoderChange = encTickR - rightEncoderOld;
-  
   encoderChange = (leftEncoderChange + rightEncoderChange)/2;
-  
   leftEncoderOld = encTickL;
   rightEncoderOld = encTickR; 
 }
@@ -409,7 +404,8 @@ int calculateSpeed(int desiredVel){
   oldPError = pError;
   return posPWMX;
 }
-  // Will be used in speed profile function
+  
+// Will be used in speed profile function
 int calcAccel(){
    currTime = micros();
    deltaTime = currTime - lastTime;
@@ -433,7 +429,7 @@ int wallControl(){
 }
 
 int turnControl(){
-  //Needs to be able to stop when very close to wall.
+  //Needs to be able to stop when very close to 90 degrees.
   
   errOld = error;
   error = ticksForTurn - ((encTickR + encTickL)/2);
@@ -487,10 +483,10 @@ void PID(){
   pwmPlus = pwmRate + error;
   pwmMinus = pwmRate - error;
   
-//        Serial.print("PWM error Plus/Minus: ");
-//      Serial.print(pwmPlus);
-//      Serial.print(" ");
-//      Serial.println(pwmMinus);
+//  Serial.print("PWM error Plus/Minus: ");
+//  Serial.print(pwmPlus);
+//  Serial.print(" ");
+//  Serial.println(pwmMinus);
   
   if(pwmPlus > mapSpeed){
      pwmPlus = mapSpeed; 
@@ -2005,11 +2001,7 @@ int absVal(int val) {
   return val;
 }
 
-<<<<<<< HEAD
-=======
 
-
->>>>>>> origin/master
 //class Stack {
 //  
 //  int nelems;
@@ -2036,8 +2028,5 @@ int absVal(int val) {
 //  Stack( int nelems ) : nelems(nelems) {}
 //  void push( Point pt ) { stack[++top] = pt; }
 //  Point pop() { return stack[--top]; }
-<<<<<<< HEAD
 //}
-=======
-//};
->>>>>>> origin/master
+
