@@ -704,7 +704,7 @@ double getIRRight(){
   delayMicroseconds(80);
   recRead = analogRead(rightRecIR);
   digitalWrite(rightEmitIR, LOW);
-  if (recRead > 200){
+  if (recRead > 100){
     digitalWrite(rightLED, HIGH);
     wallRight = true;
   }
