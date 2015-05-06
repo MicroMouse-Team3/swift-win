@@ -1,0 +1,1072 @@
+#include <iostream>
+#include <stdio.h>
+#include <math.h>
+#include <string>
+#include <stdlib.h>
+using namespace std;
+
+#define MAXSIZE 256
+#define MAX 5
+
+#define NORTH 0
+#define EAST 1
+#define SOUTH 2
+#define WEST 3
+
+bool northDir = true, eastDir = true, southDir = true, westDir = true;
+
+int mapX = 31, mapY = 1;
+int row = 16, col = 16;
+
+int dx = 0, dy = 1;
+int posX = 15, posY = 0;
+int val = 0;
+
+bool isWall = true;
+
+
+
+const int WALL_SIZE = 6;
+char post = '+';
+char wallE = '|';
+char wallN = '-';//[WALL_SIZE] = { '-', '-', '-', '-', '-', '-' };
+char wallNBorder = '-';
+
+char wallEBorder = '|';
+
+int flood[16][16] =  { { 14 , 13 , 12 , 11 , 10 ,  9 ,  8 ,  7 ,  7 ,  8 ,  9 , 10 , 11 , 12 , 13 , 14 },
+                       { 13 , 12 , 11 , 10 ,  9 ,  8 ,  7 ,  6 ,  6 ,  7 ,  8 ,  9 , 10 , 11 , 12 , 13 },
+                       { 12 , 11 , 10 ,  9 ,  8 ,  7 ,  6 ,  5 ,  5 ,  6 ,  7 ,  8 ,  9 , 10 , 11 , 12 },
+                       { 11 , 10 ,  9 ,  8 ,  7 ,  6 ,  5 ,  4 ,  4 ,  5 ,  6 ,  7 ,  8 ,  9 , 10 , 11 },
+                       { 10 ,  9 ,  8 ,  7 ,  6 ,  5 ,  4 ,  3 ,  3 ,  4 ,  5 ,  6 ,  7 ,  8 ,  9 , 10 },
+                       {  9 ,  8 ,  7 ,  6 ,  5 ,  4 ,  3 ,  2 ,  2 ,  3 ,  4 ,  5 ,  6 ,  7 ,  8 ,  9 },
+                       {  8 ,  7 ,  6 ,  5 ,  4 ,  3 ,  2 ,  1 ,  1 ,  2 ,  3 ,  4 ,  5 ,  6 ,  7 ,  8 },
+                       {  7 ,  6 ,  5 ,  4 ,  3 ,  2 ,  1 ,  0 ,  0 ,  1 ,  2 ,  3 ,  4 ,  5 ,  6 ,  7 },	//7,7 ; 7,8
+                       {  7 ,  6 ,  5 ,  4 ,  3 ,  2 ,  1 ,  0 ,  0 ,  1 ,  2 ,  3 ,  4 ,  5 ,  6 ,  7 },	//8,7 ; 8,8
+                       {  8 ,  7 ,  6 ,  5 ,  4 ,  3 ,  2 ,  1 ,  1 ,  2 ,  3 ,  4 ,  5 ,  6 ,  7 ,  8 },
+                       {  9 ,  8 ,  7 ,  6 ,  5 ,  4 ,  3 ,  2 ,  2 ,  3 ,  4 ,  5 ,  6 ,  7 ,  8 ,  9 },
+                       { 10 ,  9 ,  8 ,  7 ,  6 ,  5 ,  4 ,  3 ,  3 ,  4 ,  5 ,  6 ,  7 ,  8 ,  9 , 10 },
+                       { 11 , 10 ,  9 ,  8 ,  7 ,  6 ,  5 ,  4 ,  4 ,  5 ,  6 ,  7 ,  8 ,  9 , 10 , 11 },
+                       { 12 , 11 , 10 ,  9 ,  8 ,  7 ,  6 ,  5 ,  5 ,  6 ,  7 ,  8 ,  9 , 10 , 11 , 12 },
+                       { 13 , 12 , 11 , 10 ,  9 ,  8 ,  7 ,  6 ,  6 ,  7 ,  8 ,  9 , 10 , 11 , 12 , 13 },
+                       { 14 , 13 , 12 , 11 , 10 ,  9 ,  8 ,  7 ,  7 ,  8 ,  9 , 10 , 11 , 12 , 13 , 14 } };
+
+int wallMap[33][33] =  { {1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1},
+                         {3,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,3},
+                         {1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1},
+                         {3,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,3},
+                         {1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1},
+                         {3,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,3},
+                         {1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1},
+                         {3,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,3},
+                         {1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1},
+                         {3,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,3},
+                         {1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1},
+                         {3,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,3},
+                         {1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1},
+                         {3,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,3},
+                         {1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1},
+                         {3,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,3},
+                         {1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1},
+                         {3,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,3},
+                         {1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1},
+                         {3,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,3},
+                         {1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1},
+                         {3,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,3},
+                         {1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1},
+                         {3,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,3},
+                         {1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1},
+                         {3,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,3},
+                         {1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1},
+                         {3,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,3},
+                         {1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1},
+                         {3,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,3},
+                         {1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1},
+                         {3,8,3,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,3},
+                         {1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1} };
+
+//East Walls = 3 North Walls = 2
+//Only change 0's to 2's or 3's.
+int mapEx[33][33] =  {   {1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1},
+                         {3,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,3},
+                         {1,0,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,0,1,2,1,0,1},
+                         {3,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,3,8,0,8,0,8,0,8,0,8,0,8,3,8,3,8,3},
+                         {1,2,1,2,1,2,1,0,1,2,1,2,1,2,1,2,1,0,1,2,1,2,1,2,1,0,1,0,1,0,1,0,1},
+                         {3,8,0,8,0,8,3,8,0,8,0,8,0,8,0,8,3,8,0,8,0,8,0,8,0,8,3,8,3,8,0,8,3},
+                         {1,0,1,0,1,0,1,2,1,2,1,2,1,0,1,2,1,0,1,2,1,2,1,2,1,0,1,2,1,0,1,0,1},
+                         {3,8,3,8,3,8,3,8,0,8,0,8,0,8,3,8,3,8,0,8,0,8,0,8,0,8,0,8,0,8,3,8,3},
+                         {1,0,1,0,1,0,1,2,1,0,1,2,1,2,1,0,1,2,1,2,1,2,1,2,1,0,1,2,1,2,1,0,1},
+                         {3,8,0,8,0,8,0,8,0,8,0,8,0,8,3,8,3,8,0,8,0,8,0,8,0,8,0,8,0,8,3,8,3},
+                         {1,2,1,2,1,0,1,2,1,2,1,2,1,2,1,0,1,0,1,0,1,0,1,2,1,0,1,2,1,0,1,0,1},
+                         {3,8,0,8,0,8,3,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,0,8,3,8,3,8,3,8,3},
+                         {1,0,1,2,1,2,1,0,1,2,1,2,1,2,1,2,1,2,1,0,1,2,1,2,1,2,1,0,1,0,1,0,1},
+                         {3,8,0,8,0,8,3,8,0,8,0,8,0,8,3,8,0,8,0,8,0,8,0,8,0,8,0,8,3,8,3,8,3},
+                         {1,2,1,2,1,0,1,2,1,2,1,2,1,2,1,2,1,2,1,0,1,0,1,2,1,2,1,0,1,0,1,0,1},
+                         {3,8,0,8,0,8,0,8,0,8,0,8,0,8,3,8,0,8,3,8,0,8,0,8,0,8,0,8,3,8,3,8,3},
+                         {1,0,1,2,1,0,1,2,1,2,1,2,1,2,1,0,1,0,1,0,1,2,1,2,1,0,1,2,1,0,1,0,1},
+                         {3,8,0,8,0,8,0,8,0,8,0,8,0,8,3,8,0,8,3,8,0,8,0,8,0,8,0,8,3,8,3,8,3},
+                         {1,2,1,2,1,2,1,2,1,0,1,2,1,2,1,0,1,2,1,0,1,2,1,2,1,2,1,0,1,0,1,0,1},
+                         {3,8,0,8,0,8,0,8,0,8,0,8,0,8,3,8,3,8,0,8,0,8,0,8,0,8,0,8,3,8,3,8,3},
+                         {1,0,1,2,1,2,1,0,1,2,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,2,1,0,1,0,1},
+                         {3,8,0,8,0,8,3,8,3,8,0,8,3,8,3,8,0,8,3,8,0,8,0,8,0,8,0,8,3,8,3,8,3},
+                         {1,2,1,2,1,0,1,0,1,0,1,2,1,0,1,2,1,2,1,0,1,0,1,0,1,2,1,0,1,0,1,0,1},
+                         {3,8,0,8,0,8,3,8,0,8,3,8,0,8,3,8,0,8,3,8,0,8,0,8,0,8,0,8,0,8,3,8,3},
+                         {1,2,1,0,1,2,1,0,1,2,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,2,1,2,1,0,1},
+                         {3,8,0,8,0,8,0,8,3,8,0,8,3,8,3,8,3,8,3,8,0,8,0,8,0,8,0,8,0,8,0,8,3},
+                         {1,0,1,2,1,0,1,2,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,2,1,0,1},
+                         {3,8,0,8,0,8,3,8,0,8,3,8,3,8,3,8,3,8,3,8,0,8,0,8,0,8,0,8,0,8,0,8,3},
+                         {1,0,1,0,1,2,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,2,1,0,1},
+                         {3,8,3,8,3,8,0,8,3,8,3,8,3,8,3,8,3,8,3,8,0,8,0,8,0,8,0,8,0,8,0,8,3},
+                         {1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,2,1,0,1,2,1},
+                         {3,8,3,8,0,8,3,8,3,8,0,8,3,8,0,8,0,8,0,8,3,8,0,8,3,8,0,8,0,8,0,8,3},
+                         {1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1} };
+
+
+class Point {
+    int x,y;
+
+  public:
+  Point(int x, int y) : x(x), y(y) {}
+  int getX() { return x; }
+  int getY() { return y; }
+  int dist() { return sqrt( (x * x) + (y * y) ); }
+};
+
+
+class Stack {
+  Point stack[MAXSIZE] = { Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0),
+                      Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0),
+                      Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0),
+                      Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0),
+                      Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0),
+                      Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0) };
+
+
+  int nelems;
+  int top;
+
+
+  public:
+  Stack() : nelems(0), top(0) {
+      this->nelems = nelems;
+      this->top = 0;
+      for(int i = 0; i < MAXSIZE; i++)
+          stack[i] = Point(0,0);
+  }
+
+  void push( Point pt ) { stack[++top] = Point(pt.getX(), pt.getY() ); }
+  Point pop() { return stack[top--]; }
+  int size() { return top; }
+  bool isEmpty() {
+	  if (nelems == 0 )
+		  return true;
+	  return false;
+  }
+} s;
+
+Point mapCoord(0,0);
+
+
+class Queue {
+  Point queue[MAXSIZE] = { Point(0,1), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0),
+                      Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0),
+                      Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0),
+                      Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0),
+                      Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0),
+                      Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0), Point(0,0) };
+
+  int head, tail, nelems;
+
+  public:
+	  Queue() : nelems(0), head(0), tail(0) {
+		  for(int i = 0; i < MAXSIZE; i++)
+			  queue[i] = Point(i,i);
+	  }
+
+	  bool enQ( Point pt ) {
+		  if ( nelems >= MAXSIZE ) {
+			  printf("PROBLEMS ");
+			  printf("%d", nelems);
+			  printf(" . I expected less then %d.\n", MAXSIZE);
+			  exit (EXIT_FAILURE);
+			  return false;
+		  }
+
+		  queue[tail] = Point(pt.getX(), pt.getY() );
+
+		  if ( tail == MAXSIZE - 1 )
+			  tail = 0;
+		  else
+			  tail++;
+
+		  nelems++;
+		  return true;
+	  }
+	  Point deQ() {
+
+		  Point tmp = queue[head];
+
+		  if ( head == MAXSIZE - 1 )
+			  head = 0;
+		  else
+			  head++;
+
+		  nelems--;
+		  return tmp;
+	  }
+	  int size() { return nelems; }
+	  bool isEmpty() {
+		  if (nelems == 0 )
+			  return true;
+		  return false;
+	  }
+} q;
+
+void testPointStack() {
+    q.enQ( Point(30,30) );
+    q.enQ( Point(31,31) );
+    q.enQ( Point(32,32) );
+    q.deQ();
+    for(int i = 0; i < 2; i++){
+        Point coord = q.deQ();
+        printf("Point %d: (%d, %d)\n", i, coord.getX(), coord.getY() );
+    }
+
+}
+
+
+void printMap(){
+    if(!isWall){
+        wallE = ' ';
+        wallN = ' ';
+    }
+
+    for ( int i = 0, l = 0 ; i < row * 2 + 1 ; i++ ) {
+        for ( int j = 0, m = 0 ; j < col * 2 + 1 ; j++ ) {
+            if ( wallMap[i][j] == 8 )
+                printf("  %2d  ", flood[l][m]);
+            else if ( wallMap[i][j] == 1 )
+                printf("%c", post);
+            else if ( wallMap[i][j] == 2 ) {
+                for ( int i = 0 ; i < WALL_SIZE ; i++ )
+                    printf("%c", wallN);
+            } else if ( wallMap[i][j] == 3 )
+                printf("%c", wallE);
+            else if ( wallMap[i][j] == 0 ) {
+                if ( i % 2 == 0 )
+                    printf("      ");
+                else
+                    printf(" ");
+            }
+            if ( j != 0 && j % 2 == 0 )
+                m++;
+        }
+        if ( i != 0 && i % 2 == 0 )
+            l++;
+        printf("\n");
+    }
+}
+
+void printMapEx(){
+
+    if(!isWall){
+        wallE = ' ';
+        wallN = ' ';
+    }
+
+    for ( int i = 0, l = 0 ; i < row * 2 + 1 ; i++ ) {
+        for ( int j = 0, m = 0 ; j < col * 2 + 1 ; j++ ) {
+            if ( mapEx[i][j] == 8 )
+                printf("  %2d  ", flood[l][m]);
+            else if ( mapEx[i][j] == 1 )
+                printf("%c", post);
+            else if ( mapEx[i][j] == 2 ) {
+                for ( int i = 0 ; i < WALL_SIZE ; i++ )
+                    printf("%c", wallN);
+            } else if ( mapEx[i][j] == 3 )
+                printf("%c", wallE);
+            else if ( mapEx[i][j] == 0 ) {
+                if ( i % 2 == 0 )
+                    printf("      ");
+                else
+                    printf(" ");
+            }
+            if ( j != 0 && j % 2 == 0 )
+                m++;
+        }
+        if ( i != 0 && i % 2 == 0 )
+            l++;
+        printf("\n");
+    }
+}
+
+
+void updateFloodMap() {
+
+}
+
+void checkOpenCells() {
+
+    northDir = true, eastDir = true, southDir = true, westDir = true;
+
+    Point mapPt(mapX,mapY);
+    /*if ( wallMap[mapX][mapY + 1] != 0 )
+        northDir = false;
+    if ( wallMap[mapX + 1][mapY] != 0 )
+        eastDir = false;
+    if ( wallMap[mapX][mapY - 1] != 0 )
+        southDir = false;
+    if ( wallMap[mapX - 1][mapY] != 0 )
+        westDir = false;*/
+
+    if ( wallMap[mapX - 1][mapY] != 0 )
+        northDir = false;
+    if ( wallMap[mapX][mapY + 1] != 0 )
+        eastDir = false;
+    if ( wallMap[mapX - 1][mapY] != 0 )
+        southDir = false;
+    if ( wallMap[mapX][mapY - 1] != 0 )
+        westDir = false;
+}
+
+int minFlood;
+Point moveCell(Point currPos) {
+    Point pos = currPos;
+    Point next = currPos;
+    int nextDir = 0;
+
+
+	minFlood = flood[posX][posY];
+
+	if ( northDir && eastDir && southDir && westDir ) {
+		if ( flood[posX-1][posY] < minFlood ) {
+			minFlood = flood[posX-1][posY];
+			nextDir = 0;// = Point(posX-1,posY);
+		}
+		if ( flood[posX][posY+1] < minFlood ) {
+		    minFlood = flood[posX][posY+1];
+		    nextDir = 1;
+		}
+		if ( flood[posX+1][posY] < minFlood ) {
+			minFlood = flood[posX+1][posY];
+			nextDir = 2;
+		}
+		if ( flood[posX][posY-1] < minFlood ) {
+			minFlood = flood[posX][posY-1];
+			nextDir = 3;
+		}
+		switch (nextDir) {
+		case 0:
+             printf("Going NORTH\n");
+			mapX -= 2;
+			return Point(--posX,posY);
+			break;
+		case 1:
+             printf("Going EAST\n");
+			mapY += 2;
+			return Point(posX,++posY);
+			break;
+		case 2:
+            printf("Going SOUTH\n");
+			mapX += 2;
+			return Point(++posX,posY);
+			break;
+		case 3:
+              printf("Going WEST\n");
+			mapY -= 2;
+			return Point(posX,--posY);
+			break;
+		default:
+			printf("WTF~!\n");
+		}
+
+	} else if ( northDir && eastDir && southDir && !westDir ) {
+
+		if ( flood[posX-1][posY] < minFlood ) {
+			minFlood = flood[posX-1][posY];
+			nextDir = 0;// = Point(posX-1,posY);
+		}
+		if ( flood[posX][posY+1] < minFlood ) {
+		    minFlood = flood[posX][posY+1];
+		    nextDir = 1;
+		}
+		if ( flood[posX+1][posY] < minFlood ) {
+			minFlood = flood[posX+1][posY];
+			nextDir = 2;
+		}
+
+		switch (nextDir) {
+		case 0:
+             printf("Going NORTH\n");
+			mapX -= 2;
+			return Point(--posX,posY);
+			break;
+		case 1:
+             printf("Going EAST\n");
+			mapY += 2;
+			return Point(posX,++posY);
+			break;
+		case 2:
+            printf("Going SOUTH\n");
+			mapX += 2;
+			return Point(++posX,posY);
+			break;
+		default:
+			printf("WTF~!\n");
+		}
+	} else if ( eastDir && southDir && westDir && !northDir) {
+
+		if ( flood[posX][posY+1] < minFlood ) {
+		    minFlood = flood[posX][posY+1];
+		    nextDir = 1;
+		}
+		if ( flood[posX+1][posY] < minFlood ) {
+			minFlood = flood[posX+1][posY];
+			nextDir = 2;
+		}
+		if ( flood[posX][posY-1] < minFlood ) {
+			minFlood = flood[posX][posY-1];
+			nextDir = 3;
+		}
+		switch (nextDir) {
+		case 1:
+             printf("Going EAST\n");
+			mapY += 2;
+			return Point(posX,++posY);
+			break;
+		case 2:
+            printf("Going SOUTH\n");
+			mapX += 2;
+			return Point(++posX,posY);
+			break;
+		case 3:
+              printf("Going WEST\n");
+			mapY -= 2;
+			return Point(posX,--posY);
+			break;
+		default:
+			printf("WTF~!\n");
+		}
+	} else if ( southDir && westDir && northDir && !eastDir) {
+		if ( flood[posX-1][posY] < minFlood ) {
+			minFlood = flood[posX-1][posY];
+			nextDir = 0;// = Point(posX-1,posY);
+		}
+		if ( flood[posX+1][posY] < minFlood ) {
+			minFlood = flood[posX+1][posY];
+			nextDir = 2;
+		}
+		if ( flood[posX][posY-1] < minFlood ) {
+			minFlood = flood[posX][posY-1];
+			nextDir = 3;
+		}
+		switch (nextDir) {
+		case 0:
+             printf("Going NORTH\n");
+			mapX -= 2;
+			return Point(--posX,posY);
+			break;
+		case 2:
+            printf("Going SOUTH\n");
+			mapX += 2;
+			return Point(++posX,posY);
+			break;
+		case 3:
+              printf("Going WEST\n");
+			mapY -= 2;
+			return Point(posX,--posY);
+			break;
+		default:
+			printf("WTF~!\n");
+		}
+	} else if ( westDir && northDir && eastDir && !southDir ) {
+		if ( flood[posX-1][posY] < minFlood ) {
+			minFlood = flood[posX-1][posY];
+			nextDir = 0;// = Point(posX-1,posY);
+		}
+		if ( flood[posX][posY+1] < minFlood ) {
+		    minFlood = flood[posX][posY+1];
+		    nextDir = 1;
+		}
+
+		if ( flood[posX][posY-1] < minFlood ) {
+			minFlood = flood[posX][posY-1];
+			nextDir = 3;
+		}
+		switch (nextDir) {
+		case 0:
+             printf("Going NORTH\n");
+			mapX -= 2;
+			return Point(--posX,posY);
+			break;
+		case 1:
+             printf("Going EAST\n");
+			mapY += 2;
+			return Point(posX,++posY);
+			break;
+		case 3:
+              printf("Going WEST\n");
+			mapY -= 2;
+			return Point(posX,--posY);
+			break;
+		default:
+			printf("WTF~!\n");
+		}
+	} else if ( northDir && southDir ) {
+		if ( flood[posX-1][posY] < minFlood ) {
+					minFlood = flood[posX-1][posY];
+					nextDir = 0;// = Point(posX-1,posY);
+				}
+
+				if ( flood[posX+1][posY] < minFlood ) {
+					minFlood = flood[posX+1][posY];
+					nextDir = 2;
+				}
+
+				switch (nextDir) {
+				case 0:
+		             printf("Going NORTH\n");
+					mapX -= 2;
+					return Point(--posX,posY);
+					break;
+				case 2:
+		            printf("Going SOUTH\n");
+					mapX += 2;
+					return Point(++posX,posY);
+					break;
+				default:
+					printf("WTF~!\n");
+				}
+
+	} else if ( eastDir && westDir ) {
+
+				if ( flood[posX][posY+1] < minFlood ) {
+				    minFlood = flood[posX][posY+1];
+				    nextDir = 1;
+				}
+
+				if ( flood[posX][posY-1] < minFlood ) {
+					minFlood = flood[posX][posY-1];
+					nextDir = 3;
+				}
+				switch (nextDir) {
+				case 1:
+		             printf("Going EAST\n");
+					mapY += 2;
+					return Point(posX,++posY);
+					break;
+				case 3:
+		              printf("Going WEST\n");
+					mapY -= 2;
+					return Point(posX,--posY);
+					break;
+				default:
+					printf("WTF~!\n");
+				}
+
+	} else if ( northDir && eastDir ) {
+		if ( flood[posX-1][posY] < minFlood ) {
+					minFlood = flood[posX-1][posY];
+					nextDir = 0;// = Point(posX-1,posY);
+				}
+				if ( flood[posX][posY+1] < minFlood ) {
+				    minFlood = flood[posX][posY+1];
+				    nextDir = 1;
+				}
+				switch (nextDir) {
+				case 0:
+		             printf("Going NORTH\n");
+					mapX -= 2;
+					return Point(--posX,posY);
+					break;
+				case 1:
+		             printf("Going EAST\n");
+					mapY += 2;
+					return Point(posX,++posY);
+					break;
+				default:
+					printf("WTF~!\n");
+				}
+
+	} else if ( northDir && westDir ) {
+
+		if ( flood[posX-1][posY] < minFlood ) {
+					minFlood = flood[posX-1][posY];
+					nextDir = 0;// = Point(posX-1,posY);
+				}
+				if ( flood[posX][posY-1] < minFlood ) {
+					minFlood = flood[posX][posY-1];
+					nextDir = 3;
+				}
+				switch (nextDir) {
+				case 0:
+		             printf("Going NORTH\n");
+					mapX -= 2;
+					return Point(--posX,posY);
+					break;
+				case 3:
+		              printf("Going WEST\n");
+					mapY -= 2;
+					return Point(posX,--posY);
+					break;
+				default:
+					printf("WTF~!\n");
+				}
+	} else if ( southDir && eastDir ) {
+
+				if ( flood[posX][posY+1] < minFlood ) {
+				    minFlood = flood[posX][posY+1];
+				    nextDir = 1;
+				}
+				if ( flood[posX+1][posY] < minFlood ) {
+					minFlood = flood[posX+1][posY];
+					nextDir = 2;
+				}
+				switch (nextDir) {
+				case 1:
+		             printf("Going EAST\n");
+					mapY += 2;
+					return Point(posX,++posY);
+					break;
+				case 2:
+		            printf("Going SOUTH\n");
+					mapX += 2;
+					return Point(++posX,posY);
+					break;
+				default:
+					printf("WTF~!\n");
+				}
+
+	} else if ( southDir && westDir ) {
+				if ( flood[posX+1][posY] < minFlood ) {
+					minFlood = flood[posX+1][posY];
+					nextDir = 2;
+				}
+				if ( flood[posX][posY-1] < minFlood ) {
+					minFlood = flood[posX][posY-1];
+					nextDir = 3;
+				}
+				switch (nextDir) {
+				case 2:
+		            printf("Going SOUTH\n");
+					mapX += 2;
+					return Point(++posX,posY);
+					break;
+				case 3:
+		              printf("Going WEST\n");
+					mapY -= 2;
+					return Point(posX,--posY);
+					break;
+				default:
+					printf("WTF~!\n");
+				}
+
+	} else if ( northDir ) {
+             printf("Going NORTH\n");
+             mapX -= 2;
+             return Point(--posX,posY);
+	} else if ( eastDir ) {
+                 printf("Going EAST\n");
+                 mapY += 2;
+                 return Point(posX,++posY);
+    } else if ( westDir){
+		  printf("Going WEST\n");
+		  mapY -= 2;
+		 return Point(posX,--posY);
+	} else if ( southDir ) {
+		printf("Going SOUTH\n");
+		mapX += 2;
+		return Point(++posX,posY);
+	} else
+		printf("WTF MATE\n");
+
+
+    /*
+    if ( northDir == true ) {
+        if ( eastDir == true ) {
+            if ( southDir == true ) {
+                if ( eastDir == true ) {
+                    //Check FF in all dir
+                   min = flood[pos.getX()][pos.getY() + 1];
+                   if ( flood[pos.getX() - 1][pos.getY()] < min )
+                       min = flood[pos.getX() - 1][pos.getY()];
+                   if ( flood[pos.getX()][pos.getY() - 1] < min )
+                       min = flood[pos.getX()][pos.getY() - 1];
+                   if ( flood[pos.getX() + 1][pos.getY()] < min )
+                       min = flood[pos.getX() + 1][pos.getY()];
+                }
+                //Check FF: N, E, S
+
+                min = flood[pos.getX()][pos.getY() + 1];
+                if ( flood[pos.getX() - 1][pos.getY()] < min )
+                   min = flood[pos.getX() - 1][pos.getY()];
+                if ( flood[pos.getX()][pos.getY() - 1] < min )
+                   min = flood[pos.getX()][pos.getY() - 1];
+            }
+            //Check FF: N, E
+
+            min = flood[pos.getX()][pos.getY() + 1];
+            if ( flood[pos.getX() - 1][pos.getY()] < min )
+               min = flood[pos.getX() - 1][pos.getY()];
+        }
+        //U turn
+    }
+    */
+
+}
+
+void printDbg() {
+	printf("%d", wallMap[mapX][mapY - 1]);
+	        printf("%d", wallMap[mapX][mapY + 1]);
+	        printf("%d", wallMap[mapX+1][mapY]);
+	        printf("%d", wallMap[mapX-1][mapY]);
+	        //printf("I'm in the do-while!: My number is:  ");
+	        //printf("%d\n", counter);
+	        printf("mapCoord(%d,%d)\n", mapX, mapY);
+	        printf("floodCoord(%d,%d)\n", posX, posY);
+}
+
+int getMinDist() {
+	return 0;
+}
+
+void checkWalls() {
+	if ( wallMap[mapCoord.getX()-1][mapCoord.getY()] == 0 )
+		northDir = true;
+	if ( wallMap[mapCoord.getX()][mapCoord.getY()+1] == 0 )
+		eastDir = true;
+	if ( wallMap[mapCoord.getX()+1][mapCoord.getY()] == 0 )
+		southDir = true;
+	if ( wallMap[mapCoord.getX()][mapCoord.getY()-1] == 0 )
+		westDir = true;
+}
+
+int mdAdj;
+
+int main() {
+    //printf("I'm in loop\n");
+    printMap();
+    printMapEx();
+    int dir = NORTH;
+    Point currPos(posX,posY);
+    //Point nextPos(posX + dx, posY - dy);
+    Point coord(0,0);
+    int currDist;
+    int md;
+
+    int counter = 0;
+    Point adjCoord(posX,posY);
+    northDir = true, eastDir = true, southDir = true, westDir = true;
+
+    for ( int i = 0 ; i < row * 2 + 1 ; i++ ) {
+        for ( int j = 0 ; j < col * 2 + 1 ; j++ ) {
+            wallMap[i][j] = mapEx[i][j];
+        }
+    }
+
+        q.enQ(currPos);
+        northDir = false, eastDir = false, southDir = false, westDir = false;
+    do {
+        counter++;
+        if ( (currPos.getX() == 7 || currPos.getX() == 8) && (currPos.getY() == 7 || currPos.getY() == 8) ) {
+        	printf("APPARENTLY MAZE SOLVED... OR WE FUHHCKEDED UP\n");
+        	exit(EXIT_SUCCESS);
+        }
+
+        currDist = flood[posX][posY];
+        printDbg();
+			do {
+		        if ( (currPos.getX() == 7 || currPos.getX() == 8) && (currPos.getY() == 7 || currPos.getY() == 8) ) {
+		        	printf("APPARENTLY MAZE SOLVED... OR WE FUHHCKEDED UP\n");
+		        	exit(EXIT_SUCCESS);
+		        }
+
+			coord = q.deQ();
+
+			mapCoord = Point(coord.getX() * 2 + 1, coord.getY() * 2 + 1);
+			checkWalls();
+			//currDist = flood[coord.getX()][coord.getY()];
+			 currDist = flood[coord.getX()][coord.getY()];
+			//int tempDist = flood[posX][posY];
+			printf("currDist: %d\n", currDist);
+
+
+			//Point mapPt(mapCoord.getX(),mapCoord.getY());
+
+
+			//There is a wall north
+			if ( wallMap[mapCoord.getX()-1][mapCoord.getY()] == 0 ) {
+			//	northDir = true;
+
+					adjCoord = Point(coord.getX()-1,coord.getY());
+					md = flood[adjCoord.getX()][adjCoord.getY()];
+				//}
+				if ( eastDir == true ) {
+				adjCoord = Point(coord.getX(),coord.getY()+1);
+					if ( flood[adjCoord.getX()][adjCoord.getY()] < md )
+						md = flood[adjCoord.getX()][adjCoord.getY()];
+				}
+				if ( southDir == true ) {
+				adjCoord = Point(coord.getX()+1,coord.getY());
+					if ( flood[adjCoord.getX()][adjCoord.getY()] < md )
+						md = flood[adjCoord.getX()][adjCoord.getY()];
+				}
+				if ( westDir == true ) {
+				adjCoord = Point(coord.getX(),coord.getY()-1);
+					if ( flood[adjCoord.getX()][adjCoord.getY()] < md )
+						md = flood[adjCoord.getX()][adjCoord.getY()];
+				}
+
+
+/*
+				adjCoord = Point(coord.getX()-1,coord.getY());
+				mdAdj = flood[adjCoord.getX()][adjCoord.getY()];
+
+				adjCoord = Point(coord.getX(),coord.getY()+1);
+					if ( flood[adjCoord.getX()][adjCoord.getY()] < mdAdj )
+						mdAdj = flood[adjCoord.getX()][adjCoord.getY()];
+
+				adjCoord = Point(coord.getX()+1,coord.getY());
+					if ( flood[adjCoord.getX()][adjCoord.getY()] < mdAdj )
+						mdAdj = flood[adjCoord.getX()][adjCoord.getY()];
+
+
+				adjCoord = Point(coord.getX(),coord.getY()-1);
+					if ( flood[adjCoord.getX()][adjCoord.getY()] < mdAdj )
+						mdAdj = flood[adjCoord.getX()][adjCoord.getY()];
+
+*/
+
+
+				printf("md of north cell = %d\n", md);
+				if ( md != currDist - 1  ) {
+					printf("We made it\n");
+	//                flood[coord.getX()][coord.getY()] = md + 1;
+					flood[coord.getX()][coord.getY()] = md + 1;
+					//Add neighbors to Q
+
+					if (wallMap[mapCoord.getX()-1][mapCoord.getY()] == 0 )
+						q.enQ( Point(coord.getX() - 1,coord.getY()) );
+					if (wallMap[mapCoord.getX()][mapCoord.getY() + 1] == 0 )
+						q.enQ( Point(coord.getX(),coord.getY() + 1) );
+					if (wallMap[mapCoord.getX()+1][mapCoord.getY()] == 0 )
+						q.enQ( Point(coord.getX() + 1,coord.getY()) );
+					if (wallMap[mapCoord.getX()][mapCoord.getY() - 1] == 0 )
+						q.enQ( Point(coord.getX(),coord.getY() - 1) );
+				}// else continue;
+			} else {
+				printf("There is a north wall\n");
+				northDir = false;
+			}
+			//if wall to east
+			if ( wallMap[mapCoord.getX()][mapCoord.getY()+1] == 0 ) {
+
+				//if ( eastDir == true ) {
+				adjCoord = Point(coord.getX(),coord.getY()+1);
+					//if ( flood[adjCoord.getX()][adjCoord.getY()] < md )
+						md = flood[adjCoord.getX()][adjCoord.getY()];
+				//}
+
+				if ( northDir == true ) {
+					adjCoord = Point(coord.getX()-1,coord.getY());
+					md = flood[adjCoord.getX()][adjCoord.getY()];
+				}
+
+				if ( southDir == true ) {
+				adjCoord = Point(coord.getX()+1,coord.getY());
+					if ( flood[adjCoord.getX()][adjCoord.getY()] < md )
+						md = flood[adjCoord.getX()][adjCoord.getY()];
+				}
+				if ( westDir == true ) {
+				adjCoord = Point(coord.getX(),coord.getY()-1);
+					if ( flood[adjCoord.getX()][adjCoord.getY()] < md )
+						md = flood[adjCoord.getX()][adjCoord.getY()];
+				}
+
+				adjCoord = Point(coord.getX()-1,coord.getY());
+				mdAdj = flood[adjCoord.getX()][adjCoord.getY()];
+
+				adjCoord = Point(coord.getX(),coord.getY()+1);
+					if ( flood[adjCoord.getX()][adjCoord.getY()] < mdAdj )
+						mdAdj = flood[adjCoord.getX()][adjCoord.getY()];
+
+				adjCoord = Point(coord.getX()+1,coord.getY());
+					if ( flood[adjCoord.getX()][adjCoord.getY()] < mdAdj )
+						mdAdj = flood[adjCoord.getX()][adjCoord.getY()];
+
+
+				adjCoord = Point(coord.getX(),coord.getY()-1);
+					if ( flood[adjCoord.getX()][adjCoord.getY()] < mdAdj )
+						mdAdj = flood[adjCoord.getX()][adjCoord.getY()];
+
+				printf("md of east cell = %d\n", md);
+				if ( md != currDist - 1 ) {
+					printf("We made it\n");
+	//                flood[coord.getX()][coord.getY()] = md + 1;
+					flood[coord.getX()][coord.getY()] = md + 1;
+					//Add neighbors to Q
+
+					if (wallMap[mapCoord.getX()-1][mapCoord.getY()] == 0 )
+						q.enQ( Point(coord.getX() - 1,coord.getY()) );
+					if (wallMap[mapCoord.getX()][mapCoord.getY() + 1] == 0 )
+						q.enQ( Point(coord.getX(),coord.getY() + 1) );
+					if (wallMap[mapCoord.getX()+1][mapCoord.getY()] == 0 )
+						q.enQ( Point(coord.getX() + 1,coord.getY()) );
+					if (wallMap[mapCoord.getX()][mapCoord.getY() - 1] == 0 )
+						q.enQ( Point(coord.getX(),coord.getY() - 1) );
+				}// else continue;
+			} else {
+				printf("There is a east wall\n");
+				eastDir = false;
+			}
+			//south
+			if ( wallMap[mapCoord.getX() + 1][mapCoord.getY()] == 0 ) {
+	//			southDir = true;
+				//if ( southDir == true ) {
+								adjCoord = Point(coord.getX()+1,coord.getY());
+									//if ( flood[adjCoord.getX()][adjCoord.getY()] < md )
+										md = flood[adjCoord.getX()][adjCoord.getY()];
+								//}
+
+
+				if ( northDir == true ) {
+					adjCoord = Point(coord.getX()-1,coord.getY());
+					md = flood[adjCoord.getX()][adjCoord.getY()];
+				}
+				if ( eastDir == true ) {
+				adjCoord = Point(coord.getX(),coord.getY()+1);
+					if ( flood[adjCoord.getX()][adjCoord.getY()] < md )
+						md = flood[adjCoord.getX()][adjCoord.getY()];
+				}
+
+				if ( westDir == true ) {
+				adjCoord = Point(coord.getX(),coord.getY()-1);
+					if ( flood[adjCoord.getX()][adjCoord.getY()] < md )
+						md = flood[adjCoord.getX()][adjCoord.getY()];
+				}
+
+				adjCoord = Point(coord.getX()-1,coord.getY());
+				mdAdj = flood[adjCoord.getX()][adjCoord.getY()];
+
+				adjCoord = Point(coord.getX(),coord.getY()+1);
+					if ( flood[adjCoord.getX()][adjCoord.getY()] < mdAdj )
+						mdAdj = flood[adjCoord.getX()][adjCoord.getY()];
+
+				adjCoord = Point(coord.getX()+1,coord.getY());
+					if ( flood[adjCoord.getX()][adjCoord.getY()] < mdAdj )
+						mdAdj = flood[adjCoord.getX()][adjCoord.getY()];
+
+
+				adjCoord = Point(coord.getX(),coord.getY()-1);
+					if ( flood[adjCoord.getX()][adjCoord.getY()] < mdAdj )
+						mdAdj = flood[adjCoord.getX()][adjCoord.getY()];
+
+				printf("md of south cell = %d\n", md);
+				if ( md != currDist - 1 ) {
+					printf("We made it\n");
+	//              flood[coord.getX()][coord.getY()] = md + 1;
+					flood[coord.getX()][coord.getY()] = md + 1;
+					//Add neighbors to Q
+
+					if (wallMap[mapCoord.getX()-1][mapCoord.getY()] == 0 )
+						q.enQ( Point(coord.getX() - 1,coord.getY()) );
+					if (wallMap[mapCoord.getX()][mapCoord.getY() + 1] == 0 )
+						q.enQ( Point(coord.getX(),coord.getY() + 1) );
+					if (wallMap[mapCoord.getX()+1][mapCoord.getY()] == 0 )
+						q.enQ( Point(coord.getX() + 1,coord.getY()) );
+					if (wallMap[mapCoord.getX()][mapCoord.getY() - 1] == 0 )
+						q.enQ( Point(coord.getX(),coord.getY() - 1) );
+				}// else continue;
+			} else {
+				printf("There is a south wall\n");
+				southDir = false;
+			}
+			//west
+			if ( wallMap[mapCoord.getX()][mapCoord.getY() - 1] == 0 ) {
+
+		//		if ( westDir == true ) {
+								adjCoord = Point(coord.getX(),coord.getY()-1);
+	//								if ( flood[adjCoord.getX()][adjCoord.getY()] < md )
+										md = flood[adjCoord.getX()][adjCoord.getY()];
+//								}
+
+
+				if ( northDir == true ) {
+					adjCoord = Point(coord.getX()-1,coord.getY());
+					md = flood[adjCoord.getX()][adjCoord.getY()];
+				}
+				if ( eastDir == true ) {
+				adjCoord = Point(coord.getX(),coord.getY()+1);
+					if ( flood[adjCoord.getX()][adjCoord.getY()] < md )
+						md = flood[adjCoord.getX()][adjCoord.getY()];
+				}
+				if ( southDir == true ) {
+				adjCoord = Point(coord.getX()+1,coord.getY());
+					if ( flood[adjCoord.getX()][adjCoord.getY()] < md )
+						md = flood[adjCoord.getX()][adjCoord.getY()];
+				}
+
+				adjCoord = Point(coord.getX()-1,coord.getY());
+				mdAdj = flood[adjCoord.getX()][adjCoord.getY()];
+
+					adjCoord = Point(coord.getX(),coord.getY()+1);
+						if ( flood[adjCoord.getX()][adjCoord.getY()] < mdAdj )
+							mdAdj = flood[adjCoord.getX()][adjCoord.getY()];
+
+					adjCoord = Point(coord.getX()+1,coord.getY());
+						if ( flood[adjCoord.getX()][adjCoord.getY()] < mdAdj )
+							mdAdj = flood[adjCoord.getX()][adjCoord.getY()];
+
+
+					adjCoord = Point(coord.getX(),coord.getY()-1);
+						if ( flood[adjCoord.getX()][adjCoord.getY()] < mdAdj )
+							mdAdj = flood[adjCoord.getX()][adjCoord.getY()];
+
+				printf("md of west cell = %d\n", md);
+				if ( md != currDist - 1 ) {
+					printf("We made it\n");
+	//              flood[coord.getX()][coord.getY()] = md + 1;
+					flood[coord.getX()][coord.getY()] = md + 1;
+					//Add neighbors to Q
+
+					if (wallMap[mapCoord.getX()-1][mapCoord.getY()] == 0 )
+						q.enQ( Point(coord.getX() - 1,coord.getY()) );
+					if (wallMap[mapCoord.getX()][mapCoord.getY() + 1] == 0 )
+						q.enQ( Point(coord.getX(),coord.getY() + 1) );
+					if (wallMap[mapCoord.getX()+1][mapCoord.getY()] == 0 )
+						q.enQ( Point(coord.getX() + 1,coord.getY()) );
+					if (wallMap[mapCoord.getX()][mapCoord.getY() - 1] == 0 )
+						q.enQ( Point(coord.getX(),coord.getY() - 1) );
+				}// else continue;
+			} else {
+				printf("There is a west wall\n");
+				westDir = false;
+			}
+			printMap();
+			int lastMD = md;
+
+			} while ( !q.isEmpty());
+
+        //checkOpenCells();
+        currPos = moveCell(currPos);
+        printf("newPos(%d,%d)\n", currPos.getX(), currPos.getY());
+        printf("qSize = %d\n", q.size());
+        q.enQ(currPos);
+    //    printMap(**mapEx);
+        getchar();
+        printMap();
+
+        if ( (currPos.getX() == 7 || currPos.getX() == 8) && (currPos.getY() == 7 || currPos.getY() == 8) ) {
+        	printf("APPARENTLY MAZE SOLVED... OR WE FUHHCKEDED UP\n");
+        	exit(EXIT_SUCCESS);
+        }
+
+    } while ( !q.isEmpty() );
+
+     printMap();
+    printf("Aww fuck~!\n");
+
+ //   updateFloodMap();
+
+
+}

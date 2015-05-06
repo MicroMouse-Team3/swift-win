@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 //#include <Encoder.h>
+=======
+#include <StackArray.h>
+>>>>>>> origin/master
 
 //TABLE OF CONTENTS (SEARCH FOR THESE TERMS)
 //////////////////////////////
@@ -208,8 +212,13 @@ byte wallMap[33][33] =  {
                           {'1','0','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1'},
                           {'1','0','1','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','1'},
                           {'1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1'} };
+<<<<<<< HEAD
                     
 //Stack s = new Stack(MAXSIZE);
+=======
+StackArray <char> stack;                    
+
+>>>>>>> origin/master
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Setup Function
 //SETME
@@ -784,6 +793,7 @@ void turnLeft(){
 
 // 4= L, 5 = S, 6 = R, 7 = U
 
+<<<<<<< HEAD
 //
 //
 //byte mapDisThang(s, nextTurn) {
@@ -1275,6 +1285,14 @@ void turnLeft(){
   }
   
   }
+=======
+
+
+byte mapDisThang() {
+
+  if ( floodFillNum < currentFFVal )
+    floodFillNum = currentFFVal;
+>>>>>>> origin/master
   
   **/
 //  
@@ -1987,6 +2005,11 @@ int absVal(int val) {
   return val;
 }
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> origin/master
 //class Stack {
 //  
 //  int nelems;
@@ -2013,4 +2036,8 @@ int absVal(int val) {
 //  Stack( int nelems ) : nelems(nelems) {}
 //  void push( Point pt ) { stack[++top] = pt; }
 //  Point pop() { return stack[--top]; }
+<<<<<<< HEAD
 //}
+=======
+//};
+>>>>>>> origin/master
