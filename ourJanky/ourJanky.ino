@@ -532,6 +532,527 @@ void turnRight(){
 
 }
 
+void arrayValue(){
+
+  if(FFval < mazeMap[x][y]) FFval = mazeMap[x][y];
+  
+  switch(orientation % 4){
+    case NORTH :
+    if(!wallFront){
+      if(FFval < mazeMap[x][y+1]) FFval = mazeMap[x][y+1] - 1; // *********** 1. If our current FFval is LESS than straight, set our current val to the val straight - 1.
+    }
+    if(!wallRight){
+      if(FFval < mazeMap[x+1][y]) FFval = mazeMap[x+1][y] - 1; // ********** 2. if our current FFval is LESS than then right, set our value to the right val - 1.
+    }
+    if(!wallLeft){
+      if(FFval < mazeMap[x-1][y]) FFval = mazeMap[x-1][y] - 1; // ********** 3
+    }
+    
+    if(wallLeft){ //wall left 
+      if(wallRight){ //wall left + wall right
+        if(wallFront){ //wall left + wall right + wall front         
+          nextTurn = UTURN;
+          y--;  
+        }
+        else{ //wall left + wall right + no wall front.
+          nextTurn = STRAIGHT;
+          y++;
+        }
+      }
+      else{ //wall to the left + no wall to the right        
+        if(wallFront){ //wall left + wall front + no wall to the right.
+          nextTurn = RIGHT;
+          x++;
+        }
+        else{ //left wall + no wall front + no wall right. 
+          if(mazeMap[x][y+1] <= mazeMap[x+1][y]){ //The front LESS than the right
+            if(mazeMap[x][y+1] <= mazeMap[x][y-1]){ //The front LESS than the right and front less than behind.
+              nextTurn = STRAIGHT;
+              y++;           
+            }
+            else{ //the front less than the right and front is not less than behind.
+              nextTurn = UTURN;
+              y--;
+            }
+          }
+          else{ //the front is not less than the right
+            if(mazeMap[x+1][y] <= mazeMap[x][y-1]){ //the front is not less than the right and the right is less than behind.
+              nextTurn = RIGHT;
+              x++;
+            }
+            else{ //the front is not less than the right and the righ is NOT less than behind.
+              nextTurn = UTURN;
+              y--;
+            }
+          }
+        }
+      }
+    }
+    else{ //no wall to the left      
+      if(wallRight){ //wall right + no left wall
+        if(wallFront){ //wall right + wall front + no left
+          nextTurn = LEFT;
+          x--;
+        }
+        else{ //right wall + no wall front + no wall left
+          if(mazeMap[x][y+1] <= mazeMap[x-1][y]){ //front is less than left
+            if(mazeMap[x][y+1] <= mazeMap[x][y-1]){ //front is less than left and front is less than behind.
+              nextTurn = STRAIGHT;
+              y++;           
+            }
+            else{ //front is less than left and front is not less than behind.
+              nextTurn = UTURN;
+              y--;
+            }
+          }
+          else{ //front is not less than the left
+            if(mazeMap[x-1][y] <= mazeMap[x][y-1]){ //front is not less than the left and left is less than behind.
+              nextTurn = LEFT;
+              x--;
+            }
+            else{ //front is not less than the left and left is not less than behind.
+              nextTurn = UTURN;
+              y--;
+            }
+          }
+        }
+      }
+      else{ //no wall to the right + no left wall
+        if(wallFront){ //no wall right + no wall left + wall front.
+          if(mazeMap[x+1][y] <= mazeMap[x-1][y]){ //right is less than the left
+            if(mazeMap[x+1][y] <= mazeMap[x][y-1]){ //right is less than the left and right is less than behind.
+              nextTurn = RIGHT;
+              x++;
+            }
+            else{//the right is less than the left and the right is not less than behind.
+              nextTurn = UTURN;
+              y--;
+            }
+          }
+          else{ //right is not less than the left
+            if(mazeMap[x-1][y] <= mazeMap[x][y-1]){ //right is not less than the left and the left is less than behind.
+              nextTurn = LEFT;
+              x--;
+            }
+            else{ //right is not less than the left and the left is not less than behind.
+              nextTurn = UTURN;
+              y--;
+            }
+          }
+        }
+        else{ //no wall to the right + no left wall + no front wall
+          if(mazeMap[x][y+1] <= mazeMap[x+1][y]){ //the front is less than the right
+            if(mazeMap[x][y+1] <= mazeMap[x-1][y]){ //the front is less than the right and the front is less than the left.
+              nextTurn = STRAIGHT;
+              y++;
+            }
+            else{ //the front is less than the right and the front is not less than the left.
+              nextTurn = LEFT;
+              x--;
+            }
+          }
+          else{ //the front is not less than right.
+            if(mazeMap[x+1][y] <= mazeMap[x-1][y]){ //front is not less than right value and right is less than left.
+              nextTurn = RIGHT;
+              x++;
+            }
+            else{ //the front is not less than right and the right is not less than left.
+              nextTurn = LEFT;
+              x--;
+            }
+          }
+        }
+      }
+    }
+    break;
+    case EAST :
+    if(!wallFront){
+      if(FFval < mazeMap[x+1][y]) FFval = mazeMap[x+1][y] - 1; // *********** 1. If our current FFval is LESS than straight, set our current val to the val straight - 1.
+    }
+    if(!wallRight){
+      if(FFval < mazeMap[x][y-1]) FFval = mazeMap[x][y-1] - 1; // ********** 2. if our current FFval is LESS than then right, set our value to the right val - 1.
+    }
+    if(!wallLeft){
+      if(FFval < mazeMap[x][y+1]) FFval = mazeMap[x][y+1] - 1; // ********** 3
+    }
+    
+    if(wallLeft){ //wall left 
+      if(wallRight){ //wall left + wall right
+        if(wallFront){ //wall left + wall right + wall front         
+          nextTurn = UTURN;
+          x--;  
+        }
+        else{ //wall left + wall right + no wall front.
+          nextTurn = STRAIGHT;
+          x++;
+        }
+      }
+      else{ //wall to the left + no wall to the right        
+        if(wallFront){ //wall left + wall front + no wall to the right.
+          nextTurn = RIGHT;
+          y--;
+        }
+        else{ //left wall + no wall front + no wall right. 
+          if(mazeMap[x+1][y] <= mazeMap[x][y-1]){ //The front LESS than the right
+            if(mazeMap[x+1][y] <= mazeMap[x-1][y]){ //The front LESS than the right and front less than behind.
+              nextTurn = STRAIGHT;
+              x++;           
+            }
+            else{ //the front less than the right and front is not less than behind.
+              nextTurn = UTURN;
+              x--;
+            }
+          }
+          else{ //the front is not less than the right
+            if(mazeMap[x][y-1] <= mazeMap[x-1][y]){ //the front is not less than the right and the right is less than behind.
+              nextTurn = RIGHT;
+              y--;
+            }
+            else{ //the front is not less than the right and the righ is NOT less than behind.
+              nextTurn = UTURN;
+              x--;
+            }
+          }
+        }
+      }
+    }
+    else{ //no wall to the left      
+      if(wallRight){ //wall right + no left wall
+        if(wallFront){ //wall right + wall front + no left
+          nextTurn = LEFT;
+          y++;
+        }
+        else{ //right wall + no wall front + no wall left
+          if(mazeMap[x+1][y] <= mazeMap[x][y+1]){ //front is less than left
+            if(mazeMap[x+1][y] <= mazeMap[x-1][y]){ //front is less than left and front is less than behind.
+              nextTurn = STRAIGHT;
+              x++;           
+            }
+            else{ //front is less than left and front is not less than behind.
+              nextTurn = UTURN;
+              x--;
+            }
+          }
+          else{ //front is not less than the left
+            if(mazeMap[x][y+1] <= mazeMap[x-1][y]){ //front is not less than the left and left is less than behind.
+              nextTurn = LEFT;
+              y++;
+            }
+            else{ //front is not less than the left and left is not less than behind.
+              nextTurn = UTURN;
+              x--;
+            }
+          }
+        }
+      }
+      else{ //no wall to the right + no left wall
+        if(wallFront){ //no wall right + no wall left + wall front.
+          if(mazeMap[x][y-1] <= mazeMap[x][y+1]){ //right is less than the left
+            if(mazeMap[x][y-1] <= mazeMap[x-1][y]){ //right is less than the left and right is less than behind.
+              nextTurn = RIGHT;
+              y--;
+            }
+            else{//the right is less than the left and the right is not less than behind.
+              nextTurn = UTURN;
+              x--;
+            }
+          }
+          else{ //right is not less than the left
+            if(mazeMap[x][y+1] <= mazeMap[x-1][y]){ //right is not less than the left and the left is less than behind.
+              nextTurn = LEFT;
+              y++;
+            }
+            else{ //right is not less than the left and the left is not less than behind.
+              nextTurn = UTURN;
+              x--;
+            }
+          }
+        }
+        else{ //no wall to the right + no left wall + no front wall
+          if(mazeMap[x+1][y] <= mazeMap[x][y-1]){ //the front is less than the right
+            if(mazeMap[x+1][y] <= mazeMap[x][y+1]){ //the front is less than the right and the front is less than the left.
+              nextTurn = STRAIGHT;
+              x++;
+            }
+            else{ //the front is less than the right and the front is not less than the left.
+              nextTurn = LEFT;
+              y++;
+            }
+          }
+          else{ //the front is not less than right.
+            if(mazeMap[x][y-1] <= mazeMap[x][y+1]){ //front is not less than right value and right is less than left.
+              nextTurn = RIGHT;
+              y--;
+            }
+            else{ //the front is not less than right and the right is not less than left.
+              nextTurn = LEFT;
+              y++;
+            }
+          }
+        }
+      }
+    }
+    break;
+    case SOUTH :
+    if(!wallFront){
+      if(FFval < mazeMap[x][y-1]) FFval = mazeMap[x][y-1] - 1; // *********** 1. If our current FFval is LESS than straight, set our current val to the val straight - 1.
+    }
+    if(!wallRight){
+      if(FFval < mazeMap[x-1][y]) FFval = mazeMap[x-1][y] - 1; // ********** 2. if our current FFval is LESS than then right, set our value to the right val - 1.
+    }
+    if(!wallLeft){
+      if(FFval < mazeMap[x+1][y]) FFval = mazeMap[x+1][y] - 1; // ********** 3
+    }
+    
+    if(wallLeft){ //wall left 
+      if(wallRight){ //wall left + wall right
+        if(wallFront){ //wall left + wall right + wall front         
+          nextTurn = UTURN;
+          y++;  
+        }
+        else{ //wall left + wall right + no wall front.
+          nextTurn = STRAIGHT;
+          y--;
+        }
+      }
+      else{ //wall to the left + no wall to the right        
+        if(wallFront){ //wall left + wall front + no wall to the right.
+          nextTurn = RIGHT;
+          x--;
+        }
+        else{ //left wall + no wall front + no wall right. 
+          if(mazeMap[x][y-1] <= mazeMap[x-1][y]){ //The front LESS than the right
+            if(mazeMap[x][y-1] <= mazeMap[x][y+1]){ //The front LESS than the right and front less than behind.
+              nextTurn = STRAIGHT;
+              y--;           
+            }
+            else{ //the front less than the right and front is not less than behind.
+              nextTurn = UTURN;
+              y++;
+            }
+          }
+          else{ //the front is not less than the right
+            if(mazeMap[x-1][y] <= mazeMap[x][y+1]){ //the front is not less than the right and the right is less than behind.
+              nextTurn = RIGHT;
+              x--;
+            }
+            else{ //the front is not less than the right and the righ is NOT less than behind.
+              nextTurn = UTURN;
+              y++;
+            }
+          }
+        }
+      }
+    }
+    else{ //no wall to the left      
+      if(wallRight){ //wall right + no left wall
+        if(wallFront){ //wall right + wall front + no left
+          nextTurn = LEFT;
+          x++;
+        }
+        else{ //right wall + no wall front + no wall left
+          if(mazeMap[x][y-1] <= mazeMap[x+1][y]){ //front is less than left
+            if(mazeMap[x][y-1] <= mazeMap[x][y+1]){ //front is less than left and front is less than behind.
+              nextTurn = STRAIGHT;
+              y--;           
+            }
+            else{ //front is less than left and front is not less than behind.
+              nextTurn = UTURN;
+              y++;
+            }
+          }
+          else{ //front is not less than the left
+            if(mazeMap[x+1][y] <= mazeMap[x][y+1]){ //front is not less than the left and left is less than behind.
+              nextTurn = LEFT;
+              x++;
+            }
+            else{ //front is not less than the left and left is not less than behind.
+              nextTurn = UTURN;
+              y++;
+            }
+          }
+        }
+      }
+      else{ //no wall to the right + no left wall
+        if(wallFront){ //no wall right + no wall left + wall front.
+          if(mazeMap[x-1][y] <= mazeMap[x+1][y]){ //right is less than the left
+            if(mazeMap[x-1][y] <= mazeMap[x][y+1]){ //right is less than the left and right is less than behind.
+              nextTurn = RIGHT;
+              x--;
+            }
+            else{//the right is less than the left and the right is not less than behind.
+              nextTurn = UTURN;
+              y++;
+            }
+          }
+          else{ //right is not less than the left
+            if(mazeMap[x+1][y] <= mazeMap[x][y+1]){ //right is not less than the left and the left is less than behind.
+              nextTurn = LEFT;
+              x++;
+            }
+            else{ //right is not less than the left and the left is not less than behind.
+              nextTurn = UTURN;
+              y++;
+            }
+          }
+        }
+        else{ //no wall to the right + no left wall + no front wall
+          if(mazeMap[x][y-1] <= mazeMap[x-1][y]){ //the front is less than the right
+            if(mazeMap[x][y-1] <= mazeMap[x+1][y]){ //the front is less than the right and the front is less than the left.
+              nextTurn = STRAIGHT;
+              y--;
+            }
+            else{ //the front is less than the right and the front is not less than the left.
+              nextTurn = LEFT;
+              x++;
+            }
+          }
+          else{ //the front is not less than right.
+            if(mazeMap[x-1][y] <= mazeMap[x+1][y]){ //front is not less than right value and right is less than left.
+              nextTurn = RIGHT;
+              x--;
+            }
+            else{ //the front is not less than right and the right is not less than left.
+              nextTurn = LEFT;
+              x++;
+            }
+          }
+        }
+      }
+    }
+    break;
+    case WEST :
+    if(!wallFront){
+      if(FFval < mazeMap[x-1][y]) FFval = mazeMap[x-1][y] - 1; // *********** 1. If our current FFval is LESS than straight, set our current val to the val straight - 1.
+    }
+    if(!wallRight){
+      if(FFval < mazeMap[x][y+1]) FFval = mazeMap[x][y+1] - 1; // ********** 2. if our current FFval is LESS than then right, set our value to the right val - 1.
+    }
+    if(!wallLeft){
+      if(FFval < mazeMap[x][y-1]) FFval = mazeMap[x][y-1] - 1; // ********** 3
+    }
+    
+    if(wallLeft){ //wall left 
+      if(wallRight){ //wall left + wall right
+        if(wallFront){ //wall left + wall right + wall front         
+          nextTurn = UTURN;
+          x++;  
+        }
+        else{ //wall left + wall right + no wall front.
+          nextTurn = STRAIGHT;
+          x--;
+        }
+      }
+      else{ //wall to the left + no wall to the right        
+        if(wallFront){ //wall left + wall front + no wall to the right.
+          nextTurn = RIGHT;
+          y++;
+        }
+        else{ //left wall + no wall front + no wall right. 
+          if(mazeMap[x-1][y] <= mazeMap[x][y+1]){ //The front LESS than the right
+            if(mazeMap[x-1][y] <= mazeMap[x+1][y]){ //The front LESS than the right and front less than behind.
+              nextTurn = STRAIGHT;
+              x--;           
+            }
+            else{ //the front less than the right and front is not less than behind.
+              nextTurn = UTURN;
+              x++;
+            }
+          }
+          else{ //the front is not less than the right
+            if(mazeMap[x][y+1] <= mazeMap[x+1][y]){ //the front is not less than the right and the right is less than behind.
+              nextTurn = RIGHT;
+              y++;
+            }
+            else{ //the front is not less than the right and the righ is NOT less than behind.
+              nextTurn = UTURN;
+              x++;
+            }
+          }
+        }
+      }
+    }
+    else{ //no wall to the left      
+      if(wallRight){ //wall right + no left wall
+        if(wallFront){ //wall right + wall front + no left
+          nextTurn = LEFT;
+          y--;
+        }
+        else{ //right wall + no wall front + no wall left
+          if(mazeMap[x-1][y] <= mazeMap[x][y-1]){ //front is less than left
+            if(mazeMap[x-1][y] <= mazeMap[x+1][y]){ //front is less than left and front is less than behind.
+              nextTurn = STRAIGHT;
+              x--;           
+            }
+            else{ //front is less than left and front is not less than behind.
+              nextTurn = UTURN;
+              x++;
+            }
+          }
+          else{ //front is not less than the left
+            if(mazeMap[x][y-1] <= mazeMap[x+1][y]){ //front is not less than the left and left is less than behind.
+              nextTurn = LEFT;
+              y--;
+            }
+            else{ //front is not less than the left and left is not less than behind.
+              nextTurn = UTURN;
+              x++;
+            }
+          }
+        }
+      }
+      else{ //no wall to the right + no left wall
+        if(wallFront){ //no wall right + no wall left + wall front.
+          if(mazeMap[x][y+1] <= mazeMap[x][y-1]){ //right is less than the left
+            if(mazeMap[x][y+1] <= mazeMap[x+1][y]){ //right is less than the left and right is less than behind.
+              nextTurn = RIGHT;
+              y++;
+            }
+            else{//the right is less than the left and the right is not less than behind.
+              nextTurn = UTURN;
+              x++;
+            }
+          }
+          else{ //right is not less than the left
+            if(mazeMap[x][y-1] <= mazeMap[x+1][y]){ //right is not less than the left and the left is less than behind.
+              nextTurn = LEFT;
+              y--;
+            }
+            else{ //right is not less than the left and the left is not less than behind.
+              nextTurn = UTURN;
+              x++;
+            }
+          }
+        }
+        else{ //no wall to the right + no left wall + no front wall
+          if(mazeMap[x-1][y] <= mazeMap[x][y+1]){ //the front is less than the right
+            if(mazeMap[x-1][y] <= mazeMap[x][y-1]){ //the front is less than the right and the front is less than the left.
+              nextTurn = STRAIGHT;
+              x--;
+            }
+            else{ //the front is less than the right and the front is not less than the left.
+              nextTurn = LEFT;
+              y--;
+            }
+          }
+          else{ //the front is not less than right.
+            if(mazeMap[x][y+1] <= mazeMap[x][y-1]){ //front is not less than right value and right is less than left.
+              nextTurn = RIGHT;
+              y++;
+            }
+            else{ //the front is not less than right and the right is not less than left.
+              nextTurn = LEFT;
+              y--;
+            }
+          }
+        }
+      }
+    }
+    break;
+    default : 
+    break;
+  } 
+}
 
 
 
