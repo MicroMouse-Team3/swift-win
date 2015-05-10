@@ -72,20 +72,15 @@ int xPrev, yPrev, posX, posY;
 #define UTURN 3
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//stack<byte> pathStack;
-//stack<byte> wallStack;
-int navDir;
-int dx = 0, dy = 1;
-int wallX = 1, wallY = 31;
 //Initializations
 //INITME
+
 //For Mapping
-int currentDirection = 4000;
+int orientation = 4000;
 int x = 0;
 int y = 0;
-int xprev = 0;
-int yprev = 0;
-const bool solved = "FALSE";
+
+bool solved = false;
 
 bool mapMode = true;
 bool wallLeft = false;
@@ -154,12 +149,14 @@ double leftEncoderChange;
 double leftEncoderOld;
 double rightEncoderChange;
 double rightEncoderOld;
-double encoderChange;                     
-                       
+double encoderChange;             
+
+int mazeMap[16][16] = {{-1},{-1}};       
+byte FFval = 255;
 byte wallMap[33][33] =  { 
-                          {'1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1' }, 
+                          {'1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1'}, 
                           {'1','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','1'},                        
-                      {'1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1'}, 
+                          {'1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1'}, 
                           {'1','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','1'}, 
                           {'1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1'},
                           {'1','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','1'},
@@ -291,24 +288,34 @@ void setup(){
   wallLeftDist = getIRLeft();
   wallRightDist = getIRRight();
   ourOffset = wallRightDist - wallLeftDist;
+  
+  mazeMap[x][y] = FFval;
+  FFval--;
+  y++;
 }
 
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Main Loop Function
+//Search Term: LOOPME
 void loop(){
-    rightForward(45);
-    leftForward(35);
+  rightForward(45);
+  leftForward(35);
     
-     while(encTickL < cellDistance-275){
-        jankyPID();
-     }
+  while(encTickL < cellDistance-275){
+    jankyPID();
+  }
      
-     rightBackward(85);
-     leftBackward(90);
-     while(encTickL < cellDistance){}
-     rightBackward(0);
-     leftBackward(0);
-     delay(1000);
-     encTickL = 0;
-     encTickR = 0;
+  rightBackward(85);
+  leftBackward(90);
+  while(encTickL < cellDistance){}
+  
+  checkSensors();
+  floodFill();
+  turn(nextTurn);
+
+  encTickL = 0;
+  encTickR = 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -525,14 +532,34 @@ void checkSensors() {
 }
 
 void turnLeft(){
-
+  rightForward(100);
+  leftBackward(100);
+  while(encTickL < ticksForTurn-275){}
+     
+  rightBackward(90);
+  leftForward(90);
+  while(encTickL < ticksForTurn){}
+  
+  orientation--;
+  encTickL = 0;
+  encTickR = 0;
 }
 
 void turnRight(){
-
+  rightBackward(100);
+  leftForward(100);
+  while(encTickL < ticksForTurn-275){}
+     
+  rightForward(90);
+  leftBackward(90);
+  while(encTickL < ticksForTurn){}
+  
+  orientation++;
+  encTickL = 0;
+  encTickR = 0;
 }
 
-void arrayValue(){
+void floodFill(){
 
   if(FFval < mazeMap[x][y]) FFval = mazeMap[x][y];
   
