@@ -579,36 +579,50 @@ void floodFill(){
       if(wallRight){ //wall left + wall right
         if(wallFront){ //wall left + wall right + wall front         
           nextTurn = UTURN;
+          mazeMap[x][y] = FFval;
+          FFval--;
           y--;  
         }
         else{ //wall left + wall right + no wall front.
           nextTurn = STRAIGHT;
+          mazeMap[x][y] = FFval;
+          FFval--;
           y++;
         }
       }
       else{ //wall to the left + no wall to the right        
         if(wallFront){ //wall left + wall front + no wall to the right.
           nextTurn = RIGHT;
+          mazeMap[x][y] = FFval;
+          FFval--;
           x++;
         }
         else{ //left wall + no wall front + no wall right. 
           if(mazeMap[x][y+1] <= mazeMap[x+1][y]){ //The front LESS than the right
             if(mazeMap[x][y+1] <= mazeMap[x][y-1]){ //The front LESS than the right and front less than behind.
               nextTurn = STRAIGHT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               y++;           
             }
             else{ //the front less than the right and front is not less than behind.
               nextTurn = UTURN;
+              mazeMap[x][y] = FFval;
+              FFval--;
               y--;
             }
           }
           else{ //the front is not less than the right
             if(mazeMap[x+1][y] <= mazeMap[x][y-1]){ //the front is not less than the right and the right is less than behind.
               nextTurn = RIGHT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               x++;
             }
             else{ //the front is not less than the right and the righ is NOT less than behind.
               nextTurn = UTURN;
+              mazeMap[x][y] = FFval;
+              FFval--;
               y--;
             }
           }
@@ -619,26 +633,36 @@ void floodFill(){
       if(wallRight){ //wall right + no left wall
         if(wallFront){ //wall right + wall front + no left
           nextTurn = LEFT;
+          mazeMap[x][y] = FFval;
+          FFval--;
           x--;
         }
         else{ //right wall + no wall front + no wall left
           if(mazeMap[x][y+1] <= mazeMap[x-1][y]){ //front is less than left
             if(mazeMap[x][y+1] <= mazeMap[x][y-1]){ //front is less than left and front is less than behind.
               nextTurn = STRAIGHT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               y++;           
             }
             else{ //front is less than left and front is not less than behind.
               nextTurn = UTURN;
+              mazeMap[x][y] = FFval;
+              FFval--;
               y--;
             }
           }
           else{ //front is not less than the left
             if(mazeMap[x-1][y] <= mazeMap[x][y-1]){ //front is not less than the left and left is less than behind.
               nextTurn = LEFT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               x--;
             }
             else{ //front is not less than the left and left is not less than behind.
               nextTurn = UTURN;
+              mazeMap[x][y] = FFval;
+              FFval--;
               y--;
             }
           }
@@ -649,20 +673,28 @@ void floodFill(){
           if(mazeMap[x+1][y] <= mazeMap[x-1][y]){ //right is less than the left
             if(mazeMap[x+1][y] <= mazeMap[x][y-1]){ //right is less than the left and right is less than behind.
               nextTurn = RIGHT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               x++;
             }
             else{//the right is less than the left and the right is not less than behind.
               nextTurn = UTURN;
+              mazeMap[x][y] = FFval;
+              FFval--;
               y--;
             }
           }
           else{ //right is not less than the left
             if(mazeMap[x-1][y] <= mazeMap[x][y-1]){ //right is not less than the left and the left is less than behind.
               nextTurn = LEFT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               x--;
             }
             else{ //right is not less than the left and the left is not less than behind.
               nextTurn = UTURN;
+              mazeMap[x][y] = FFval;
+              FFval--;
               y--;
             }
           }
@@ -671,20 +703,28 @@ void floodFill(){
           if(mazeMap[x][y+1] <= mazeMap[x+1][y]){ //the front is less than the right
             if(mazeMap[x][y+1] <= mazeMap[x-1][y]){ //the front is less than the right and the front is less than the left.
               nextTurn = STRAIGHT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               y++;
             }
             else{ //the front is less than the right and the front is not less than the left.
               nextTurn = LEFT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               x--;
             }
           }
           else{ //the front is not less than right.
             if(mazeMap[x+1][y] <= mazeMap[x-1][y]){ //front is not less than right value and right is less than left.
               nextTurn = RIGHT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               x++;
             }
             else{ //the front is not less than right and the right is not less than left.
               nextTurn = LEFT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               x--;
             }
           }
@@ -707,36 +747,50 @@ void floodFill(){
       if(wallRight){ //wall left + wall right
         if(wallFront){ //wall left + wall right + wall front         
           nextTurn = UTURN;
+          mazeMap[x][y] = FFval;
+          FFval--;
           x--;  
         }
         else{ //wall left + wall right + no wall front.
           nextTurn = STRAIGHT;
+          mazeMap[x][y] = FFval;
+          FFval--;
           x++;
         }
       }
       else{ //wall to the left + no wall to the right        
         if(wallFront){ //wall left + wall front + no wall to the right.
           nextTurn = RIGHT;
+          mazeMap[x][y] = FFval;
+          FFval--;
           y--;
         }
         else{ //left wall + no wall front + no wall right. 
           if(mazeMap[x+1][y] <= mazeMap[x][y-1]){ //The front LESS than the right
             if(mazeMap[x+1][y] <= mazeMap[x-1][y]){ //The front LESS than the right and front less than behind.
               nextTurn = STRAIGHT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               x++;           
             }
             else{ //the front less than the right and front is not less than behind.
               nextTurn = UTURN;
+              mazeMap[x][y] = FFval;
+              FFval--;
               x--;
             }
           }
           else{ //the front is not less than the right
             if(mazeMap[x][y-1] <= mazeMap[x-1][y]){ //the front is not less than the right and the right is less than behind.
               nextTurn = RIGHT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               y--;
             }
             else{ //the front is not less than the right and the righ is NOT less than behind.
               nextTurn = UTURN;
+              mazeMap[x][y] = FFval;
+              FFval--;
               x--;
             }
           }
@@ -747,26 +801,36 @@ void floodFill(){
       if(wallRight){ //wall right + no left wall
         if(wallFront){ //wall right + wall front + no left
           nextTurn = LEFT;
+          mazeMap[x][y] = FFval;
+          FFval--;
           y++;
         }
         else{ //right wall + no wall front + no wall left
           if(mazeMap[x+1][y] <= mazeMap[x][y+1]){ //front is less than left
             if(mazeMap[x+1][y] <= mazeMap[x-1][y]){ //front is less than left and front is less than behind.
               nextTurn = STRAIGHT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               x++;           
             }
             else{ //front is less than left and front is not less than behind.
               nextTurn = UTURN;
+              mazeMap[x][y] = FFval;
+              FFval--;
               x--;
             }
           }
           else{ //front is not less than the left
             if(mazeMap[x][y+1] <= mazeMap[x-1][y]){ //front is not less than the left and left is less than behind.
               nextTurn = LEFT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               y++;
             }
             else{ //front is not less than the left and left is not less than behind.
               nextTurn = UTURN;
+              mazeMap[x][y] = FFval;
+              FFval--;
               x--;
             }
           }
@@ -777,20 +841,28 @@ void floodFill(){
           if(mazeMap[x][y-1] <= mazeMap[x][y+1]){ //right is less than the left
             if(mazeMap[x][y-1] <= mazeMap[x-1][y]){ //right is less than the left and right is less than behind.
               nextTurn = RIGHT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               y--;
             }
             else{//the right is less than the left and the right is not less than behind.
               nextTurn = UTURN;
+              mazeMap[x][y] = FFval;
+              FFval--;
               x--;
             }
           }
           else{ //right is not less than the left
             if(mazeMap[x][y+1] <= mazeMap[x-1][y]){ //right is not less than the left and the left is less than behind.
               nextTurn = LEFT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               y++;
             }
             else{ //right is not less than the left and the left is not less than behind.
               nextTurn = UTURN;
+              mazeMap[x][y] = FFval;
+              FFval--;
               x--;
             }
           }
@@ -799,20 +871,28 @@ void floodFill(){
           if(mazeMap[x+1][y] <= mazeMap[x][y-1]){ //the front is less than the right
             if(mazeMap[x+1][y] <= mazeMap[x][y+1]){ //the front is less than the right and the front is less than the left.
               nextTurn = STRAIGHT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               x++;
             }
             else{ //the front is less than the right and the front is not less than the left.
               nextTurn = LEFT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               y++;
             }
           }
           else{ //the front is not less than right.
             if(mazeMap[x][y-1] <= mazeMap[x][y+1]){ //front is not less than right value and right is less than left.
               nextTurn = RIGHT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               y--;
             }
             else{ //the front is not less than right and the right is not less than left.
               nextTurn = LEFT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               y++;
             }
           }
@@ -835,36 +915,50 @@ void floodFill(){
       if(wallRight){ //wall left + wall right
         if(wallFront){ //wall left + wall right + wall front         
           nextTurn = UTURN;
+          mazeMap[x][y] = FFval;
+          FFval--;
           y++;  
         }
         else{ //wall left + wall right + no wall front.
           nextTurn = STRAIGHT;
+          mazeMap[x][y] = FFval;
+          FFval--;
           y--;
         }
       }
       else{ //wall to the left + no wall to the right        
         if(wallFront){ //wall left + wall front + no wall to the right.
           nextTurn = RIGHT;
+          mazeMap[x][y] = FFval;
+          FFval--;
           x--;
         }
         else{ //left wall + no wall front + no wall right. 
           if(mazeMap[x][y-1] <= mazeMap[x-1][y]){ //The front LESS than the right
             if(mazeMap[x][y-1] <= mazeMap[x][y+1]){ //The front LESS than the right and front less than behind.
               nextTurn = STRAIGHT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               y--;           
             }
             else{ //the front less than the right and front is not less than behind.
               nextTurn = UTURN;
+              mazeMap[x][y] = FFval;
+              FFval--;
               y++;
             }
           }
           else{ //the front is not less than the right
             if(mazeMap[x-1][y] <= mazeMap[x][y+1]){ //the front is not less than the right and the right is less than behind.
               nextTurn = RIGHT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               x--;
             }
             else{ //the front is not less than the right and the righ is NOT less than behind.
               nextTurn = UTURN;
+              mazeMap[x][y] = FFval;
+              FFval--;
               y++;
             }
           }
@@ -875,26 +969,36 @@ void floodFill(){
       if(wallRight){ //wall right + no left wall
         if(wallFront){ //wall right + wall front + no left
           nextTurn = LEFT;
+          mazeMap[x][y] = FFval;
+          FFval--;
           x++;
         }
         else{ //right wall + no wall front + no wall left
           if(mazeMap[x][y-1] <= mazeMap[x+1][y]){ //front is less than left
             if(mazeMap[x][y-1] <= mazeMap[x][y+1]){ //front is less than left and front is less than behind.
               nextTurn = STRAIGHT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               y--;           
             }
             else{ //front is less than left and front is not less than behind.
               nextTurn = UTURN;
+              mazeMap[x][y] = FFval;
+              FFval--;
               y++;
             }
           }
           else{ //front is not less than the left
             if(mazeMap[x+1][y] <= mazeMap[x][y+1]){ //front is not less than the left and left is less than behind.
               nextTurn = LEFT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               x++;
             }
             else{ //front is not less than the left and left is not less than behind.
               nextTurn = UTURN;
+              mazeMap[x][y] = FFval;
+              FFval--;
               y++;
             }
           }
@@ -905,20 +1009,28 @@ void floodFill(){
           if(mazeMap[x-1][y] <= mazeMap[x+1][y]){ //right is less than the left
             if(mazeMap[x-1][y] <= mazeMap[x][y+1]){ //right is less than the left and right is less than behind.
               nextTurn = RIGHT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               x--;
             }
             else{//the right is less than the left and the right is not less than behind.
               nextTurn = UTURN;
+              mazeMap[x][y] = FFval;
+              FFval--;
               y++;
             }
           }
           else{ //right is not less than the left
             if(mazeMap[x+1][y] <= mazeMap[x][y+1]){ //right is not less than the left and the left is less than behind.
               nextTurn = LEFT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               x++;
             }
             else{ //right is not less than the left and the left is not less than behind.
               nextTurn = UTURN;
+              mazeMap[x][y] = FFval;
+              FFval--;
               y++;
             }
           }
@@ -927,20 +1039,28 @@ void floodFill(){
           if(mazeMap[x][y-1] <= mazeMap[x-1][y]){ //the front is less than the right
             if(mazeMap[x][y-1] <= mazeMap[x+1][y]){ //the front is less than the right and the front is less than the left.
               nextTurn = STRAIGHT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               y--;
             }
             else{ //the front is less than the right and the front is not less than the left.
               nextTurn = LEFT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               x++;
             }
           }
           else{ //the front is not less than right.
             if(mazeMap[x-1][y] <= mazeMap[x+1][y]){ //front is not less than right value and right is less than left.
               nextTurn = RIGHT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               x--;
             }
             else{ //the front is not less than right and the right is not less than left.
               nextTurn = LEFT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               x++;
             }
           }
@@ -963,36 +1083,50 @@ void floodFill(){
       if(wallRight){ //wall left + wall right
         if(wallFront){ //wall left + wall right + wall front         
           nextTurn = UTURN;
+          mazeMap[x][y] = FFval;
+          FFval--;
           x++;  
         }
         else{ //wall left + wall right + no wall front.
           nextTurn = STRAIGHT;
+          mazeMap[x][y] = FFval;
+          FFval--;
           x--;
         }
       }
       else{ //wall to the left + no wall to the right        
         if(wallFront){ //wall left + wall front + no wall to the right.
           nextTurn = RIGHT;
+          mazeMap[x][y] = FFval;
+          FFval--;
           y++;
         }
         else{ //left wall + no wall front + no wall right. 
           if(mazeMap[x-1][y] <= mazeMap[x][y+1]){ //The front LESS than the right
             if(mazeMap[x-1][y] <= mazeMap[x+1][y]){ //The front LESS than the right and front less than behind.
               nextTurn = STRAIGHT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               x--;           
             }
             else{ //the front less than the right and front is not less than behind.
               nextTurn = UTURN;
+              mazeMap[x][y] = FFval;
+              FFval--;
               x++;
             }
           }
           else{ //the front is not less than the right
             if(mazeMap[x][y+1] <= mazeMap[x+1][y]){ //the front is not less than the right and the right is less than behind.
               nextTurn = RIGHT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               y++;
             }
             else{ //the front is not less than the right and the righ is NOT less than behind.
               nextTurn = UTURN;
+              mazeMap[x][y] = FFval;
+              FFval--;
               x++;
             }
           }
@@ -1003,26 +1137,36 @@ void floodFill(){
       if(wallRight){ //wall right + no left wall
         if(wallFront){ //wall right + wall front + no left
           nextTurn = LEFT;
+          mazeMap[x][y] = FFval;
+          FFval--;
           y--;
         }
         else{ //right wall + no wall front + no wall left
           if(mazeMap[x-1][y] <= mazeMap[x][y-1]){ //front is less than left
             if(mazeMap[x-1][y] <= mazeMap[x+1][y]){ //front is less than left and front is less than behind.
               nextTurn = STRAIGHT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               x--;           
             }
             else{ //front is less than left and front is not less than behind.
               nextTurn = UTURN;
+              mazeMap[x][y] = FFval;
+              FFval--;
               x++;
             }
           }
           else{ //front is not less than the left
             if(mazeMap[x][y-1] <= mazeMap[x+1][y]){ //front is not less than the left and left is less than behind.
               nextTurn = LEFT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               y--;
             }
             else{ //front is not less than the left and left is not less than behind.
               nextTurn = UTURN;
+              mazeMap[x][y] = FFval;
+              FFval--;
               x++;
             }
           }
@@ -1033,20 +1177,28 @@ void floodFill(){
           if(mazeMap[x][y+1] <= mazeMap[x][y-1]){ //right is less than the left
             if(mazeMap[x][y+1] <= mazeMap[x+1][y]){ //right is less than the left and right is less than behind.
               nextTurn = RIGHT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               y++;
             }
             else{//the right is less than the left and the right is not less than behind.
               nextTurn = UTURN;
+              mazeMap[x][y] = FFval;
+              FFval--;
               x++;
             }
           }
           else{ //right is not less than the left
             if(mazeMap[x][y-1] <= mazeMap[x+1][y]){ //right is not less than the left and the left is less than behind.
               nextTurn = LEFT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               y--;
             }
             else{ //right is not less than the left and the left is not less than behind.
               nextTurn = UTURN;
+              mazeMap[x][y] = FFval;
+              FFval--;
               x++;
             }
           }
@@ -1055,20 +1207,28 @@ void floodFill(){
           if(mazeMap[x-1][y] <= mazeMap[x][y+1]){ //the front is less than the right
             if(mazeMap[x-1][y] <= mazeMap[x][y-1]){ //the front is less than the right and the front is less than the left.
               nextTurn = STRAIGHT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               x--;
             }
             else{ //the front is less than the right and the front is not less than the left.
               nextTurn = LEFT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               y--;
             }
           }
           else{ //the front is not less than right.
             if(mazeMap[x][y+1] <= mazeMap[x][y-1]){ //front is not less than right value and right is less than left.
               nextTurn = RIGHT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               y++;
             }
             else{ //the front is not less than right and the right is not less than left.
               nextTurn = LEFT;
+              mazeMap[x][y] = FFval;
+              FFval--;
               y--;
             }
           }
