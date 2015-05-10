@@ -95,7 +95,8 @@ bool wallRight = false;
 const int distancePerMove = 30;
 int mapSpeed = 128;
 int solveSpeed = 255; 
-int ticksForTurn = 748;
+int ticksForTurn = 975;
+int uTicks = 1625;
 double curAccel;
 double curVelX;
 
@@ -299,23 +300,32 @@ void setup(){
 //Main Loop Function
 //Search Term: LOOPME
 void loop(){
-  rightForward(45);
-  leftForward(35);
+  rightForward(43);
+  leftForward(37);
     
-  while(encTickL < cellDistance-275){
+  while(encTickL < cellDistance-280){
     jankyPID();
   }
      
-  rightBackward(85);
+  rightBackward(80);
   leftBackward(90);
   while(encTickL < cellDistance){}
   
+  rightBackward(0);
+  leftBackward(0);
   checkSensors();
-  floodFill();
-  turn(nextTurn);
-
+  
+  while (wallRightFront){
+       rightBackward(40);
+       leftBackward(40);
+       checkSensors();
+  } 
+  
   encTickL = 0;
   encTickR = 0;
+  floodFill();
+  //nextTurn = RIGHT;
+  turn(nextTurn);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -344,12 +354,12 @@ void jankyPID(){
       rightForward(40); 
    }
    else if (myError > 0){
-       leftForward(30);
-       rightForward(50);
+       leftForward(35);
+       rightForward(55);
    }
    else{
-      leftForward(35);
-      rightForward(45); 
+      leftForward(37);
+      rightForward(43); 
    }
    
 }
@@ -374,7 +384,7 @@ double getIRLeft(){
   delayMicroseconds(80);
   recRead = analogRead(leftRecIR);
   digitalWrite(leftEmitIR, LOW);
-  if (recRead > 200){
+  if (recRead > 100){
     digitalWrite(leftLED, HIGH);
     wallLeft = true;
   }
@@ -428,7 +438,7 @@ double getIRRightFront(){
   delayMicroseconds(80);
   recRead = analogRead(rightFrontRecIR);
   digitalWrite(rightFrontEmitIR, LOW);
-  if (recRead > 800){
+  if (recRead > 665){
     digitalWrite(rightFrontLED, HIGH);
     wallRightFront = true;
   }
@@ -520,7 +530,7 @@ void turn(byte thisDirection){
      case RIGHT:
        turnRight(); break;
      case UTURN:
-       turnRight(); turnRight(); break;
+       uTurn(); break;
      default: break;    
   }
 }
@@ -528,13 +538,15 @@ void turn(byte thisDirection){
 void checkSensors() {
   getIRLeft();
   getIRLeftFront();
+  getIRRightFront();
   getIRRight(); 
+  wallFront = wallLeftFront;
 }
 
 void turnLeft(){
   rightForward(100);
   leftBackward(100);
-  while(encTickL < ticksForTurn-275){}
+  while(encTickL < ticksForTurn-150){}
      
   rightBackward(90);
   leftForward(90);
@@ -548,7 +560,7 @@ void turnLeft(){
 void turnRight(){
   rightBackward(100);
   leftForward(100);
-  while(encTickL < ticksForTurn-275){}
+  while(encTickL < ticksForTurn-100){}
      
   rightForward(90);
   leftBackward(90);
@@ -557,6 +569,20 @@ void turnRight(){
   orientation++;
   encTickL = 0;
   encTickR = 0;
+}
+
+void uTurn(){
+ 
+  rightBackward(105);
+  leftForward(100);
+  while(encTickL < (uTicks - 400)){}
+  rightForward(100);
+  leftBackward(100);
+  while(encTickL < uTicks){}
+  
+  encTickL = 0;
+  encTickR = 0;
+ orientation += 2; 
 }
 
 void floodFill(){
