@@ -326,6 +326,24 @@ void loop(){
   floodFill();
   //nextTurn = RIGHT;
   turn(nextTurn);
+  
+//  if ( mazeMap[8][8] || maze[8][9] || maze[9][8] || maze[9][9] )
+      solveMe();
+}
+
+void solveMe() {
+  //Starting at center
+    //determine floodfill
+    
+    //make new array
+    //based off mazeMap center location
+    //count back up through mazeMap
+      //counting up my one from 0 in new array
+    //until 255
+    
+    //set all but solve path to 255
+    
+    
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -589,6 +607,7 @@ void floodFill(){
 
   if(FFval < mazeMap[x][y]) FFval = mazeMap[x][y];
   
+  //NORTH
   switch(orientation % 4){
     case NORTH :
     if(!wallFront){
@@ -600,7 +619,9 @@ void floodFill(){
     if(!wallLeft){
       if(FFval < mazeMap[x-1][y]) FFval = mazeMap[x-1][y] - 1; // ********** 3
     }
+    //FF is now right value of what it ought to be
     
+    //TURN CASES
     if(wallLeft){ //wall left 
       if(wallRight){ //wall left + wall right
         if(wallFront){ //wall left + wall right + wall front         
