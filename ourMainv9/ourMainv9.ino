@@ -1,6 +1,3 @@
-//#include <Encoder.h>
-#include <StackArray.h>
-
 //TABLE OF CONTENTS (SEARCH FOR THESE TERMS)
 //////////////////////////////
 //Defintions -> DEFINEME

@@ -96,7 +96,7 @@ const int distancePerMove = 30;
 int mapSpeed = 128;
 int solveSpeed = 255; 
 int ticksForTurn = 975;
-int uTicks = 1625;
+//int uTicks = 1625;
 double curAccel;
 double curVelX;
 
@@ -303,23 +303,33 @@ void loop(){
   rightForward(43);
   leftForward(37);
     
-  while(encTickL < cellDistance-280){
+  while(encTickL < cellDistance-335){
     jankyPID();
   }
      
   rightBackward(80);
-  leftBackward(90);
+  leftBackward(86);
   while(encTickL < cellDistance){}
   
   rightBackward(0);
   leftBackward(0);
   checkSensors();
   
+  if(wallFront){
+    while(!wallRightFront){
+      rightForward(43);
+      leftForward(37);
+      getIRRightFront();
+    }
+  }
+  
   while (wallRightFront){
        rightBackward(40);
        leftBackward(40);
-       checkSensors();
+       getIRRightFront();
   } 
+  rightBackward(0);
+  leftBackward(0);
   
   encTickL = 0;
   encTickR = 0;
@@ -328,7 +338,7 @@ void loop(){
   turn(nextTurn);
   
 //  if ( mazeMap[8][8] || maze[8][9] || maze[9][8] || maze[9][9] )
-      solveMe();
+   //   solveMe();
 }
 
 void solveMe() {
@@ -368,12 +378,12 @@ void jankyPID(){
    }
    
    if (myError < 0){
-      leftForward(40);
-      rightForward(40); 
+      leftForward(75);
+      rightForward(30); 
    }
    else if (myError > 0){
-       leftForward(35);
-       rightForward(55);
+       leftForward(30);
+       rightForward(75);
    }
    else{
       leftForward(37);
@@ -402,7 +412,7 @@ double getIRLeft(){
   delayMicroseconds(80);
   recRead = analogRead(leftRecIR);
   digitalWrite(leftEmitIR, LOW);
-  if (recRead > 100){
+  if (recRead > 75){
     digitalWrite(leftLED, HIGH);
     wallLeft = true;
   }
@@ -456,7 +466,7 @@ double getIRRightFront(){
   delayMicroseconds(80);
   recRead = analogRead(rightFrontRecIR);
   digitalWrite(rightFrontEmitIR, LOW);
-  if (recRead > 665){
+  if (recRead > 400){
     digitalWrite(rightFrontLED, HIGH);
     wallRightFront = true;
   }
@@ -492,7 +502,7 @@ double getIRRight(){
   delayMicroseconds(80);
   recRead = analogRead(rightRecIR);
   digitalWrite(rightEmitIR, LOW);
-  if (recRead > 100){
+  if (recRead > 75){
     digitalWrite(rightLED, HIGH);
     wallRight = true;
   }
@@ -564,7 +574,7 @@ void checkSensors() {
 void turnLeft(){
   rightForward(100);
   leftBackward(100);
-  while(encTickL < ticksForTurn-150){}
+  while(encTickL < ticksForTurn-100){}
      
   rightBackward(90);
   leftForward(90);
@@ -590,11 +600,11 @@ void turnRight(){
 }
 
 void uTurn(){
- 
-  rightBackward(105);
+  int uTicks = 1625;
+  rightBackward(110);
   leftForward(100);
-  while(encTickL < (uTicks - 400)){}
-  rightForward(100);
+  while(encTickL < (uTicks - 275)){}
+  rightForward(110);
   leftBackward(100);
   while(encTickL < uTicks){}
   
