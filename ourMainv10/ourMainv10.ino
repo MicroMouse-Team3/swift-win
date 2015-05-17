@@ -490,9 +490,13 @@ void loop(){
         printSolveMap();
         
 <<<<<<< HEAD
+<<<<<<< HEAD
         currPos = mazeMap[x][y]; 
         Serial.print("FFval = ");
         Serial.println(FFval);
+=======
+        currPos = mazeMap[x][y] = FFval; 
+>>>>>>> origin/master
 =======
         currPos = mazeMap[x][y] = FFval; 
 >>>>>>> origin/master
