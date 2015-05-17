@@ -463,7 +463,7 @@ void setup(){
   leftEnc.write(0);
   rightEnc.write(0);
   
-  x = y = 7;
+  x = y = 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -471,7 +471,7 @@ void setup(){
 //Search Term: LOOPME
 void loop(){
   
-  
+  floodFill();
 //murhur();
 
 //delay(5000);
@@ -496,6 +496,7 @@ void loop(){
         //Check all the directions
         
             //Check all the directions
+            /*
         if ( currPos == down )
             solveMap[++x][y] = solveDist;            
         else if ( currPos == right )
@@ -504,6 +505,7 @@ void loop(){
             solveMap[--x][y] = solveDist;            
         else if ( currPos == left)
             solveMap[x][--y] = solveDist;
+            */
         solveDist++; 
         delay(500);
     }
