@@ -474,13 +474,13 @@ void loop(){
 //murhur();
 
 //delay(5000);
-printDasMap();
+//printDasMap();
 //delay(5000);
  
     Serial.println("SOLVING...");
     printSolveMap();
     while ( flood[x][y] < 255 ){     
-    printDasMap();
+    //printDasMap();
         mapX = 2 * x + 1;
         mapY = 2 * y + 1;
         updateSolveMap();            
@@ -515,7 +515,7 @@ printDasMap();
     delay(3000);
     Serial.end();
   
-  murhur();
+  //murhur();
     
 }
 
@@ -1747,8 +1747,9 @@ void murhur() {
 //move forward (first move always up)
 
 //check walls (via "sensors" --> exMap)
-    updateSolveMap();
+
     // set fake "isWall" booleans
 //call floodfill
-floodFill();
+//floodFill();
+  //  updateSolveMap();
 }
