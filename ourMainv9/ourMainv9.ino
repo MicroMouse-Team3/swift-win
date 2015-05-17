@@ -1,3 +1,5 @@
+#include <Encoder.h>
+
 //TABLE OF CONTENTS (SEARCH FOR THESE TERMS)
 //////////////////////////////
 //Defintions -> DEFINEME
@@ -209,9 +211,7 @@ byte wallMap[33][33] =  {
                           {'1','0','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1','2','1'},
                           {'1','0','1','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','2','0','1'},
                           {'1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1'} };
-                   
-//Stack s = new Stack(MAXSIZE);
-StackArray <char> stack;                    
+                                      
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Setup Function
@@ -259,8 +259,11 @@ void setup(){
   
   
    //attach interrupts
-  attachInterrupt( L_CH_A , incEncoderL , RISING );
-  attachInterrupt( R_CH_A , incEncoderR , RISING );
+  //attachInterrupt( L_CH_A , incEncoderL , RISING );
+  //attachInterrupt( R_CH_A , incEncoderR , RISING );
+  Encoder leftEnc(L_CH_A, L_CH_B);
+  Encoder rightEnc(R_CH_A, R_CH_B);
+  
   
   //Set Enables High
   digitalWrite(L_Enable, HIGH);
