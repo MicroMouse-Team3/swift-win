@@ -462,24 +462,25 @@ void setup(){
   
   leftEnc.write(0);
   rightEnc.write(0);
-  
-  x = y = 0;
+  x = 15;
+  y = 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Loop Functions
 //Search Term: LOOPME
 void loop(){
-  
-  floodFill();
+
+  solveMap[x][y] = FFval;
   updateSolveMap();
+  floodFill();
 //murhur();
 
 //delay(5000);
 //printDasMap();
 //delay(5000);
  
-    Serial.println("SOLVING...");
+    //Serial.println("SOLVING...");
     printSolveMap();
   //  while ( flood[x][y] < 255 ){     
     //printDasMap();
@@ -488,7 +489,13 @@ void loop(){
         updateSolveMap();            
         printSolveMap();
         
+<<<<<<< HEAD
         currPos = mazeMap[x][y]; 
+        Serial.print("FFval = ");
+        Serial.println(FFval);
+=======
+        currPos = mazeMap[x][y] = FFval; 
+>>>>>>> origin/master
         Serial.print("Down: "); Serial.println(down = mazeMap[x+1][y] - 1);   
         Serial.print("Right: "); Serial.println(right = mazeMap[x][y+1] - 1);
         Serial.print("Up: "); Serial.println(up = mazeMap[x-1][y] - 1);
