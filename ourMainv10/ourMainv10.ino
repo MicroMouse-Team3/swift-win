@@ -472,6 +472,7 @@ void setup(){
 void loop(){
   
   floodFill();
+  updateSolveMap();
 //murhur();
 
 //delay(5000);
@@ -480,18 +481,18 @@ void loop(){
  
     Serial.println("SOLVING...");
     printSolveMap();
-    while ( flood[x][y] < 255 ){     
+  //  while ( flood[x][y] < 255 ){     
     //printDasMap();
         mapX = 2 * x + 1;
         mapY = 2 * y + 1;
         updateSolveMap();            
         printSolveMap();
         
-        currPos = flood[x][y]; 
-        Serial.print("Down: "); Serial.println(down = flood[x+1][y] - 1);   
-        Serial.print("Right: "); Serial.println(right = flood[x][y+1] - 1);
-        Serial.print("Up: "); Serial.println(up = flood[x-1][y] - 1);
-        Serial.print("Left: "); Serial.println(left = flood[x][y-1] - 1);
+        currPos = mazeMap[x][y]; 
+        Serial.print("Down: "); Serial.println(down = mazeMap[x+1][y] - 1);   
+        Serial.print("Right: "); Serial.println(right = mazeMap[x][y+1] - 1);
+        Serial.print("Up: "); Serial.println(up = mazeMap[x-1][y] - 1);
+        Serial.print("Left: "); Serial.println(left = mazeMap[x][y-1] - 1);
         
         //Check all the directions
         
@@ -508,8 +509,8 @@ void loop(){
             */
         solveDist++; 
         delay(500);
-    }
-    Serial.print("\n\nDONE SOLVING~!\n\n");
+    //}
+    //Serial.print("\n\nDONE SOLVING~!\n\n");
     //We are to assume we are back at start location
     mapX = 2 * x + 1;
     mapY = 2 * y + 1;    
