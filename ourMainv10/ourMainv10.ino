@@ -488,7 +488,7 @@ void loop(){
         updateSolveMap();            
         printSolveMap();
         
-        currPos = mazeMap[x][y]; 
+        currPos = mazeMap[x][y] = FFval; 
         Serial.print("Down: "); Serial.println(down = mazeMap[x+1][y] - 1);   
         Serial.print("Right: "); Serial.println(right = mazeMap[x][y+1] - 1);
         Serial.print("Up: "); Serial.println(up = mazeMap[x-1][y] - 1);
