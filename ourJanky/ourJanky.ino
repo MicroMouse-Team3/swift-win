@@ -288,7 +288,8 @@ void setup(){
   lastTime = micros();
   wallLeftDist = getIRLeft();
   wallRightDist = getIRRight();
-  ourOffset = wallRightDist - wallLeftDist;
+  //ourOffset = wallRightDist - wallLeftDist;
+  ourOffset = 0;
   
   mazeMap[x][y] = FFval;
   FFval--;
@@ -302,7 +303,7 @@ void setup(){
 void loop(){
   rightForward(43);
   leftForward(37);
-    
+  
   while(encTickL < cellDistance-335){
     jankyPID();
   }
@@ -316,10 +317,9 @@ void loop(){
   checkSensors();
   
   if(wallFront){
-    while(!wallRightFront){
+    while(getIRRightFront() < 425){
       rightForward(43);
       leftForward(37);
-      getIRRightFront();
     }
   }
   
@@ -331,6 +331,7 @@ void loop(){
   rightBackward(0);
   leftBackward(0);
   
+  checkSensors();
   encTickL = 0;
   encTickR = 0;
   floodFill();
@@ -378,12 +379,12 @@ void jankyPID(){
    }
    
    if (myError < 0){
-      leftForward(75);
-      rightForward(30); 
+      leftForward(55);
+      rightForward(25); 
    }
    else if (myError > 0){
-       leftForward(30);
-       rightForward(75);
+       leftForward(25);
+       rightForward(55);
    }
    else{
       leftForward(37);
@@ -572,13 +573,13 @@ void checkSensors() {
 }
 
 void turnLeft(){
-  rightForward(100);
+  rightForward(110);
   leftBackward(100);
-  while(encTickL < ticksForTurn-100){}
+  while(encTickR < ticksForTurn-125){}
      
   rightBackward(90);
   leftForward(90);
-  while(encTickL < ticksForTurn){}
+  while(encTickR < ticksForTurn){}
   
   orientation--;
   encTickL = 0;
@@ -1297,6 +1298,9 @@ void floodFill(){
     break;
   } 
 }
+
+
+
 
 
 
