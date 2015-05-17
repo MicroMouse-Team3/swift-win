@@ -462,7 +462,7 @@ void setup(){
   
   leftEnc.write(0);
   rightEnc.write(0);
-  x = 15;
+  x = 0;
   y = 0;
 }
 
@@ -474,6 +474,7 @@ void loop(){
   solveMap[x][y] = FFval;
   updateSolveMap();
   floodFill();
+  turn(nextTurn);
 //murhur();
 
 //delay(5000);
@@ -489,17 +490,9 @@ void loop(){
         updateSolveMap();            
         printSolveMap();
         
-<<<<<<< HEAD
-<<<<<<< HEAD
         currPos = mazeMap[x][y]; 
         Serial.print("FFval = ");
         Serial.println(FFval);
-=======
-        currPos = mazeMap[x][y] = FFval; 
->>>>>>> origin/master
-=======
-        currPos = mazeMap[x][y] = FFval; 
->>>>>>> origin/master
         Serial.print("Down: "); Serial.println(down = mazeMap[x+1][y] - 1);   
         Serial.print("Right: "); Serial.println(right = mazeMap[x][y+1] - 1);
         Serial.print("Up: "); Serial.println(up = mazeMap[x-1][y] - 1);
@@ -848,13 +841,16 @@ void rightBackward(byte speedIn){
 void turn(byte thisDirection){
   switch (thisDirection){
      case LEFT:
-       turnLeft(); break;
+       //turnLeft(); break;
+       orientation--; break;
      case STRAIGHT:
        break;
      case RIGHT:
-       turnRight(); break;
+       //turnRight(); break;
+       orientation++; break;
      case UTURN:
-       turnRight(); turnRight(); break;
+       orientation += 2; break;
+       //turnRight(); turnRight(); break;
      default: break;    
   }
 }
@@ -1730,18 +1726,90 @@ void printSolveMap(){
 
  void updateSolveMap() {
       //Check all the walls
+    if(orientation % 4 == 0){ ///North
       solveWallMap[mapX+1][mapY] = wallMap[mapX+1][mapY]; 
-      if(solveWallMap[mapX+1][mapY] == 2)
-          wallFront = true;           
+      if(solveWallMap[mapX][mapY+1] == 2)
+          wallFront = true;
+      else
+          wallFront = false;      
+          
       solveWallMap[mapX][mapY+1] = wallMap[mapX][mapY+1];            
       if(solveWallMap[mapX][mapY+1] == 3)
           wallRight = true;
-      solveWallMap[mapX-1][mapY] = wallMap[mapX-1][mapY];            
+      else
+          wallRight = false;
+     // solveWallMap[mapX-1][mapY] = wallMap[mapX-1][mapY];            
 //      if(solveWallMap[mapX-1][mapY+1] == 2)
   //        wall
       solveWallMap[mapX][mapY-1] = wallMap[mapX][mapY-1];            
       if(solveWallMap[mapX][mapY-1] == 3)
           wallLeft = true;   
+      else
+          wallLeft = false;
+    }
+    else if(orientation == 1){
+      solveWallMap[mapX+1][mapY] = wallMap[mapX+1][mapY]; 
+      if(solveWallMap[mapX][mapY+1] == 2)
+          wallFront = true;
+      else
+          wallFront = false;      
+          
+      solveWallMap[mapX][mapY+1] = wallMap[mapX][mapY+1];            
+      if(solveWallMap[mapX][mapY+1] == 3)
+          wallRight = true;
+      else
+          wallRight = false;
+     // solveWallMap[mapX-1][mapY] = wallMap[mapX-1][mapY];            
+//      if(solveWallMap[mapX-1][mapY+1] == 2)
+  //        wall
+      solveWallMap[mapX][mapY-1] = wallMap[mapX][mapY-1];            
+      if(solveWallMap[mapX][mapY-1] == 3)
+          wallLeft = true;   
+      else
+          wallLeft = false;
+    }
+    else if(orientation % 4 == 2){
+      solveWallMap[mapX+1][mapY] = wallMap[mapX+1][mapY]; 
+      if(solveWallMap[mapX][mapY+1] == 2)
+          wallFront = true;
+      else
+          wallFront = false;      
+          
+      solveWallMap[mapX][mapY+1] = wallMap[mapX][mapY+1];            
+      if(solveWallMap[mapX][mapY+1] == 3)
+          wallRight = true;
+      else
+          wallRight = false;
+     // solveWallMap[mapX-1][mapY] = wallMap[mapX-1][mapY];            
+//      if(solveWallMap[mapX-1][mapY+1] == 2)
+  //        wall
+      solveWallMap[mapX][mapY-1] = wallMap[mapX][mapY-1];            
+      if(solveWallMap[mapX][mapY-1] == 3)
+          wallLeft = true;   
+      else
+          wallLeft = false;
+    }
+    else if(orientation % 4 == 3){
+      solveWallMap[mapX+1][mapY] = wallMap[mapX+1][mapY]; 
+      if(solveWallMap[mapX][mapY+1] == 2)
+          wallFront = true;
+      else
+          wallFront = false;      
+          
+      solveWallMap[mapX][mapY+1] = wallMap[mapX][mapY+1];            
+      if(solveWallMap[mapX][mapY+1] == 3)
+          wallRight = true;
+      else
+          wallRight = false;
+     // solveWallMap[mapX-1][mapY] = wallMap[mapX-1][mapY];            
+//      if(solveWallMap[mapX-1][mapY+1] == 2)
+  //        wall
+      solveWallMap[mapX][mapY-1] = wallMap[mapX][mapY-1];            
+      if(solveWallMap[mapX][mapY-1] == 3)
+          wallLeft = true;   
+      else
+          wallLeft = false;
+    }
 } 
 
 void initializeMap() {
